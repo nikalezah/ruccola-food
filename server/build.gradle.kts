@@ -15,9 +15,24 @@ application {
 
 dependencies {
     implementation(projects.shared)
-    implementation(libs.logback)
-    implementation(libs.ktor.serverCore)
-    implementation(libs.ktor.serverNetty)
-    testImplementation(libs.ktor.serverTestHost)
-    testImplementation(libs.kotlin.testJunit)
+    implementation(libs.klogging)
+    implementation(libs.slf4j.klogging)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.resources)
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.contentNegotiation)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Database
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.r2dbc)
+    implementation(libs.exposed.dateTime)
+    implementation(libs.r2dbc.pool)
+    implementation(libs.r2dbc.postgresql)
+
+    testImplementation(libs.ktor.server.testHost)
+    testImplementation(libs.kotlin.test)
 }
