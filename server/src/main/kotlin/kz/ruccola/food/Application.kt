@@ -1,9 +1,10 @@
 package kz.ruccola.food
 
-import io.ktor.server.application.*
-import io.ktor.server.cio.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.Application
+import io.ktor.server.cio.EngineMain
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
@@ -17,5 +18,4 @@ fun Application.module() {
 
 @Suppress("unused") // used in application.conf
 fun Application.configureDatabase() {
-
 }
