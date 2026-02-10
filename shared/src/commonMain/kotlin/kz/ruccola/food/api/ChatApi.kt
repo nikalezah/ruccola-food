@@ -1,0 +1,160 @@
+package kz.ruccola.food.api
+
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get
+import io.ktor.client.plugins.resources.post
+import io.ktor.client.request.header
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
+import io.ktor.resources.Resource
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
+import kotlinx.serialization.Serializable
+
+const val MESSAGE_BODY_MAX_LENGTH = 500
+
+@Resource("chats")
+class Chats {
+    @Resource("my")
+    class My(
+        val parent: Chats = Chats(),
+    )
+
+    @Resource("{chatId}")
+    class ChatId(
+        val parent: Chats = Chats(),
+        val chatId: Int,
+    ) {
+        @Resource("messages")
+        class Messages(
+            val parent: ChatId,
+            val afterId: Int? = null,
+            val limit: Int? = null,
+        )
+
+        @Resource("read")
+        class Read(
+            val parent: ChatId,
+        )
+    }
+}
+
+class ChatApi(
+    private val client: HttpClient = httpClient,
+) {
+    suspend fun getChats(token: String): List<ChatListItemDto> =
+        client.get(Chats()) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.body()
+
+    suspend fun getChat(
+        token: String,
+        chatId: Int,
+    ): ChatDto =
+        client.get(Chats.ChatId(chatId = chatId)) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.body()
+
+    suspend fun getMyChat(token: String): ChatDto =
+        client.get(Chats.My()) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.body()
+
+    suspend fun getMessages(
+        token: String,
+        chatId: Int,
+        afterId: Int? = null,
+        limit: Int? = null,
+    ): List<MessageDto> =
+        client.get(
+            Chats.ChatId.Messages(parent = Chats.ChatId(chatId = chatId), afterId = afterId, limit = limit),
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.body()
+
+    suspend fun sendMessage(
+        token: String,
+        chatId: Int,
+        body: MessageSendDto,
+    ): MessageDto {
+        val response = client.post(Chats.ChatId.Messages(parent = Chats.ChatId(chatId = chatId))) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+        if (!response.status.isSuccess()) {
+            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
+                ?: "HTTP ${response.status.value}"
+            throw Exception(msg)
+        }
+        return response.body()
+    }
+
+    suspend fun markRead(
+        token: String,
+        chatId: Int,
+        body: MarkReadDto,
+    ) {
+        val response = client.post(Chats.ChatId.Read(parent = Chats.ChatId(chatId = chatId))) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+        if (!response.status.isSuccess()) {
+            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
+                ?: "HTTP ${response.status.value}"
+            throw Exception(msg)
+        }
+    }
+}
+
+@Serializable
+data class ChatListItemDto(
+    val id: Int,
+    val customerId: Int,
+    val customerFirstName: String,
+    val customerLastName: String,
+    val customerEmail: String,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class)
+    val lastMessageAt: LocalDateTime,
+    val lastMessageId: Int? = null,
+    val lastReadMessageId: Int? = null,
+)
+
+@Serializable
+data class ChatDto(
+    val id: Int,
+    val customerId: Int,
+    val customerFirstName: String,
+    val customerLastName: String,
+    val customerEmail: String,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class)
+    val lastMessageAt: LocalDateTime,
+    val lastMessageId: Int? = null,
+    val lastReadMessageId: Int? = null,
+)
+
+@Serializable
+data class MessageDto(
+    val id: Int,
+    val chatId: Int,
+    val senderUserId: Int,
+    val body: String,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class)
+    val createdAt: LocalDateTime,
+)
+
+@Serializable
+data class MessageSendDto(
+    val body: String,
+)
+
+@Serializable
+data class MarkReadDto(
+    val lastReadMessageId: Int,
+)
