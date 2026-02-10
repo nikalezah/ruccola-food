@@ -1,0 +1,79 @@
+name: ruccola-food
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: ruccola-food-server
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      DB_URL: "r2dbc:postgresql://postgres:5432/food"
+      DB_USER: "food"
+      DB_PASSWORD: "food"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: web/admin/Dockerfile
+    container_name: ruccola-food-admin-web
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+  customer-web:
+    build:
+      context: .
+      dockerfile: web/customer/Dockerfile
+    container_name: ruccola-food-customer-web
+    ports:
+      - "8082:80"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18
+    container_name: ruccola-food-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: food
+      POSTGRES_USER: food
+      POSTGRES_PASSWORD: food
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U food -d food"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  postgres_test:
+    image: postgres:18
+    container_name: ruccola-food-postgres-test
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: food
+      POSTGRES_USER: food
+      POSTGRES_PASSWORD: food
+    volumes:
+      - postgres_test_data:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U food -d food"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: ruccola-food-postgres-data
+  postgres_test_data:
+    name: ruccola-food-postgres-test-data
