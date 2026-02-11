@@ -16,8 +16,6 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
 import kotlinx.serialization.Serializable
 
-const val MESSAGE_BODY_MAX_LENGTH = 500
-
 @Resource("chats")
 class Chats {
     @Resource("my")
