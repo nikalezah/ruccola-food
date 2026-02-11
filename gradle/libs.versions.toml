@@ -23,6 +23,7 @@ klogging = "0.11.7"
 exposed = "1.0.0"
 r2dbc-pool = "1.0.2.RELEASE"
 r2dbc-postgresql = "1.1.1.RELEASE"
+netty = "4.2.10.Final" # todo: remove when r2dbc-postgresql updates an included version of netty
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -60,6 +61,7 @@ exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = 
 exposed-dateTime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
 r2dbc-pool = { module = "io.r2dbc:r2dbc-pool", version.ref = "r2dbc-pool" }
 r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbc-postgresql" }
+netty-bom = { module = "io.netty:netty-bom", version.ref = "netty" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 

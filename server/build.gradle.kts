@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.exposed.dateTime)
     implementation(libs.r2dbc.pool)
     implementation(libs.r2dbc.postgresql)
+    implementation(platform(libs.netty.bom))
 
     testImplementation(libs.ktor.server.testHost)
     testImplementation(libs.kotlin.test)
