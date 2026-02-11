@@ -1,0 +1,149 @@
+package kz.ruccola.food.service
+
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
+import kz.ruccola.food.api.CustomerDto
+import kz.ruccola.food.api.CustomerPlanCreateDto
+import kz.ruccola.food.api.CustomerPlanDetailsDto
+import kz.ruccola.food.dbQuery
+import kz.ruccola.food.model.Chats
+import kz.ruccola.food.model.CustomerPlans
+import kz.ruccola.food.model.Customers
+import kz.ruccola.food.model.Messages
+import kz.ruccola.food.model.Plans
+import kz.ruccola.food.model.Users
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insertReturning
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.update
+
+class CustomerService {
+    val planService = PlanService()
+
+    suspend fun findById(id: Int): CustomerDto? =
+        dbQuery {
+            Customers.innerJoin(Users).selectAll()
+                .where { Customers.id eq id }
+                .singleOrNull()
+                ?.let(::toDto)
+        }
+
+    suspend fun findAllWithDetails(): List<CustomerDto> =
+        dbQuery {
+            // todo: implement with a single query
+            Customers.innerJoin(Users).selectAll()
+                .map {
+                    val latestCustomerPlanCalories = CustomerPlans.innerJoin(Plans).selectAll()
+                        .where { CustomerPlans.customer eq it[Customers.id].value }
+                        .orderBy(CustomerPlans.chosenDate to SortOrder.DESC)
+                        .firstOrNull()
+                        ?.get(Plans.calories)
+                    val lastMessage = Messages.innerJoin(Chats).select(Messages.body)
+                        .where { Chats.customerId eq it[Customers.id].value }
+                        .orderBy(Messages.id to SortOrder.DESC)
+                        .limit(1)
+                        .singleOrNull()
+                        ?.get(Messages.body)
+                    toDto(it, latestCustomerPlanCalories, lastMessage)
+                }.toList()
+        }
+
+    suspend fun update(
+        id: Int,
+        firstName: String?,
+        lastName: String?,
+        address: String?,
+    ): CustomerDto? =
+        dbQuery {
+            val updatedUsers = if (firstName != null || lastName != null) {
+                Users.update({ Users.id eq id }) {
+                    firstName?.let { n -> it[Users.firstName] = n }
+                    lastName?.let { n -> it[Users.lastName] = n }
+                }
+            } else {
+                0
+            }
+
+            val updatedCustomers = address?.let { addr ->
+                Customers.update({ Customers.id eq id }) {
+                    it[Customers.address] = addr
+                }
+            } ?: 0
+
+            if (updatedUsers == 0 && updatedCustomers == 0) {
+                null
+            } else {
+                Customers.innerJoin(Users).selectAll()
+                    .where { Customers.id eq id }
+                    .singleOrNull()
+                    ?.let(::toDto)
+            }
+        }
+
+    suspend fun getCustomerPlan(customerId: Int): CustomerPlanDetailsDto? =
+        dbQuery {
+            val cp = CustomerPlans.selectAll()
+                .where { CustomerPlans.customer eq customerId }
+                .orderBy(CustomerPlans.chosenDate to SortOrder.DESC)
+                .firstOrNull()
+            if (cp == null) null else toCustomerPlanDetailsDto(cp)
+        }
+
+    suspend fun saveCustomerPlan(
+        customerId: Int,
+        newCustomerPlan: CustomerPlanCreateDto,
+    ): CustomerPlanDetailsDto =
+        dbQuery {
+            Customers.selectAll().where { Customers.id eq customerId }.singleOrNull()
+                ?: throw IllegalArgumentException("Customer not found")
+
+            val planId = Plans.select(Plans.id)
+                .where { Plans.id eq newCustomerPlan.planId }
+                .singleOrNull()
+                ?.get(Plans.id)
+                ?: throw IllegalArgumentException("Plan not found")
+
+            CustomerPlans.deleteWhere {
+                (CustomerPlans.customer eq customerId) and (CustomerPlans.chosenDate eq newCustomerPlan.chosenDate)
+            }
+            val cp = CustomerPlans.insertReturning {
+                it[CustomerPlans.customer] = customerId
+                it[CustomerPlans.plan] = planId
+                it[CustomerPlans.chosenDate] = newCustomerPlan.chosenDate
+            }.single()
+            toCustomerPlanDetailsDto(cp)
+        }
+
+    fun toDto(
+        row: ResultRow,
+        calories: Int? = null,
+        lastMessage: String? = null,
+    ): CustomerDto =
+        CustomerDto(
+            row[Customers.id].value,
+            row[Users.email],
+            row[Users.firstName],
+            row[Users.lastName],
+            row[Customers.address],
+            row[Users.role].name,
+            calories,
+            lastMessage,
+        )
+
+    suspend fun toCustomerPlanDetailsDto(row: ResultRow): CustomerPlanDetailsDto =
+        CustomerPlanDetailsDto(
+            row[CustomerPlans.id].value,
+            row[CustomerPlans.customer].value,
+            // todo: join plan to avoid n+1 additional query
+            Plans.selectAll().where { Plans.id eq row[CustomerPlans.plan].value }.single().let(planService::toDto),
+            row[CustomerPlans.chosenDate],
+        )
+}
