@@ -36,5 +36,6 @@ dependencies {
     implementation(platform(libs.netty.bom))
 
     testImplementation(libs.ktor.server.testHost)
+    testImplementation(libs.ktor.client.contentNegotiation)
     testImplementation(libs.kotlin.test)
 }

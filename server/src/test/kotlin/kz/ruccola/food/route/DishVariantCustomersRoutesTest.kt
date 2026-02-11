@@ -1,5 +1,6 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
@@ -9,13 +10,15 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.DishVariants
 import kz.ruccola.food.model.Dishes
+import kz.ruccola.food.now
+import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.deleteAll
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -31,7 +34,7 @@ class DishVariantCustomersRoutesTest {
     }
 
     private suspend fun registerCustomer(
-        client: io.ktor.client.HttpClient,
+        client: HttpClient,
         email: String,
     ): Int {
         val registerResp = client.post("/api/auth/register") {
@@ -58,8 +61,7 @@ class DishVariantCustomersRoutesTest {
 
     @Test
     fun variantCustomersCrud() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // Clean slate and create a dish and variant
             var dishId = 0

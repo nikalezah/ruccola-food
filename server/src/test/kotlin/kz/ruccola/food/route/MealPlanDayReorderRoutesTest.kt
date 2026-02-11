@@ -1,11 +1,12 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
+import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,8 +19,7 @@ class MealPlanDayReorderRoutesTest {
 
     @Test
     fun testReorderEndpointSmoke() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             val response = client.post("/api/meal-plan-days/reorder") {
                 contentType(ContentType.Application.Json)
                 setBody("{" + "\"ids\":[]}")

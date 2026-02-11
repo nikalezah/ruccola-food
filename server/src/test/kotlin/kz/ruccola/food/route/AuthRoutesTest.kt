@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -6,10 +6,11 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,8 +24,7 @@ class AuthRoutesTest {
 
     @Test
     fun testAdminLoginSuccess() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             val response = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody("""{"email":"admin@interna.food","password":"admin"}""")
@@ -40,8 +40,7 @@ class AuthRoutesTest {
 
     @Test
     fun testLoginFailureWrongPassword() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             val response = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody("""{"email":"admin@interna.food","password":"wrong"}""")
@@ -51,8 +50,7 @@ class AuthRoutesTest {
 
     @Test
     fun testRegisterAndLoginCustomer() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             val registerResp = client.post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(

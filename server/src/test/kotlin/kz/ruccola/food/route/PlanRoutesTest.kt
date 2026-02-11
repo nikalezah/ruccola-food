@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -11,7 +11,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.int
@@ -19,10 +18,13 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.Role
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.CustomerPlans
 import kz.ruccola.food.model.Customers
 import kz.ruccola.food.model.Plans
 import kz.ruccola.food.model.Users
+import kz.ruccola.food.testApp
+import kz.ruccola.food.today
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteAll
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
@@ -44,8 +46,7 @@ class PlanRoutesTest {
 
     @Test
     fun testCrud() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // Clean
             suspendTransaction {
@@ -95,8 +96,7 @@ class PlanRoutesTest {
 
     @Test
     fun testCustomerPlanSelection() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // Setup: Create a customer and plans
             var customerId = 0

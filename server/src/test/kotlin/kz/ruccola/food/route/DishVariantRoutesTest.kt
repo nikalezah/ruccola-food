@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -9,7 +9,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.int
@@ -17,7 +16,9 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
+import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.deleteAll
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -33,8 +34,7 @@ class DishVariantRoutesTest {
 
     @Test
     fun testDishVariantCrud() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             var dishId = 0
             suspendTransaction {

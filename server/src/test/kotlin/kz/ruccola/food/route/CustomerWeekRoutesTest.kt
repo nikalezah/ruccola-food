@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -9,15 +9,16 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.model.MealPlanDayDishes
 import kz.ruccola.food.model.MealPlanDays
+import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -34,8 +35,7 @@ class CustomerWeekRoutesTest {
 
     @Test
     fun testCustomerWeekPlanWrapsAndHasSevenItems() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             // Login as admin (any authenticated user is enough for this endpoint)
             val loginResp = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)

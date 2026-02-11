@@ -1,5 +1,6 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -10,11 +11,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,7 +29,7 @@ class ChatRoutesTest {
         initializeTestDatabase()
     }
 
-    private suspend fun loginAdmin(client: io.ktor.client.HttpClient): String {
+    private suspend fun loginAdmin(client: HttpClient): String {
         val resp = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
             setBody("""{"email":"admin@interna.food","password":"admin"}""")
@@ -38,7 +40,7 @@ class ChatRoutesTest {
     }
 
     private suspend fun registerCustomer(
-        client: io.ktor.client.HttpClient,
+        client: HttpClient,
         email: String,
     ) {
         val registerResp = client.post("/api/auth/register") {
@@ -60,7 +62,7 @@ class ChatRoutesTest {
     }
 
     private suspend fun loginCustomer(
-        client: io.ktor.client.HttpClient,
+        client: HttpClient,
         email: String,
     ): String {
         val resp = client.post("/api/auth/login") {
@@ -74,8 +76,7 @@ class ChatRoutesTest {
 
     @Test
     fun createChatUniquePerCustomer() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             registerCustomer(client, "cust1@example.com")
             val token = loginCustomer(client, "cust1@example.com")
 
@@ -95,8 +96,7 @@ class ChatRoutesTest {
 
     @Test
     fun sendMessageUpdatesLastMessageAt() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             registerCustomer(client, "cust2@example.com")
             val token = loginCustomer(client, "cust2@example.com")
 
@@ -124,8 +124,7 @@ class ChatRoutesTest {
 
     @Test
     fun markReadUpdatesMessageReads() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             registerCustomer(client, "cust3@example.com")
             val token = loginCustomer(client, "cust3@example.com")
 
@@ -160,8 +159,7 @@ class ChatRoutesTest {
 
     @Test
     fun roleAccessGuards() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             registerCustomer(client, "cust4@example.com")
             val customerToken = loginCustomer(client, "cust4@example.com")
 
@@ -179,8 +177,7 @@ class ChatRoutesTest {
 
     @Test
     fun customerCannotAccessOtherChat() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             registerCustomer(client, "cust5@example.com")
             registerCustomer(client, "cust6@example.com")
             val token1 = loginCustomer(client, "cust5@example.com")
@@ -200,8 +197,7 @@ class ChatRoutesTest {
 
     @Test
     fun adminSeesAllChats() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             registerCustomer(client, "cust7@example.com")
             registerCustomer(client, "cust8@example.com")
             val token1 = loginCustomer(client, "cust7@example.com")

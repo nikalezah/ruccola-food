@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -11,10 +11,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.testApp
 import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -38,8 +39,7 @@ class FileRoutesTest {
 
     @Test
     fun testUploadAndDeleteFileApi() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // Upload a file via multipart
             val filename = "test.txt"
@@ -106,8 +106,7 @@ class FileRoutesTest {
 
     @Test
     fun testFileApiBadRequests() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // POST without a file part returns 400
             val badPost = client.post("/api/files") {

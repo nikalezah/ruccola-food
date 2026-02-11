@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -8,7 +8,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.add
@@ -22,8 +21,11 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishUpdateDto
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
+import kz.ruccola.food.now
+import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteAll
 import org.jetbrains.exposed.v1.r2dbc.insert
@@ -44,10 +46,7 @@ class DishRoutesTest {
 
     @Test
     fun testGetDishesApi() =
-        testApplication {
-            // Set up the test environment
-            application { module() }
-
+        testApp { client ->
             // Create test data
             suspendTransaction {
                 Dishes.deleteAll()
@@ -86,10 +85,7 @@ class DishRoutesTest {
 
     @Test
     fun testGetDishByIdApi() =
-        testApplication {
-            // Set up the test environment
-            application { module() }
-
+        testApp { client ->
             var dishId = 0
 
             // Create test data
@@ -127,16 +123,11 @@ class DishRoutesTest {
 
     @Test
     fun testCreateDishApi() =
-        testApplication {
-            // Set up the test environment
-            application { module() }
-
-            // Clear any existing dishes
+        testApp { client ->
             suspendTransaction {
                 Dishes.deleteAll()
             }
 
-            // Test POST /api/dishes
             val newDish = DishCreateDto(
                 name = "Chocolate Cake",
                 description = "Rich chocolate cake with ganache frosting",
@@ -144,14 +135,13 @@ class DishRoutesTest {
 
             client.post("/api/dishes") {
                 contentType(ContentType.Application.Json)
-                setBody(Json.encodeToString(DishCreateDto.serializer(), newDish))
+                setBody(newDish)
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
 
                 val responseText = bodyAsText()
                 val jsonObject = Json.parseToJsonElement(responseText).jsonObject
 
-                // Verify the created dish has the expected properties
                 assertEquals("Chocolate Cake", jsonObject["name"]?.jsonPrimitive?.content)
                 assertEquals(
                     "Rich chocolate cake with ganache frosting",
@@ -163,10 +153,7 @@ class DishRoutesTest {
 
     @Test
     fun testUpdateDishApi() =
-        testApplication {
-            // Set up the test environment
-            application { module() }
-
+        testApp { client ->
             var dishId = 0
 
             // Create test data
@@ -187,7 +174,7 @@ class DishRoutesTest {
 
             client.put("/api/dishes/$dishId") {
                 contentType(ContentType.Application.Json)
-                setBody(Json.encodeToString(DishUpdateDto.serializer(), updateDish))
+                setBody(updateDish)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
 
@@ -206,7 +193,7 @@ class DishRoutesTest {
             // Test PUT with non-existent ID
             client.put("/api/dishes/9999") {
                 contentType(ContentType.Application.Json)
-                setBody(Json.encodeToString(DishUpdateDto.serializer(), updateDish))
+                setBody(updateDish)
             }.apply {
                 assertEquals(HttpStatusCode.NotFound, status)
             }
@@ -214,10 +201,7 @@ class DishRoutesTest {
 
     @Test
     fun testArchiveDishApi() =
-        testApplication {
-            // Set up the test environment
-            application { module() }
-
+        testApp { client ->
             var dishId = 0
 
             // Create test data
@@ -250,9 +234,7 @@ class DishRoutesTest {
 
     @Test
     fun testDishImagesCreateAndUpdate() =
-        testApplication {
-            application { module() }
-
+        testApp { client ->
             // Ensure a clean state
             suspendTransaction {
                 Dishes.deleteAll()

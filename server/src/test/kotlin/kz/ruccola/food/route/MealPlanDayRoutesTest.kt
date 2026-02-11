@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -9,7 +9,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.int
@@ -17,8 +16,10 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.MealPlanDaySaveDto
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.model.MealPlanDays
+import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.deleteAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import kotlin.test.BeforeTest
@@ -39,8 +40,7 @@ class MealPlanDayRoutesTest {
 
     @Test
     fun testListSaveDelete() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             clear()
 
             client.get("/api/meal-plan-days").apply {
@@ -58,12 +58,7 @@ class MealPlanDayRoutesTest {
 
             val mealPlanDayId = client.put("/api/meal-plan-days") {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    Json.encodeToString(
-                        MealPlanDaySaveDto.serializer(),
-                        MealPlanDaySaveDto(null, mapOf(dishId1 to Meal.BREAKFAST)),
-                    ),
-                )
+                setBody(MealPlanDaySaveDto(null, mapOf(dishId1 to Meal.BREAKFAST)))
             }.let {
                 assertEquals(HttpStatusCode.OK, it.status)
                 val obj = Json.parseToJsonElement(it.bodyAsText()).jsonObject
@@ -91,12 +86,7 @@ class MealPlanDayRoutesTest {
 
             client.put("/api/meal-plan-days") {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    Json.encodeToString(
-                        MealPlanDaySaveDto.serializer(),
-                        MealPlanDaySaveDto(mealPlanDayId, mapOf(dishId1 to Meal.BREAKFAST, dishId2 to Meal.BRUNCH)),
-                    ),
-                )
+                setBody(MealPlanDaySaveDto(mealPlanDayId, mapOf(dishId1 to Meal.BREAKFAST, dishId2 to Meal.BRUNCH)))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
@@ -118,21 +108,20 @@ class MealPlanDayRoutesTest {
 
     @Test
     fun testSetCurrentSwitching() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             clear()
 
             val id1 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
                     contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(MealPlanDaySaveDto.serializer(), MealPlanDaySaveDto(null, mapOf())))
+                    setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
             val id2 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
                     contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(MealPlanDaySaveDto.serializer(), MealPlanDaySaveDto(null, mapOf())))
+                    setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
@@ -168,28 +157,27 @@ class MealPlanDayRoutesTest {
 
     @Test
     fun testBulkReorderSuccess() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             clear()
 
             val id1 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
                     contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(MealPlanDaySaveDto.serializer(), MealPlanDaySaveDto(null, mapOf())))
+                    setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
             val id2 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
                     contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(MealPlanDaySaveDto.serializer(), MealPlanDaySaveDto(null, mapOf())))
+                    setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
             val id3 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
                     contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(MealPlanDaySaveDto.serializer(), MealPlanDaySaveDto(null, mapOf())))
+                    setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
@@ -218,14 +206,13 @@ class MealPlanDayRoutesTest {
 
     @Test
     fun testBulkReorderValidation() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             clear()
 
             val id1 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
                     contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(MealPlanDaySaveDto.serializer(), MealPlanDaySaveDto(null, mapOf())))
+                    setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 

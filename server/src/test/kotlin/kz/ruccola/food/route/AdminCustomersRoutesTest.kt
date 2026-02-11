@@ -1,5 +1,7 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -10,11 +12,13 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,7 +30,7 @@ class AdminCustomersRoutesTest {
         initializeTestDatabase()
     }
 
-    private suspend fun loginAdmin(client: io.ktor.client.HttpClient): String {
+    private suspend fun loginAdmin(client: HttpClient): String {
         val resp = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
             setBody("""{"email":"admin@interna.food","password":"admin"}""")
@@ -37,7 +41,7 @@ class AdminCustomersRoutesTest {
     }
 
     private suspend fun registerCustomer(
-        client: io.ktor.client.HttpClient,
+        client: HttpClient,
         email: String,
     ) {
         val registerResp = client.post("/api/auth/register") {
@@ -59,22 +63,21 @@ class AdminCustomersRoutesTest {
     }
 
     private suspend fun loginCustomer(
-        client: io.ktor.client.HttpClient,
+        client: HttpClient,
         email: String,
     ): String {
-        val resp = client.post("/api/auth/login") {
+        val response = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
             setBody("""{"email":"$email","password":"secret"}""")
         }
-        assertEquals(HttpStatusCode.OK, resp.status)
-        val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject
+        assertEquals(HttpStatusCode.OK, response.status)
+        val json = response.body<JsonObject>()
         return json["token"]!!.jsonPrimitive.content
     }
 
     @Test
     fun adminCanGetCustomers() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             val adminToken = loginAdmin(client)
             // Create two customers
@@ -85,7 +88,7 @@ class AdminCustomersRoutesTest {
                 header(HttpHeaders.Authorization, "Bearer $adminToken")
             }
             assertEquals(HttpStatusCode.OK, response.status)
-            val arr = Json.parseToJsonElement(response.bodyAsText()).jsonArray
+            val arr = response.body<JsonArray>()
             // Should contain at least the two created customers
             val emails = arr.mapNotNull { it.jsonObject["email"]?.jsonPrimitive?.content }.toSet()
             assertTrue(emails.contains("cust1@example.com"))
@@ -98,8 +101,7 @@ class AdminCustomersRoutesTest {
 
     @Test
     fun customerForbiddenToGetCustomers() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // Register and login as customer
             registerCustomer(client, "jane@example.com")
@@ -113,8 +115,7 @@ class AdminCustomersRoutesTest {
 
     @Test
     fun unauthorizedCasesReturn401() =
-        testApplication {
-            application { module() }
+        testApp { client ->
 
             // Missing header
             val noHeaderResp = client.get("/api/customers")

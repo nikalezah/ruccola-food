@@ -1,4 +1,4 @@
-package kz.ruccola.food
+package kz.ruccola.food.route
 
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -9,13 +9,14 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.Role
+import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Customers
 import kz.ruccola.food.model.Users
+import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -31,8 +32,7 @@ class ProfileRoutesTest {
 
     @Test
     fun testGetProfileWithValidToken() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             // Login as admin to get token
             suspendTransaction {
                 val userId = Users.insertAndGetId {
@@ -66,8 +66,7 @@ class ProfileRoutesTest {
 
     @Test
     fun testGetProfileUnauthorized() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             val respNoHeader = client.get("/api/customers/profile")
             assertEquals(HttpStatusCode.Unauthorized, respNoHeader.status)
 
@@ -79,8 +78,7 @@ class ProfileRoutesTest {
 
     @Test
     fun testLogoutEndpoint() =
-        testApplication {
-            application { module() }
+        testApp { client ->
             val resp = client.post("/api/auth/logout")
             assertEquals(HttpStatusCode.OK, resp.status)
         }
