@@ -14,6 +14,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.RegisterRequestDto
+import kz.ruccola.food.api.VariantCustomersPayload
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.DishVariants
 import kz.ruccola.food.model.Dishes
@@ -37,23 +39,12 @@ class DishVariantCustomersRoutesTest {
         client: HttpClient,
         email: String,
     ): Int {
-        val registerResp = client.post("/api/auth/register") {
+        val response = client.post("/api/auth/register") {
             contentType(ContentType.Application.Json)
-            setBody(
-                """
-                {
-                  "email": "$email",
-                  "password": "secret",
-                  "confirmPassword": "secret",
-                  "firstName": "John",
-                  "lastName": "Doe",
-                  "address": "123 Main St"
-                }
-                """.trimIndent(),
-            )
+            setBody(RegisterRequestDto(email, "secret", "secret", "John", "Doe", "123 Main St"))
         }
-        assertTrue(registerResp.status.isSuccess())
-        val json = Json.parseToJsonElement(registerResp.bodyAsText()).jsonObject
+        assertTrue(response.status.isSuccess())
+        val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
         // Response is AuthResponseDto { token, user }
         val user = json["user"]!!.jsonObject
         return user["id"]!!.jsonPrimitive.content.toInt()
@@ -62,7 +53,6 @@ class DishVariantCustomersRoutesTest {
     @Test
     fun variantCustomersCrud() =
         testApp { client ->
-
             // Clean slate and create a dish and variant
             var dishId = 0
             var variantId = 0
@@ -95,7 +85,7 @@ class DishVariantCustomersRoutesTest {
             }
 
             // Set customers [c1, c2]
-            val putPayload1 = "{\"customerIds\":[$c1,$c2]}"
+            val putPayload1 = VariantCustomersPayload(listOf(c1, c2))
             client.put("/api/dishes/$dishId/variants/$variantId/customers") {
                 contentType(ContentType.Application.Json)
                 setBody(putPayload1)
@@ -113,7 +103,7 @@ class DishVariantCustomersRoutesTest {
             }
 
             // Replace with [c2, c3]
-            val putPayload2 = "{\"customerIds\":[$c2,$c3]}"
+            val putPayload2 = VariantCustomersPayload(listOf(c2, c3))
             client.put("/api/dishes/$dishId/variants/$variantId/customers") {
                 contentType(ContentType.Application.Json)
                 setBody(putPayload2)

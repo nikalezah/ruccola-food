@@ -17,10 +17,15 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.CustomerPlanCreateDto
+import kz.ruccola.food.api.PlanCreateDto
+import kz.ruccola.food.api.PlanUpdateDto
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.CustomerPlans
 import kz.ruccola.food.model.Customers
+import kz.ruccola.food.model.PlanCalories
+import kz.ruccola.food.model.PlanDays
 import kz.ruccola.food.model.Plans
 import kz.ruccola.food.model.Users
 import kz.ruccola.food.testApp
@@ -54,14 +59,10 @@ class PlanRoutesTest {
             }
 
             // Create
-            val createPayload =
-                """
-                {"calories":"C1800","periodDays":"D30","pricePerDay":2000,"allowVariantChoice":true}
-                """.trimIndent()
             var id = 0
             client.post("/api/plans") {
                 contentType(ContentType.Application.Json)
-                setBody(createPayload)
+                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000, true))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
@@ -78,10 +79,9 @@ class PlanRoutesTest {
             }
 
             // Update
-            val upd = """{"calories":"C2000","allowVariantChoice":false}"""
             client.put("/api/plans/$id") {
                 contentType(ContentType.Application.Json)
-                setBody(upd)
+                setBody(PlanUpdateDto(PlanCalories.C2000, allowVariantChoice = false))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
@@ -163,18 +163,17 @@ class PlanRoutesTest {
             }
 
             // Test 2: Save customer plan
-            val today = today().toString()
-            val savePlanPayload = """{"planId":$planId1800,"chosenDate":"$today"}"""
+            val today = today()
             client.post("/api/customers/plan") {
                 header(HttpHeaders.Authorization, bearerToken)
                 contentType(ContentType.Application.Json)
-                setBody(savePlanPayload)
+                setBody(CustomerPlanCreateDto(planId1800, today))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(customerId, obj["customerId"]!!.jsonPrimitive.int)
                 assertEquals(planId1800, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
-                assertEquals(today, obj["chosenDate"]!!.jsonPrimitive.content)
+                assertEquals(today.toString(), obj["chosenDate"]!!.jsonPrimitive.content)
             }
 
             // Test 3: Get a customer plan after saving
@@ -188,11 +187,10 @@ class PlanRoutesTest {
             }
 
             // Test 4: Update plan with the same date (should replace)
-            val updatePlanPayload = """{"planId":$planId2000,"chosenDate":"$today"}"""
             client.post("/api/customers/plan") {
                 header(HttpHeaders.Authorization, bearerToken)
                 contentType(ContentType.Application.Json)
-                setBody(updatePlanPayload)
+                setBody(CustomerPlanCreateDto(planId2000, today))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject

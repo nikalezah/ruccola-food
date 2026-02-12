@@ -9,6 +9,8 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.LoginRequestDto
+import kz.ruccola.food.api.RegisterRequestDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
@@ -27,7 +29,7 @@ class AuthRoutesTest {
         testApp { client ->
             val response = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"email":"admin@interna.food","password":"admin"}""")
+                setBody(LoginRequestDto("admin@interna.food", "admin"))
             }
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
@@ -43,7 +45,7 @@ class AuthRoutesTest {
         testApp { client ->
             val response = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"email":"admin@interna.food","password":"wrong"}""")
+                setBody(LoginRequestDto("admin@interna.food", "wrong"))
             }
             assertEquals(HttpStatusCode.Unauthorized, response.status)
         }
@@ -53,23 +55,12 @@ class AuthRoutesTest {
         testApp { client ->
             val registerResp = client.post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    """
-                    {
-                      "email": "john.doe@example.com",
-                      "password": "secret",
-                      "confirmPassword": "secret",
-                      "firstName": "John",
-                      "lastName": "Doe",
-                      "address": "123 Main St"
-                    }
-                    """.trimIndent(),
-                )
+                setBody(RegisterRequestDto("john.doe@example.com", "secret", "secret", "John", "Doe", "123 Main St"))
             }
             assertEquals(HttpStatusCode.Created, registerResp.status)
             val loginResp = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"email":"john.doe@example.com","password":"secret"}""")
+                setBody(LoginRequestDto("john.doe@example.com", "secret"))
             }
             assertEquals(HttpStatusCode.OK, loginResp.status)
             val body = loginResp.bodyAsText()

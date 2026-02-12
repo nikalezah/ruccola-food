@@ -10,15 +10,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.add
 import kotlinx.serialization.json.boolean
-import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.initializeTestDatabase
@@ -252,20 +248,10 @@ class DishRoutesTest {
                 }
             }
 
-            // Create with images (order defines primary: first is primary)
-            val payload = buildJsonObject {
-                put("name", "Image Dish")
-                put("description", "Dish with images")
-                putJsonArray("imageFileIds") {
-                    add(1)
-                    add(2)
-                }
-            }
-
             var dishId = 0
             client.post("/api/dishes") {
                 contentType(ContentType.Application.Json)
-                setBody(payload.toString())
+                setBody(DishCreateDto("Image Dish", "Dish with images", listOf(1, 2)))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
@@ -276,19 +262,9 @@ class DishRoutesTest {
                 assertEquals("/files/1.jpg", firstUrl)
             }
 
-            // Update: replace images set, ensure only one primary
-            val updatePayload = buildJsonObject {
-                put("name", "Image Dish Updated")
-                putJsonArray("imageFileIds") {
-                    // Reorder to make file 2 primary (first in the list)
-                    add(2)
-                    add(1)
-                }
-            }
-
             client.put("/api/dishes/$dishId") {
                 contentType(ContentType.Application.Json)
-                setBody(updatePayload.toString())
+                setBody(DishUpdateDto("Image Dish Updated", imageFileIds = listOf(2, 1)))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject

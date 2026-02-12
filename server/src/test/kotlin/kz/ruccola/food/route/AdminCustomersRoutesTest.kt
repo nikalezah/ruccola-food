@@ -17,6 +17,8 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.LoginRequestDto
+import kz.ruccola.food.api.RegisterRequestDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
@@ -33,7 +35,7 @@ class AdminCustomersRoutesTest {
     private suspend fun loginAdmin(client: HttpClient): String {
         val resp = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody("""{"email":"admin@interna.food","password":"admin"}""")
+            setBody(LoginRequestDto("admin@interna.food", "admin"))
         }
         assertEquals(HttpStatusCode.OK, resp.status)
         val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject
@@ -46,18 +48,7 @@ class AdminCustomersRoutesTest {
     ) {
         val registerResp = client.post("/api/auth/register") {
             contentType(ContentType.Application.Json)
-            setBody(
-                """
-                {
-                  "email": "$email",
-                  "password": "secret",
-                  "confirmPassword": "secret",
-                  "firstName": "John",
-                  "lastName": "Doe",
-                  "address": "123 Main St"
-                }
-                """.trimIndent(),
-            )
+            setBody(RegisterRequestDto(email, "secret", "secret", "John", "Doe", "123 Main St"))
         }
         assertTrue(registerResp.status.isSuccess())
     }
@@ -68,7 +59,7 @@ class AdminCustomersRoutesTest {
     ): String {
         val response = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody("""{"email":"$email","password":"secret"}""")
+            setBody(LoginRequestDto(email, "secret"))
         }
         assertEquals(HttpStatusCode.OK, response.status)
         val json = response.body<JsonObject>()

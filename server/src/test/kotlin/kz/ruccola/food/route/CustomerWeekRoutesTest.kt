@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
@@ -39,7 +40,7 @@ class CustomerWeekRoutesTest {
             // Login as admin (any authenticated user is enough for this endpoint)
             val loginResp = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"email":"admin@interna.food","password":"admin"}""")
+                setBody(LoginRequestDto("admin@interna.food", "admin"))
             }
             assertEquals(HttpStatusCode.OK, loginResp.status)
             val token = Json.parseToJsonElement(loginResp.bodyAsText()).jsonObject["token"]!!.jsonPrimitive.content

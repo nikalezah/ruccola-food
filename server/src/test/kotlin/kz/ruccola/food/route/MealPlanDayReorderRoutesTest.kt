@@ -5,6 +5,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kz.ruccola.food.api.MealPlanDaysReorderDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
@@ -22,7 +23,7 @@ class MealPlanDayReorderRoutesTest {
         testApp { client ->
             val response = client.post("/api/meal-plan-days/reorder") {
                 contentType(ContentType.Application.Json)
-                setBody("{" + "\"ids\":[]}")
+                setBody(MealPlanDaysReorderDto(emptyList()))
             }
             assertEquals(HttpStatusCode.OK, response.status)
         }

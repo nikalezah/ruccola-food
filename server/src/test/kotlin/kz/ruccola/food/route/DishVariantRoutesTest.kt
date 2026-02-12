@@ -10,12 +10,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
+import kz.ruccola.food.api.DishVariantSaveDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.testApp
@@ -54,11 +53,10 @@ class DishVariantRoutesTest {
             }
 
             // Create
-            val newPayload = buildJsonObject { put("description", "No onion") }
             var variantId = 0
             client.post("/api/dishes/$dishId/variants") {
                 contentType(ContentType.Application.Json)
-                setBody(newPayload.toString())
+                setBody(DishVariantSaveDto("No onion"))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
@@ -74,10 +72,9 @@ class DishVariantRoutesTest {
             }
 
             // Update
-            val updatePayload = buildJsonObject { put("description", "Extra spicy") }
             client.put("/api/dishes/$dishId/variants/$variantId") {
                 contentType(ContentType.Application.Json)
-                setBody(updatePayload.toString())
+                setBody(DishVariantSaveDto("Extra spicy"))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject

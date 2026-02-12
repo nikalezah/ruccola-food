@@ -15,6 +15,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.LoginRequestDto
+import kz.ruccola.food.api.MarkReadDto
+import kz.ruccola.food.api.MessageSendDto
+import kz.ruccola.food.api.RegisterRequestDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.testApp
 import kotlin.test.BeforeTest
@@ -32,7 +36,7 @@ class ChatRoutesTest {
     private suspend fun loginAdmin(client: HttpClient): String {
         val resp = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody("""{"email":"admin@interna.food","password":"admin"}""")
+            setBody(LoginRequestDto("admin@interna.food", "admin"))
         }
         assertEquals(HttpStatusCode.OK, resp.status)
         val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject
@@ -45,18 +49,7 @@ class ChatRoutesTest {
     ) {
         val registerResp = client.post("/api/auth/register") {
             contentType(ContentType.Application.Json)
-            setBody(
-                """
-                {
-                  "email": "$email",
-                  "password": "secret",
-                  "confirmPassword": "secret",
-                  "firstName": "John",
-                  "lastName": "Doe",
-                  "address": "123 Main St"
-                }
-                """.trimIndent(),
-            )
+            setBody(RegisterRequestDto(email, "secret", "secret", "John", "Doe", "123 Main St"))
         }
         assertTrue(registerResp.status.isSuccess())
     }
@@ -67,7 +60,7 @@ class ChatRoutesTest {
     ): String {
         val resp = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody("""{"email":"$email","password":"secret"}""")
+            setBody(LoginRequestDto(email, "secret"))
         }
         assertEquals(HttpStatusCode.OK, resp.status)
         val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject
@@ -110,7 +103,7 @@ class ChatRoutesTest {
             val sendResp = client.post("/api/chats/$chatId/messages") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
-                setBody("""{"body":"Hello"}""")
+                setBody(MessageSendDto("Hello"))
             }
             assertEquals(HttpStatusCode.Created, sendResp.status)
 
@@ -137,7 +130,7 @@ class ChatRoutesTest {
             val sendResp = client.post("/api/chats/$chatId/messages") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
-                setBody("""{"body":"Read me"}""")
+                setBody(MessageSendDto("Read me"))
             }
             val msgJson = Json.parseToJsonElement(sendResp.bodyAsText()).jsonObject
             val messageId = msgJson["id"]!!.jsonPrimitive.content.toInt()
@@ -145,7 +138,7 @@ class ChatRoutesTest {
             val markResp = client.post("/api/chats/$chatId/read") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
-                setBody("""{"lastReadMessageId":$messageId}""")
+                setBody(MarkReadDto(messageId))
             }
             assertEquals(HttpStatusCode.OK, markResp.status)
 

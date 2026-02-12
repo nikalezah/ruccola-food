@@ -12,6 +12,7 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Customers
@@ -49,7 +50,7 @@ class ProfileRoutesTest {
             }
             val loginResp = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"email":"customer1@interna.food","password":"123qwe"}""")
+                setBody(LoginRequestDto("customer1@interna.food", "123qwe"))
             }
             assertEquals(HttpStatusCode.OK, loginResp.status)
             val loginJson = Json.parseToJsonElement(loginResp.bodyAsText()).jsonObject

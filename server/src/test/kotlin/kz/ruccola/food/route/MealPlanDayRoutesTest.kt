@@ -15,7 +15,9 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.MealPlanDaySaveDto
+import kz.ruccola.food.api.MealPlanDaysReorderDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.model.MealPlanDays
@@ -52,7 +54,7 @@ class MealPlanDayRoutesTest {
             val dishId1 = Json.parseToJsonElement(
                 client.post("/api/dishes") {
                     contentType(ContentType.Application.Json)
-                    setBody("{" + "\"name\":\"Test Dish\",\"description\":\"Desc\"}")
+                    setBody(DishCreateDto(name = "Test Dish", description = "Desc"))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
@@ -80,7 +82,7 @@ class MealPlanDayRoutesTest {
             val dishId2 = Json.parseToJsonElement(
                 client.post("/api/dishes") {
                     contentType(ContentType.Application.Json)
-                    setBody("{" + "\"name\":\"Test Dish 2\",\"description\":\"Desc 2\"}")
+                    setBody(DishCreateDto(name = "Test Dish 2", description = "Desc 2"))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
@@ -184,7 +186,7 @@ class MealPlanDayRoutesTest {
             // reorder: [id3, id1, id2]
             client.post("/api/meal-plan-days/reorder") {
                 contentType(ContentType.Application.Json)
-                setBody("{\"ids\":[$id3,$id1,$id2]}")
+                setBody(MealPlanDaysReorderDto(listOf(id3, id1, id2)))
             }.apply { assertEquals(HttpStatusCode.OK, status) }
 
             // verify order is id3(1), id1(2), id2(3)
@@ -219,19 +221,19 @@ class MealPlanDayRoutesTest {
             // duplicate id -> not a permutation => 400
             client.post("/api/meal-plan-days/reorder") {
                 contentType(ContentType.Application.Json)
-                setBody("{\"ids\":[$id1,$id1]}")
+                setBody(MealPlanDaysReorderDto(listOf(id1, id1)))
             }.apply { assertEquals(HttpStatusCode.BadRequest, status) }
 
             // missing one id -> not a permutation => 400
             client.post("/api/meal-plan-days/reorder") {
                 contentType(ContentType.Application.Json)
-                setBody("{\"ids\":[$id1]}")
+                setBody(MealPlanDaysReorderDto(listOf(id1)))
             }.apply { assertEquals(HttpStatusCode.BadRequest, status) }
 
             // includes non-existent id -> 404
             client.post("/api/meal-plan-days/reorder") {
                 contentType(ContentType.Application.Json)
-                setBody("{\"ids\":[$id1,999999]}")
+                setBody(MealPlanDaysReorderDto(listOf(id1, 999999)))
             }.apply { assertEquals(HttpStatusCode.NotFound, status) }
         }
 }
