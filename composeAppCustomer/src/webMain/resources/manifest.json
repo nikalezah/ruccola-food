@@ -1,0 +1,19 @@
+{
+  "name": "Ruccola Food",
+  "short_name": "Ruccola Food",
+  "description": "Сервис правильного питания",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["food", "health", "lifestyle"],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">food</string>
+
+    <!-- Tabs -->
+    <string name="tab_dishes">Блюда</string>
+    <string name="tab_profile">Профиль</string>
+    <string name="tab_chat">Чат</string>
+
+    <!-- Profile -->
+    <string name="screen_profile_title">Профиль</string>
+    <string name="screen_profile_edit_cd">Редактировать профиль</string>
+    <string name="label_email">Email: %1$s</string>
+    <string name="label_name">Имя: %1$s %2$s</string>
+    <string name="label_address">Адрес: %1$s</string>
+    <string name="loading_plan">Загрузка плана…</string>
+    <string name="no_plan_selected">План не выбран</string>
+    <string name="choose_plan">Выбрать план</string>
+    <string name="chosen_plan_title">Выбранный план</string>
+    <string name="label_calories">Калории: %1$s</string>
+    <string name="label_days">Дней: %1$d</string>
+    <string name="label_total_price">Итоговая стоимость: %1$s</string>
+    <string name="label_start_date">Дата начала: %1$s</string>
+    <string name="label_end_date">Дата окончания: %1$s</string>
+
+    <string name="edit_personal_info_title">Редактировать личные данные</string>
+    <string name="first_name">Имя</string>
+    <string name="last_name">Фамилия</string>
+    <string name="address">Адрес</string>
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="saving">Сохранение…</string>
+    <string name="save_failed">Не удалось сохранить</string>
+    <string name="log_out">Выйти</string>
+
+    <!-- Meal -->
+    <string name="meal_breakfast">Завтрак</string>
+    <string name="meal_brunch">Второй завтрак</string>
+    <string name="meal_lunch">Обед</string>
+    <string name="meal_afternoon_snack">Полдник</string>
+    <string name="meal_dinner">Ужин</string>
+
+    <!-- Language -->
+    <string name="language_section_title">Язык</string>
+    <string name="language_english">Английский</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_kazakh">Казахский</string>
+    <string name="language_apply">Применить</string>
+
+    <!-- Chat -->
+    <string name="chat_support_title">РЎР»СѓР¶Р±Р° РїРѕРґРґРµСЂР¶РєРё</string>
+    <string name="chat_placeholder">Р’РІРµРґРёС‚Рµ СЃРѕРѕР±С‰РµРЅРёРµ</string>
+    <string name="chat_empty">РќРµС‚ СЃРѕРѕР±С‰РµРЅРёР№</string>
+    <string name="chat_open">Р§Р°С‚</string>
+
+    <!-- Customers -->
+    <string name="customers_title">РљР»РёРµРЅС‚С‹</string>
+    <string name="no_customers_found">РљР»РёРµРЅС‚С‹ РЅРµ РЅР°Р№РґРµРЅС‹</string>
+    <string name="retry">РџРѕРІС‚РѕСЂРёС‚СЊ</string>
+
+    <!-- Common labels/messages -->
+    <string name="error_generic">РћС€РёР±РєР°</string>
+    <string name="error_prefix">Ошибка: %1$s</string>
+    <string name="no_variants">Без вариантов</string>
+    <string name="with_variants">С вариантами</string>
+    <string name="period_days">Дни периода</string>
+    <string name="no_plans_available">Нет доступных планов для выбранной опции</string>
+    <string name="label_price_per_day">Цена за день: %1$s</string>
+
+    <!-- Formatting helpers -->
+    <string name="format_kcal">%1$s ккал</string>
+
+    <!-- Plurals examples -->
+    <plurals name="days_quantity">
+        <item quantity="zero">%d дней</item>
+        <item quantity="one">%d день</item>
+        <item quantity="two">%d дня</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d дней</item>
+        <item quantity="other">%d дня</item>
+    </plurals>
+
+    <!-- Array example -->
+    <string-array name="language_names">
+        <item>Английский</item>
+        <item>Русский</item>
+        <item>Казахский</item>
+    </string-array>
+</resources>
