@@ -13,7 +13,7 @@ import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SquareImagesCarousel200(imageUrls: List<String>) {
+actual fun SquareImagesCarousel200(imageUrls: List<String>) {
     if (imageUrls.isEmpty()) return
     HorizontalUncontainedCarousel(
         state = rememberCarouselState { imageUrls.size },

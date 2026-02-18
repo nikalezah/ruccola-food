@@ -26,11 +26,11 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ToggleButtonsRow(
+actual fun ToggleButtonsRow(
     options: List<String>,
     initialSelectedIndex: Int,
     onSelectedIndexChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
 ) {
     if (options.isEmpty()) return
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }

@@ -30,6 +30,7 @@ import kz.ruccola.food.screens.ProfileScreen
 import kz.ruccola.food.screens.RegisterScreen
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.ui.LabeledNavigationBar
+import kz.ruccola.food.ui.LabeledNavigationTab
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,17 +65,17 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                             LabeledNavigationBar(
                                 tabs = listOf(
-                                    Triple(
+                                    LabeledNavigationTab(
                                         Icons.Filled.DinnerDining,
                                         Icons.Outlined.DinnerDining,
                                         stringResource(R.string.tab_dishes),
                                     ),
-                                    Triple(
+                                    LabeledNavigationTab(
                                         Icons.AutoMirrored.Filled.Chat,
                                         Icons.AutoMirrored.Outlined.Chat,
                                         stringResource(R.string.tab_chat),
                                     ),
-                                    Triple(
+                                    LabeledNavigationTab(
                                         Icons.Filled.ManageAccounts,
                                         Icons.Outlined.ManageAccounts,
                                         stringResource(R.string.tab_profile),

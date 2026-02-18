@@ -2,18 +2,14 @@ package kz.ruccola.food.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SquareImagesCarousel200(imageUrls: List<String>) {
+actual fun SquareImagesCarousel200(imageUrls: List<String>) {
     if (imageUrls.isEmpty()) return
     HorizontalUncontainedCarousel(
         state = rememberCarouselState { imageUrls.size },
@@ -29,8 +25,7 @@ fun SquareImagesCarousel200(imageUrls: List<String>) {
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 200.dp)
-                .maskClip(MaterialTheme.shapes.extraLarge)
-                .then(Modifier),
+                .clip(MaterialTheme.shapes.extraLarge),
         )
     }
 }

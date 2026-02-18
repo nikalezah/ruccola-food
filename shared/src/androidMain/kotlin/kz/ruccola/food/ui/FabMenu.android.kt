@@ -42,7 +42,7 @@ import androidx.compose.ui.semantics.traversalIndex
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
+actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
     val listState = rememberLazyListState()
     val fabVisible by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     val focusRequester = remember { FocusRequester() }

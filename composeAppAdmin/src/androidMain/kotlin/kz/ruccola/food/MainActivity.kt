@@ -42,6 +42,7 @@ import kz.ruccola.food.screens.ProfileScreen
 import kz.ruccola.food.screens.RegisterScreen
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.ui.LabeledNavigationBar
+import kz.ruccola.food.ui.LabeledNavigationTab
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,11 +80,31 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                             LabeledNavigationBar(
                                 tabs = listOf(
-                                    Triple(Icons.Filled.PriceChange, Icons.Outlined.PriceChange, "Цены"),
-                                    Triple(Icons.Filled.DinnerDining, Icons.Outlined.DinnerDining, "Блюда"),
-                                    Triple(Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "Расписание"),
-                                    Triple(Icons.Filled.Groups, Icons.Outlined.Groups, "Клиенты"),
-                                    Triple(Icons.Filled.Settings, Icons.Outlined.Settings, "Настройки"),
+                                    LabeledNavigationTab(
+                                        Icons.Filled.PriceChange,
+                                        Icons.Outlined.PriceChange,
+                                        "Цены",
+                                    ),
+                                    LabeledNavigationTab(
+                                        Icons.Filled.DinnerDining,
+                                        Icons.Outlined.DinnerDining,
+                                        "Блюда",
+                                    ),
+                                    LabeledNavigationTab(
+                                        Icons.Filled.CalendarMonth,
+                                        Icons.Outlined.CalendarMonth,
+                                        "Расписание",
+                                    ),
+                                    LabeledNavigationTab(
+                                        Icons.Filled.Groups,
+                                        Icons.Outlined.Groups,
+                                        "Клиенты",
+                                    ),
+                                    LabeledNavigationTab(
+                                        Icons.Filled.Settings,
+                                        Icons.Outlined.Settings,
+                                        "Настройки",
+                                    ),
                                 ),
                                 selected = { selectedTab },
                                 onSelect = { selectedTab = it },
