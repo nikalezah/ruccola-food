@@ -41,9 +41,13 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(compose.ui)
+            implementation(libs.compose.ui)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.coil.compose)
         }
         val webMain by creating {
             dependsOn(commonMain.get())

@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.customer.LocalStrings
-import kz.ruccola.food.web.common.ui.SquareImagesCarousel200
+import kz.ruccola.food.ui.SquareImagesCarousel200
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

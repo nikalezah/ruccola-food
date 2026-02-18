@@ -1,4 +1,4 @@
-package kz.ruccola.food.web.common.ui
+package kz.ruccola.food.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

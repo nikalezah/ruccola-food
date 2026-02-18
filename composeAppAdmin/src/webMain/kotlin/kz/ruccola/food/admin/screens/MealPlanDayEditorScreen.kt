@@ -64,10 +64,10 @@ import kz.ruccola.food.api.MealPlanDayApi
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.api.MealPlanDaySaveDto
 import kz.ruccola.food.model.Meal
-import kz.ruccola.food.web.common.dishImageUrl
-import kz.ruccola.food.web.common.ui.AsyncImage
-import kz.ruccola.food.web.common.ui.FabMenu
-import kz.ruccola.food.web.common.ui.SingleLineText
+import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.FabMenu
+import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.ui.dishImageUrl
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

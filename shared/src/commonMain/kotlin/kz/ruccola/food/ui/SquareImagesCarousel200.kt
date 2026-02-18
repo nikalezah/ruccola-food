@@ -1,4 +1,4 @@
-package kz.ruccola.food.web.common.ui
+package kz.ruccola.food.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.web.common.dishImageUrl
 
 @Composable
 fun SquareImagesCarousel200(imageUrls: List<String>) {

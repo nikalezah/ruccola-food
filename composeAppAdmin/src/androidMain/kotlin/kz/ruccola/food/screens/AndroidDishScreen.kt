@@ -54,6 +54,7 @@ import coil.compose.AsyncImage
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeBackground
+import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

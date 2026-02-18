@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.theme.ThemePreference
-import kz.ruccola.food.web.common.ui.ToggleButtonsRow
+import kz.ruccola.food.ui.ToggleButtonsRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

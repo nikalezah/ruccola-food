@@ -1,4 +1,4 @@
-package kz.ruccola.food.web.common.ui
+package kz.ruccola.food.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -66,6 +66,8 @@ fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
         animationSpec = tween(durationMillis = 200),
         label = "FabMenuProgress",
     )
+
+    BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
 
     Box(
         modifier = Modifier.onKeyEvent {

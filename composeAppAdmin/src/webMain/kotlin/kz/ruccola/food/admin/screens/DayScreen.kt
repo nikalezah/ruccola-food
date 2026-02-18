@@ -40,7 +40,7 @@ import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.api.DishWithMealDto
-import kz.ruccola.food.web.common.ui.SingleLineText
+import kz.ruccola.food.ui.SingleLineText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -38,9 +38,9 @@ import kz.ruccola.food.api.WeeklyPlanDayDto
 import kz.ruccola.food.customer.LocalStrings
 import kz.ruccola.food.customer.Strings
 import kz.ruccola.food.model.Meal
-import kz.ruccola.food.web.common.dishImageUrl
-import kz.ruccola.food.web.common.ui.AsyncImage
-import kz.ruccola.food.web.common.ui.SingleLineText
+import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.ui.dishImageUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

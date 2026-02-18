@@ -59,6 +59,7 @@ import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.FabMenu
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeBackground
+import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
 

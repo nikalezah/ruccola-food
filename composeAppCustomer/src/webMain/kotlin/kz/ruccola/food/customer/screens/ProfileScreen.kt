@@ -55,7 +55,7 @@ import kz.ruccola.food.api.PlanApi
 import kz.ruccola.food.api.PlanDto
 import kz.ruccola.food.customer.LocalStrings
 import kz.ruccola.food.theme.ThemePreference
-import kz.ruccola.food.web.common.ui.ToggleButtonsRow
+import kz.ruccola.food.ui.ToggleButtonsRow
 import kotlin.math.roundToInt
 import kotlin.time.Clock
 

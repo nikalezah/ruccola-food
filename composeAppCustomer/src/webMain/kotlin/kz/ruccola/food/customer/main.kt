@@ -32,8 +32,8 @@ import kz.ruccola.food.customer.screens.ScheduleScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference
-import kz.ruccola.food.web.common.ui.LabeledNavigationBar
-import kz.ruccola.food.web.common.ui.LabeledNavigationTab
+import kz.ruccola.food.ui.LabeledNavigationBar
+import kz.ruccola.food.ui.LabeledNavigationTab
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {

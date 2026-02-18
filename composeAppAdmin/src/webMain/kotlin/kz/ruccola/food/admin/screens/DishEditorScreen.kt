@@ -56,7 +56,7 @@ import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.DishVariantDto
-import kz.ruccola.food.web.common.ui.SquareImagesCarousel200
+import kz.ruccola.food.ui.SquareImagesCarousel200
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

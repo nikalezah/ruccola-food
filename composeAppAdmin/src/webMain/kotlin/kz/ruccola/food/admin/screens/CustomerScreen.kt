@@ -41,9 +41,9 @@ import kz.ruccola.food.api.ChatApi
 import kz.ruccola.food.api.ChatListItemDto
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
-import kz.ruccola.food.web.common.ui.Badge
-import kz.ruccola.food.web.common.ui.BadgedBox
-import kz.ruccola.food.web.common.ui.SingleLineText
+import kz.ruccola.food.ui.Badge
+import kz.ruccola.food.ui.BadgedBox
+import kz.ruccola.food.ui.SingleLineText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

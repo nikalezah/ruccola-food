@@ -63,7 +63,7 @@ import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayApi
 import kz.ruccola.food.api.MealPlanDayDto
-import kz.ruccola.food.web.common.ui.SingleLineText
+import kz.ruccola.food.ui.SingleLineText
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

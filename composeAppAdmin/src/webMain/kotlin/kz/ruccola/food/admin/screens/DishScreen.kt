@@ -52,9 +52,9 @@ import kotlinx.coroutines.launch
 import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
-import kz.ruccola.food.web.common.dishImageUrl
-import kz.ruccola.food.web.common.ui.AsyncImage
-import kz.ruccola.food.web.common.ui.SingleLineText
+import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.ui.dishImageUrl
 import kotlin.math.roundToInt
 
 @Composable

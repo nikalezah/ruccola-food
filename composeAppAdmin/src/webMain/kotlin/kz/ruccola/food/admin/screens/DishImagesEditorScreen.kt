@@ -57,8 +57,8 @@ import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.FileApi
-import kz.ruccola.food.web.common.dishImageUrl
-import kz.ruccola.food.web.common.ui.AsyncImage
+import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.dishImageUrl
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
 import org.khronos.webgl.get

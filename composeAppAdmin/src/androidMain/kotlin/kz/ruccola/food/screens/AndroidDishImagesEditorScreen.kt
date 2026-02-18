@@ -53,6 +53,7 @@ import kz.ruccola.food.api.DishImageDto
 import kz.ruccola.food.repository.DishRepository
 import kz.ruccola.food.repository.FileRepository
 import kz.ruccola.food.ui.SwipeToDeleteItem
+import kz.ruccola.food.ui.dishImageUrl
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

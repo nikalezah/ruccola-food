@@ -50,8 +50,8 @@ import kz.ruccola.food.api.PlanDto
 import kz.ruccola.food.api.PlanUpdateDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
-import kz.ruccola.food.web.common.ui.FabMenu
-import kz.ruccola.food.web.common.ui.ToggleButtonsRow
+import kz.ruccola.food.ui.FabMenu
+import kz.ruccola.food.ui.ToggleButtonsRow
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,8 +1,7 @@
-package kz.ruccola.food.screens
+package kz.ruccola.food.ui
 
 import kz.ruccola.food.BASE_URL
 
-// Helper to make sure image URLs are absolute for Coil
 fun dishImageUrl(url: String): String {
     val base = BASE_URL
     return if (url.startsWith("/")) base + url else url

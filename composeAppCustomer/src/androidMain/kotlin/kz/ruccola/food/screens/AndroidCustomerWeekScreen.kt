@@ -37,6 +37,7 @@ import kz.ruccola.food.api.WeeklyPlanDayDto
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.localization.toLocalizedString
 import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.ui.dishImageUrl
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale

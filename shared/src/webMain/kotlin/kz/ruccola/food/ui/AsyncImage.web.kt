@@ -1,4 +1,4 @@
-package kz.ruccola.food.web.common.ui
+package kz.ruccola.food.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
@@ -17,14 +17,11 @@ import io.ktor.client.statement.readRawBytes
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Image
 
-private val client = HttpClient()
-private val imageCache = mutableMapOf<String, ImageBitmap>()
-
 @Composable
-fun AsyncImage(
+actual fun AsyncImage(
     model: String,
     contentDescription: String?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
 ) {
     var bitmap by remember(model) { mutableStateOf(imageCache[model]) }
 
@@ -53,3 +50,6 @@ fun AsyncImage(
         Spacer(modifier = modifier)
     }
 }
+
+private val client = HttpClient()
+private val imageCache = mutableMapOf<String, ImageBitmap>()
