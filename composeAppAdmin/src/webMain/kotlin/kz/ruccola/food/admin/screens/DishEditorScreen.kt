@@ -61,7 +61,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DishEditorScreen(
+actual fun DishEditorScreen(
     initialDish: DishDto?,
     onClose: () -> Unit,
 ) {

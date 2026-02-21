@@ -31,10 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kz.ruccola.food.admin.screens.DishScreen
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.screens.AndroidCustomersScreen
 import kz.ruccola.food.screens.AndroidDayScreen
-import kz.ruccola.food.screens.AndroidDishScreen
 import kz.ruccola.food.screens.AndroidMealPlanDayScreen
 import kz.ruccola.food.screens.AndroidPlanScreen
 import kz.ruccola.food.screens.LoginScreen
@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 1 -> {
-                                    AndroidDishScreen(adminToken = token)
+                                    DishScreen()
                                 }
 
                                 2 -> {
