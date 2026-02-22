@@ -18,14 +18,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,13 +46,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.repository.DishRepository
 import kz.ruccola.food.repository.FileRepository
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.SquareImagesCarousel200
-import kz.ruccola.food.ui.SwipeToDeleteItem
+import kz.ruccola.food.ui.SwipeToRemove
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -419,7 +422,7 @@ fun AndroidDishEditorScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         variants.forEach { v ->
                             key(v.id) {
-                                SwipeToDeleteItem(onDelete = {
+                                val onDelete: () -> Unit = {
                                     if (!busy) {
                                         busy = true
                                         val idToDelete = v.id
@@ -434,8 +437,14 @@ fun AndroidDishEditorScreen(
                                             })
                                         }
                                     }
-                                }) {
-                                    Card {
+                                }
+                                SwipeToRemove(
+                                    Icons.Default.Delete,
+                                    Strings.delete,
+                                    onDelete,
+                                    CardDefaults.outlinedShape,
+                                ) {
+                                    OutlinedCard {
                                         Column(
                                             Modifier
                                                 .fillMaxWidth()

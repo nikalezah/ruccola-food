@@ -17,13 +17,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,11 +50,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishImageDto
 import kz.ruccola.food.repository.DishRepository
 import kz.ruccola.food.repository.FileRepository
-import kz.ruccola.food.ui.SwipeToDeleteItem
+import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
 import kotlin.math.roundToInt
 
@@ -145,37 +148,41 @@ fun AndroidDishImagesEditorScreen(
 
                 images.forEachIndexed { index, img ->
                     key(img.id to index) {
-                        SwipeToDeleteItem(onDelete = {
-                            if (busy) return@SwipeToDeleteItem
-                            busy = true
-                            scope.launch {
-                                val remaining = images.filterIndexed { i, _ -> i != index }
-                                persistImages(
-                                    dishId = dish.id,
-                                    list = remaining,
-                                    repo = dishRepo,
-                                    onSuccess = { updated ->
-                                        images.clear()
-                                        images.addAll(updated.images)
-                                        onDishUpdated(updated)
-                                        busy = false
-                                        // Also try to delete the file if it's ours
-                                        val fid = img.fileId
-                                        if (fid != null) scope.launch { fileRepo.delete(fid) }
-                                    },
-                                    onError = { e ->
-                                        error = e
-                                        busy = false
-                                    },
-                                )
-                            }
-                        }) {
+                        SwipeToRemove(
+                            Icons.Default.Delete,
+                            Strings.delete,
+                            onRemove = {
+                                if (busy) return@SwipeToRemove
+                                busy = true
+                                scope.launch {
+                                    val remaining = images.filterIndexed { i, _ -> i != index }
+                                    persistImages(
+                                        dishId = dish.id,
+                                        list = remaining,
+                                        repo = dishRepo,
+                                        onSuccess = { updated ->
+                                            images.clear()
+                                            images.addAll(updated.images)
+                                            onDishUpdated(updated)
+                                            busy = false
+                                            // Also try to delete the file if it's ours
+                                            val fid = img.fileId
+                                            if (fid != null) scope.launch { fileRepo.delete(fid) }
+                                        },
+                                        onError = { e ->
+                                            error = e
+                                            busy = false
+                                        },
+                                    )
+                                }
+                            },
+                            CardDefaults.outlinedShape,
+                        ) {
                             var localOffsetY by remember { mutableFloatStateOf(0f) }
                             var currentIndex by remember { mutableIntStateOf(index) }
-                            Card(
+                            OutlinedCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 6.dp)
                                     .offset { IntOffset(0, localOffsetY.roundToInt()) },
                             ) {
                                 Row(

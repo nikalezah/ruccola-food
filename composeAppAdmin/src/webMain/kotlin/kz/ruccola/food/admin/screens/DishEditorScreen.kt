@@ -1,15 +1,11 @@
 package kz.ruccola.food.admin.screens
 
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,6 +16,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -36,16 +33,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kz.ruccola.food.admin.Strings
@@ -57,7 +50,7 @@ import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.ui.SquareImagesCarousel200
-import kotlin.math.roundToInt
+import kz.ruccola.food.ui.SwipeToRemove
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +77,6 @@ actual fun DishEditorScreen(
 
     var variantEditorVisible by remember { mutableStateOf(false) }
     var editingVariant by remember { mutableStateOf<DishVariantDto?>(null) }
-    var variantToDelete by remember { mutableStateOf<DishVariantDto?>(null) }
     var imageEditorVisible by remember { mutableStateOf(false) }
     val adminToken = remember { kotlinx.browser.window.localStorage.getItem("admin.token") ?: "" }
 
@@ -343,72 +335,13 @@ actual fun DishEditorScreen(
                 } else {
                     variants.forEach { v ->
                         key(v.id) {
-                            var dragOffset by remember { mutableFloatStateOf(0f) }
-                            val density = LocalDensity.current
-                            val swipeThresholdPx = with(density) { 80.dp.toPx() }
-                            val swipeReady = kotlin.math.abs(dragOffset) >= swipeThresholdPx
-                            val swipeIconTint = if (swipeReady) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-
-                            LaunchedEffect(busy) {
-                                if (busy) {
-                                    dragOffset = 0f
-                                }
-                            }
-
-                            Box(Modifier.fillMaxWidth()) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(horizontal = 12.dp)
-                                        .heightIn(min = 72.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(Icons.Default.Delete, contentDescription = null, tint = swipeIconTint)
-                                        Text(
-                                            text = Strings.delete,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = swipeIconTint,
-                                        )
-                                    }
-                                    Spacer(Modifier.weight(1f))
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(Icons.Default.Delete, contentDescription = null, tint = swipeIconTint)
-                                        Text(
-                                            text = Strings.delete,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = swipeIconTint,
-                                        )
-                                    }
-                                }
+                            SwipeToRemove(
+                                Icons.Default.Delete,
+                                Strings.delete,
+                                { deleteVariant(v) },
+                                CardDefaults.outlinedShape,
+                            ) {
                                 OutlinedCard(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(vertical = 4.dp)
-                                        .offset { IntOffset(dragOffset.roundToInt(), 0) }
-                                        .then(
-                                            if (!busy) {
-                                                Modifier.pointerInput(v.id) {
-                                                    detectHorizontalDragGestures(
-                                                        onHorizontalDrag = { change, dragAmount ->
-                                                            change.consume()
-                                                            dragOffset += dragAmount
-                                                        },
-                                                        onDragEnd = {
-                                                            if (kotlin.math.abs(dragOffset) >= swipeThresholdPx) {
-                                                                variantToDelete = v
-                                                            }
-                                                            dragOffset = 0f
-                                                        },
-                                                        onDragCancel = { dragOffset = 0f },
-                                                    )
-                                                }
-                                            } else {
-                                                Modifier
-                                            },
-                                        ),
                                     onClick = {
                                         editingVariant = v
                                         variantEditorVisible = true
@@ -482,28 +415,6 @@ actual fun DishEditorScreen(
             dish = dishState!!,
             onClose = { imageEditorVisible = false },
             onSaved = { updated -> dishState = updated },
-        )
-    }
-
-    if (variantToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { variantToDelete = null },
-            title = { Text("Удалить вариант?") },
-            text = { Text("Вы уверены, что хотите удалить вариант \"${variantToDelete!!.description}\"?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    val v = variantToDelete!!
-                    variantToDelete = null
-                    deleteVariant(v)
-                }) {
-                    Text(Strings.delete)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { variantToDelete = null }) {
-                    Text(Strings.cancel)
-                }
-            },
         )
     }
 }

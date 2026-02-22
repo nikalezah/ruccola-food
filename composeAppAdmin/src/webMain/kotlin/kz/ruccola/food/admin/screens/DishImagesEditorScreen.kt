@@ -1,15 +1,12 @@
 package kz.ruccola.food.admin.screens
 
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +20,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
@@ -37,7 +35,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,9 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.document
 import kotlinx.coroutines.launch
@@ -58,6 +52,7 @@ import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.FileApi
 import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
@@ -199,69 +194,13 @@ fun DishImagesEditorScreen(
                 ) {
                     itemsIndexed(workingList, key = { _, item -> item.fileId }) { index, item ->
                         val previousPosition = originalPositions[item.fileId] ?: (index + 1)
-                        var dragOffset by remember { mutableFloatStateOf(0f) }
-                        val density = LocalDensity.current
-                        val swipeThresholdPx = with(density) { 80.dp.toPx() }
-                        val swipeReady = kotlin.math.abs(dragOffset) >= swipeThresholdPx
-                        val swipeIconTint =
-                            if (swipeReady) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-
-                        LaunchedEffect(busy) {
-                            if (busy) {
-                                dragOffset = 0f
-                            }
-                        }
-
-                        Box(Modifier.fillMaxWidth()) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(horizontal = 12.dp)
-                                    .heightIn(min = 80.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Default.Delete, contentDescription = null, tint = swipeIconTint)
-                                    Text(
-                                        text = Strings.delete,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = swipeIconTint,
-                                    )
-                                }
-                                Spacer(Modifier.weight(1f))
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Default.Delete, contentDescription = null, tint = swipeIconTint)
-                                    Text(
-                                        text = Strings.delete,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = swipeIconTint,
-                                    )
-                                }
-                            }
-                            OutlinedCard(
-                                modifier = Modifier.fillMaxWidth()
-                                    .graphicsLayer { translationX = dragOffset }
-                                    .then(
-                                        if (!busy) {
-                                            Modifier.pointerInput(item.fileId) {
-                                                detectHorizontalDragGestures(
-                                                    onHorizontalDrag = { change, dragAmount ->
-                                                        change.consume()
-                                                        dragOffset += dragAmount
-                                                    },
-                                                    onDragEnd = {
-                                                        if (kotlin.math.abs(dragOffset) >= swipeThresholdPx) {
-                                                            workingList.remove(item)
-                                                        }
-                                                        dragOffset = 0f
-                                                    },
-                                                    onDragCancel = { dragOffset = 0f },
-                                                )
-                                            }
-                                        } else {
-                                            Modifier
-                                        },
-                                    ),
-                            ) {
+                        SwipeToRemove(
+                            Icons.Default.Delete,
+                            Strings.delete,
+                            { workingList.remove(item) },
+                            CardDefaults.outlinedShape,
+                        ) {
+                            OutlinedCard {
                                 Row(
                                     modifier = Modifier.fillMaxWidth().padding(8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
