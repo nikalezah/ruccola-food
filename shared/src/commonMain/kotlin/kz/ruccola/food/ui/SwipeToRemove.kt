@@ -17,7 +17,10 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
@@ -26,8 +29,15 @@ fun SwipeToRemove(
     imageVector: ImageVector,
     iconLabel: String,
     onRemove: () -> Unit,
+    shape: Shape = RectangleShape,
+    enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    if (!enabled) {
+        content()
+        return
+    }
+
     val dismissState = rememberSwipeToDismissBoxState() // todo: adjust positionalThreshold when fixed
     SwipeToDismissBox(
         state = dismissState,
@@ -36,7 +46,7 @@ fun SwipeToRemove(
             val containerColor = if (isThresholdReached) colorScheme.errorContainer else colorScheme.surfaceVariant
             val contentColor = if (isThresholdReached) colorScheme.onErrorContainer else colorScheme.onSurfaceVariant
 
-            Box(Modifier.fillMaxSize().background(containerColor)) {
+            Box(Modifier.clip(shape).fillMaxSize().background(containerColor)) {
                 Row(
                     modifier = Modifier.matchParentSize().padding(horizontal = 18.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,

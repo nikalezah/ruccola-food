@@ -28,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.localization.toLocalizedString
@@ -58,7 +58,7 @@ import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.FabMenu
 import kz.ruccola.food.ui.SingleLineText
-import kz.ruccola.food.ui.SwipeBackground
+import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
@@ -235,24 +235,12 @@ fun AndroidMealPlanDayEditorScreen(
                         localDishes.removeAll { it.dish.id == d.dish.id }
                     }
                 }
+                val onDelete: () -> Unit = {
+                    localDishes.remove(d)
+                    localDishIdToMeal.remove(d.dish.id)
+                }
 
-                SwipeToDismissBox(
-                    state = dismissState,
-                    enableDismissFromStartToEnd = true,
-                    enableDismissFromEndToStart = true,
-                    backgroundContent = {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Row(
-                                modifier = Modifier.matchParentSize().padding(horizontal = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                SwipeBackground(Icons.Default.Delete, "Delete")
-                                SwipeBackground(Icons.Default.Delete, "Delete")
-                            }
-                        }
-                    },
-                ) {
+                SwipeToRemove(Icons.Default.Delete, Strings.delete, onDelete) {
                     ListItem(
                         leadingContent = {
                             if (imageUrl != null) {

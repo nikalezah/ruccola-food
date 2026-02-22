@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,7 +40,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -66,11 +66,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kz.ruccola.food.admin.Strings
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.repository.MealPlanDayRepository
 import kz.ruccola.food.ui.SingleLineText
-import kz.ruccola.food.ui.SwipeBackground
+import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -308,23 +309,7 @@ fun AndroidMealPlanDayItem(
         }
     }
 
-    SwipeToDismissBox(
-        state = dismissState,
-        enableDismissFromStartToEnd = true,
-        enableDismissFromEndToStart = true,
-        backgroundContent = {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier.matchParentSize().padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    SwipeBackground(Icons.Default.Delete, "Delete")
-                    SwipeBackground(Icons.Default.Delete, "Delete")
-                }
-            }
-        },
-    ) {
+    SwipeToRemove(Icons.Default.Delete, Strings.delete, onSwipeDelete, CardDefaults.outlinedShape) {
         OutlinedCard(
             modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         ) {

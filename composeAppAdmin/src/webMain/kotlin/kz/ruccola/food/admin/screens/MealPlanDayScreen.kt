@@ -1,6 +1,5 @@
 package kz.ruccola.food.admin.screens
 
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,6 +27,7 @@ import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,7 +44,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,9 +52,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kz.ruccola.food.admin.Strings
@@ -64,7 +59,7 @@ import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayApi
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.ui.SingleLineText
-import kotlin.math.roundToInt
+import kz.ruccola.food.ui.SwipeToRemove
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -210,7 +205,7 @@ fun MealPlanDayScreen() {
                                         previousPosition = previousPosition,
                                         currentPosition = index + 1,
                                         showReorderPosition = reorderMode,
-                                        enableSwipeDelete = !reorderMode,
+                                        swipeEnabled = !reorderMode,
                                         onClick = {
                                             editingDay = day
                                             showEditor = true
@@ -294,7 +289,7 @@ fun MealPlanDayItem(
     previousPosition: Int,
     currentPosition: Int,
     showReorderPosition: Boolean,
-    enableSwipeDelete: Boolean,
+    swipeEnabled: Boolean,
     onClick: () -> Unit,
     onDelete: () -> Unit,
     onMakeCurrent: () -> Unit,
@@ -303,11 +298,6 @@ fun MealPlanDayItem(
     var dishes by remember { mutableStateOf<List<DishWithMealDto>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var dragOffset by remember { mutableFloatStateOf(0f) }
-    val density = LocalDensity.current
-    val swipeThresholdPx = with(density) { 80.dp.toPx() }
-    val swipeReady = kotlin.math.abs(dragOffset) >= swipeThresholdPx
-    val swipeIconTint = if (swipeReady) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
 
     LaunchedEffect(item.id) {
         isLoading = true
@@ -320,61 +310,15 @@ fun MealPlanDayItem(
         isLoading = false
     }
 
-    LaunchedEffect(enableSwipeDelete) {
-        if (!enableSwipeDelete) {
-            dragOffset = 0f
-        }
-    }
-
-    Box(Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .heightIn(min = 142.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Default.Delete, contentDescription = null, tint = swipeIconTint)
-                Text(
-                    text = Strings.delete,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = swipeIconTint,
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Default.Delete, contentDescription = null, tint = swipeIconTint)
-                Text(
-                    text = Strings.delete,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = swipeIconTint,
-                )
-            }
-        }
+    SwipeToRemove(
+        Icons.Default.Delete,
+        Strings.delete,
+        onDelete,
+        CardDefaults.outlinedShape,
+        swipeEnabled,
+    ) {
         OutlinedCard(
-            modifier = Modifier.fillMaxWidth()
-                .offset { IntOffset(dragOffset.roundToInt(), 0) }
-                .then(
-                    if (enableSwipeDelete) {
-                        Modifier.pointerInput(item.id) {
-                            detectHorizontalDragGestures(
-                                onHorizontalDrag = { change, dragAmount ->
-                                    change.consume()
-                                    dragOffset += dragAmount
-                                },
-                                onDragEnd = {
-                                    if (kotlin.math.abs(dragOffset) >= swipeThresholdPx) {
-                                        onDelete()
-                                    }
-                                    dragOffset = 0f
-                                },
-                                onDragCancel = { dragOffset = 0f },
-                            )
-                        }
-                    } else {
-                        Modifier
-                    },
-                ),
+            modifier = Modifier.fillMaxWidth(),
             onClick = onClick,
         ) {
             Row(
