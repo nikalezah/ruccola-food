@@ -17,15 +17,15 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import java.io.File
 import java.nio.file.Files as NioFiles
 
-class FileService(
-    val filesDirPath: String = FILES_DIR_PATH, // todo: remove?
-) {
+class FileService {
     companion object {
-        const val FILES_DIR_PATH = "files" // todo: move somewhere else
+        // todo: move somewhere else
+        const val FILES_DIR_PATH = "server/files"
+        const val FILES_URL_PREFIX = "/files"
     }
 
     private fun ensureUploadDir(): File {
-        val dir = File(filesDirPath)
+        val dir = File(FILES_DIR_PATH)
         if (!dir.exists()) {
             dir.mkdirs()
         }
@@ -86,7 +86,7 @@ class FileService(
     fun toDto(row: ResultRow): FileDto =
         FileDto(
             row[Files.id].value,
-            "/$filesDirPath/${row[Files.filename]}",
+            "$FILES_URL_PREFIX/${row[Files.filename]}",
             row[Files.filename],
             row[Files.size],
             row[Files.mimeType],

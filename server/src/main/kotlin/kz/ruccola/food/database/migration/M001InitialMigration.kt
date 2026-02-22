@@ -58,7 +58,7 @@ class M001InitialMigration : Migration {
 
             // Seed default admin user
             Users.insert {
-                it[Users.email] = "admin@interna.food"
+                it[Users.email] = "admin@ruccola.food"
                 it[Users.password] = "admin"
                 it[Users.firstName] = "Admin"
                 it[Users.lastName] = "Admin"

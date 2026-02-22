@@ -26,7 +26,8 @@ import kz.ruccola.food.route.configureFileRoutes
 import kz.ruccola.food.route.configureMealPlanDayRoutes
 import kz.ruccola.food.route.configurePlanRoutes
 import kz.ruccola.food.service.DayService
-import kz.ruccola.food.service.FileService
+import kz.ruccola.food.service.FileService.Companion.FILES_DIR_PATH
+import kz.ruccola.food.service.FileService.Companion.FILES_URL_PREFIX
 import kz.ruccola.food.service.MealPlanDayService
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -62,7 +63,7 @@ fun Application.module() {
     install(Resources)
 
     routing {
-        staticFiles("/${FileService.FILES_DIR_PATH}", File(FileService.FILES_DIR_PATH))
+        staticFiles(FILES_URL_PREFIX, File(FILES_DIR_PATH))
         route("/api/") {
             configureAuthRoutes()
             configurePlanRoutes()

@@ -15,6 +15,7 @@ import kz.ruccola.food.model.DishVariants
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
 import kz.ruccola.food.now
+import kz.ruccola.food.service.FileService.Companion.FILES_URL_PREFIX
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -240,7 +241,7 @@ class DishService {
     fun toDishImageDto(row: ResultRow): DishImageDto =
         DishImageDto(
             row[DishImages.id].value,
-            "/${FileService.FILES_DIR_PATH}/${row[Files.filename]}",
+            "/${FILES_URL_PREFIX}/${row[Files.filename]}",
             row[DishImages.fileId].value,
         )
 
