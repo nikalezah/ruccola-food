@@ -11,7 +11,12 @@ application {
     mainClass.set("kz.ruccola.food.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    applicationDefaultJvmArgs = listOf(
+        "-Dio.ktor.development=$isDevelopment",
+        // Required for Java 21+ to allow libraries (like Jansi for logging colors or Netty for networking)
+        // to call native OS APIs without security warnings.
+        "--enable-native-access=ALL-UNNAMED",
+    )
 }
 
 dependencies {
@@ -21,6 +26,7 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.resources)
     implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.serialization.json)

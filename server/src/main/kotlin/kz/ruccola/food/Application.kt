@@ -7,6 +7,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.cio.EngineMain
 import io.ktor.server.http.content.staticFiles
+import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.resources.Resources
@@ -35,6 +36,7 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
     // Install plugins
+    install(CallLogging)
     install(ContentNegotiation) {
         json(
             Json {
