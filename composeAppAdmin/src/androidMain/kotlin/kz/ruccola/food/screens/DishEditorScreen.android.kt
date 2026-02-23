@@ -54,6 +54,7 @@ import kz.ruccola.food.repository.FileRepository
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import kz.ruccola.food.ui.SwipeToRemove
+import kz.ruccola.food.viewmodel.DishImagesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,12 +90,38 @@ actual fun DishEditorScreen(
 
     // Navigate to a dedicated image editor screen instead of a modal
     if (showImagesEditor && dishState != null) {
-        AndroidDishImagesEditorScreen(
+        var vmToUpload by remember { mutableStateOf<DishImagesViewModel?>(null) }
+        val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                scope.launch {
+                    try {
+                        val cr = context.contentResolver
+                        val mime = cr.getType(uri) ?: "application/octet-stream"
+                        val name =
+                            cr.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)
+                                ?.use { cursor ->
+                                    val index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                                    if (index >= 0 && cursor.moveToFirst()) cursor.getString(index) else null
+                                } ?: "upload.bin"
+                        val bytes = cr.openInputStream(uri)?.use { it.readBytes() }
+                        if (bytes != null) {
+                            vmToUpload?.uploadImage(name, mime, bytes)
+                        }
+                    } catch (_: Exception) {
+                    }
+                }
+            }
+        }
+
+        DishImagesEditorScreen(
             dish = dishState!!,
-            onBack = { showImagesEditor = false },
-            onDishUpdated = { updated ->
+            onClose = { showImagesEditor = false },
+            onSaved = { updated ->
                 dishState = updated
-                // Close the screen after a successful update if needed; keep open to allow multiple edits
+            },
+            onPickImage = { viewModel ->
+                vmToUpload = viewModel
+                pickImageLauncher.launch("image/*")
             },
         )
         return
@@ -194,13 +221,21 @@ actual fun DishEditorScreen(
         },
     ) { padding ->
         val scrollState = rememberScrollState()
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(padding).padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(padding)
+                .padding(16.dp),
+        ) {
             if (error != null) {
                 Text(error!!, color = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.height(8.dp))
             }
 
-            // Editing for name/description: for an existing dish, show text with edit icon and modal; for a new dish, allow inline entry
+            // Editing for name/description:
+            // for an existing dish, show text with edit icon and modal;
+            // for a new dish, allow inline entry
             var showEditName by remember { mutableStateOf(false) }
             var showEditDescription by remember { mutableStateOf(false) }
 

@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,11 +18,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,141 +32,62 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import kotlinx.browser.document
-import kotlinx.coroutines.launch
 import kz.ruccola.food.Strings
-import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
-import kz.ruccola.food.api.DishUpdateDto
-import kz.ruccola.food.api.FileApi
+import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
-import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int8Array
-import org.khronos.webgl.get
-import org.w3c.dom.HTMLInputElement
-import org.w3c.files.FileReader
-import kotlin.js.ExperimentalWasmJsInterop
+import kz.ruccola.food.viewmodel.DishImagesViewModel
 
-// todo: move somewhere
-private data class DishImageItem(
-    val fileId: Int,
-    val url: String,
-)
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalWasmJsInterop::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DishImagesEditorScreen(
     dish: DishDto,
     onClose: () -> Unit,
     onSaved: (DishDto) -> Unit,
+    onPickImage: (DishImagesViewModel) -> Unit,
 ) {
-    val dishApi = remember { DishApi() }
-    val fileApi = remember { FileApi() }
-    val scope = rememberCoroutineScope()
+    val viewModel = remember(dish.id) { DishImagesViewModel(dish) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    var busy by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(uiState.isSaved) {
+        if (uiState.isSaved) {
+            onSaved(uiState.dish)
+            onClose()
+        }
+    }
 
-    val workingList = remember { mutableStateListOf<DishImageItem>() }
-    val initialIds = remember(dish.id, dish.images) { dish.images.map { it.fileId }.toSet() }
     val originalPositions = remember(dish.id, dish.images) {
         dish.images.mapIndexed { index, image -> image.fileId to (index + 1) }.toMap()
-    }
-
-    LaunchedEffect(dish.id, dish.images) {
-        workingList.clear()
-        workingList.addAll(dish.images.map { DishImageItem(it.fileId, it.url) })
-    }
-
-    fun uploadImage() {
-        if (busy) return
-        val input = document.createElement("input") as HTMLInputElement
-        input.type = "file"
-        input.accept = "image/*"
-        input.onchange = {
-            val file = input.files?.item(0)!! // ?: return@onchange
-            scope.launch {
-                busy = true
-                try {
-                    val reader = FileReader()
-                    reader.onload = { _ ->
-                        val result = reader.result as ArrayBuffer
-                        val array = Int8Array(result)
-                        val bytes = ByteArray(array.length) { i -> array[i] }
-
-                        scope.launch {
-                            try {
-                                val uploaded = fileApi.upload(file.name, file.type, bytes)
-                                workingList.add(DishImageItem(fileId = uploaded.id, url = uploaded.url))
-                            } catch (e: Exception) {
-                                error = e.message
-                            } finally {
-                                busy = false
-                            }
-                        }
-                    }
-                    reader.readAsArrayBuffer(file)
-                } catch (e: Exception) {
-                    error = e.message
-                    busy = false
-                }
-            }
-        }
-        input.click()
-    }
-
-    fun saveChanges() {
-        if (busy) return
-        scope.launch {
-            busy = true
-            error = null
-            val currentIds = workingList.map { it.fileId }
-            try {
-                val updated = dishApi.updateDish(dish.id, DishUpdateDto(imageFileIds = currentIds))
-                val removedIds = initialIds - currentIds.toSet()
-                for (id in removedIds) {
-                    runCatching { fileApi.delete(id) }
-                }
-                onSaved(updated)
-                onClose()
-            } catch (e: Exception) {
-                error = e.message
-            } finally {
-                busy = false
-            }
-        }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit images") },
+                title = { Text(Strings.images) },
                 navigationIcon = {
-                    IconButton(onClick = { if (!busy) onClose() }) {
+                    IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    FilledIconButton(onClick = { saveChanges() }, enabled = !busy) {
-                        Icon(Icons.Default.Check, contentDescription = "Save")
-                    }
+                    ApplyIconButton(
+                        onClick = { viewModel.save() },
+                        enabled = !uiState.isBusy,
+                    )
                 },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { uploadImage() }) {
+            FloatingActionButton(onClick = { if (!uiState.isBusy) onPickImage(viewModel) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add")
             }
         },
@@ -176,29 +95,30 @@ fun DishImagesEditorScreen(
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
         ) {
-            if (error != null) {
-                Text(error!!, color = MaterialTheme.colorScheme.error)
+            if (uiState.error != null) {
+                Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.height(8.dp))
             }
-            if (busy) {
+            if (uiState.isBusy) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
             }
 
-            if (workingList.isEmpty()) {
+            if (uiState.workingList.isEmpty()) {
                 Text(Strings.noItems, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    itemsIndexed(workingList, key = { _, item -> item.fileId }) { index, item ->
+                    itemsIndexed(uiState.workingList, key = { _, item -> item.fileId }) { index, item ->
                         val previousPosition = originalPositions[item.fileId] ?: (index + 1)
                         SwipeToRemove(
                             Icons.Default.Delete,
                             Strings.delete,
-                            { workingList.remove(item) },
+                            { viewModel.removeImage(item) },
                             CardDefaults.outlinedShape,
+                            enabled = !uiState.isBusy,
                         ) {
                             OutlinedCard {
                                 Row(
@@ -231,26 +151,14 @@ fun DishImagesEditorScreen(
                                     }
                                     Spacer(Modifier.weight(1f))
                                     IconButton(
-                                        onClick = {
-                                            val idx = workingList.indexOf(item)
-                                            if (idx > 0) {
-                                                workingList.removeAt(idx)
-                                                workingList.add(idx - 1, item)
-                                            }
-                                        },
-                                        enabled = !busy && index > 0,
+                                        onClick = { viewModel.moveUp(index) },
+                                        enabled = !uiState.isBusy && index > 0,
                                     ) {
                                         Icon(Icons.Filled.ArrowUpward, contentDescription = "Move up")
                                     }
                                     IconButton(
-                                        onClick = {
-                                            val idx = workingList.indexOf(item)
-                                            if (idx < workingList.size - 1) {
-                                                workingList.removeAt(idx)
-                                                workingList.add(idx + 1, item)
-                                            }
-                                        },
-                                        enabled = !busy && index < workingList.size - 1,
+                                        onClick = { viewModel.moveDown(index) },
+                                        enabled = !uiState.isBusy && index < uiState.workingList.size - 1,
                                     ) {
                                         Icon(Icons.Filled.ArrowDownward, contentDescription = "Move down")
                                     }

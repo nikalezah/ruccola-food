@@ -41,10 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import kz.ruccola.food.Strings
-import kz.ruccola.food.admin.screens.DishImagesEditorScreen
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.DishApi
@@ -54,8 +54,14 @@ import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import kz.ruccola.food.ui.SwipeToRemove
+import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.Int8Array
+import org.khronos.webgl.get
+import org.w3c.dom.HTMLInputElement
+import org.w3c.files.FileReader
+import kotlin.js.ExperimentalWasmJsInterop
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalWasmJsInterop::class)
 @Composable
 actual fun DishEditorScreen(
     initialDish: DishDto?,
@@ -421,6 +427,23 @@ actual fun DishEditorScreen(
             dish = dishState!!,
             onClose = { imageEditorVisible = false },
             onSaved = { updated -> dishState = updated },
+            onPickImage = { viewModel ->
+                val input = document.createElement("input") as HTMLInputElement
+                input.type = "file"
+                input.accept = "image/*"
+                input.onchange = {
+                    val file = input.files?.item(0)!!
+                    val reader = FileReader()
+                    reader.onload = { _ ->
+                        val result = reader.result as ArrayBuffer
+                        val array = Int8Array(result)
+                        val bytes = ByteArray(array.length) { i -> array[i] }
+                        viewModel.uploadImage(file.name, file.type, bytes)
+                    }
+                    reader.readAsArrayBuffer(file)
+                }
+                input.click()
+            },
         )
     }
 }
