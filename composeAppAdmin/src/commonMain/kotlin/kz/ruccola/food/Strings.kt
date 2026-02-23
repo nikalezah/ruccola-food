@@ -90,4 +90,9 @@ object Strings {
     const val images = "Изображения"
     const val noData = "Нет данных"
     const val noItems = "Нет элементов"
+    const val newDish = "Новое блюдо"
+    const val editDish = "Изменить блюдо"
+    const val editName = "Изменить название"
+    const val editDescription = "Изменить описание"
+    const val variants = "Варианты"
 }

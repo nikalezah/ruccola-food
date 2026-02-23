@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.provideImagePicker
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SwipeToRemove
@@ -53,10 +54,10 @@ fun DishImagesEditorScreen(
     dish: DishDto,
     onClose: () -> Unit,
     onSaved: (DishDto) -> Unit,
-    onPickImage: (DishImagesViewModel) -> Unit,
 ) {
     val viewModel = remember(dish.id) { DishImagesViewModel(dish) }
     val uiState by viewModel.uiState.collectAsState()
+    val onPickImage = provideImagePicker()
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
