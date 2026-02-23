@@ -103,4 +103,9 @@ object Strings {
     const val editPlan = "Редактировать план"
     const val noPlans = "Нет планов"
     const val pricePerDayShort = "Цена за день"
+    const val newDay = "Новый день №%s"
+    const val editDay = "Изменить день №%s"
+    const val mpdSubtitle = "Блюда приёмов пищи"
+    const val pickDishFor = "Выберите блюдо для %s"
+    const val tabSchedule = "Расписание"
 }

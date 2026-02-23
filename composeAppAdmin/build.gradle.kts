@@ -61,7 +61,6 @@ kotlin {
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.client.android)
             implementation(libs.ktor.serialization.json)
-            implementation(libs.kotlinx.datetime)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -73,6 +72,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.kotlinx.datetime)
             implementation(compose.materialIconsExtended)
             implementation(projects.shared)
         }
@@ -83,7 +83,6 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.contentNegotiation)
                 implementation(libs.ktor.serialization.json)
-                implementation(libs.kotlinx.datetime)
                 implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
             }
         }

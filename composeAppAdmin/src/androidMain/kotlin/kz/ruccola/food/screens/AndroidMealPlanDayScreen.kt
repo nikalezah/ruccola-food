@@ -69,7 +69,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
-import kz.ruccola.food.repository.MealPlanDayRepository
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
@@ -77,7 +76,7 @@ import kz.ruccola.food.viewmodel.MealPlanDayViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AndroidMealPlanDayScreen(onHistoryClick: () -> Unit) {
-    val vm: MealPlanDayViewModel = viewModel()
+    val vm: MealPlanDayViewModel = viewModel(factory = MealPlanDayViewModel.Factory)
     val state by vm.uiState.collectAsState()
     val ctx = LocalContext.current
 
@@ -92,7 +91,7 @@ fun AndroidMealPlanDayScreen(onHistoryClick: () -> Unit) {
     )
     LaunchedEffect(ptrState.distanceFraction) {
         if (ptrState.distanceFraction >= 1f && !state.isLoading) {
-            vm.getAll()
+            vm.loadAll()
         }
     }
 
@@ -120,7 +119,7 @@ fun AndroidMealPlanDayScreen(onHistoryClick: () -> Unit) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Расписание") },
+                title = { Text(Strings.tabSchedule) },
                 navigationIcon = {
                     IconButton(onClick = onHistoryClick) {
                         Icon(Icons.Filled.History, contentDescription = "History")
@@ -165,7 +164,7 @@ fun AndroidMealPlanDayScreen(onHistoryClick: () -> Unit) {
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.isLoading,
-            onRefresh = { vm.getAll() },
+            onRefresh = { vm.loadAll() },
             modifier = Modifier.fillMaxSize().padding(padding),
             state = ptrState,
             indicator = {
@@ -265,13 +264,13 @@ fun AndroidMealPlanDayScreen(onHistoryClick: () -> Unit) {
     }
 
     if (editorVisible) {
-        AndroidMealPlanDayEditorScreen(
+        MealPlanDayEditorScreen(
             initialItem = editorTarget,
             nextSerial = nextSerial,
             onClose = {
                 editorVisible = false
                 editorTarget = null
-                vm.getAll()
+                vm.loadAll()
             },
         )
     }
@@ -285,17 +284,23 @@ fun AndroidMealPlanDayItem(
     onSwipeDelete: () -> Unit,
     onMakeCurrent: () -> Unit,
 ) {
-    val repository = remember { MealPlanDayRepository() }
+    val vm: MealPlanDayViewModel = viewModel(factory = MealPlanDayViewModel.Factory)
+    val state by vm.uiState.collectAsState()
+
     var dishes by remember { mutableStateOf<List<DishWithMealDto>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    val error = state.error
+
+    LaunchedEffect(item.id, state.selectedDishes) {
+        if (state.selectedDishesForId == item.id) {
+            dishes = state.selectedDishes
+            isLoading = false
+        }
+    }
 
     LaunchedEffect(item.id) {
         isLoading = true
-        error = null
-        val result = repository.getDishes(item.id)
-        result.onSuccess { list -> dishes = list }.onFailure { e -> error = e.message }
-        isLoading = false
+        vm.getDishes(item.id)
     }
 
     val dismissState = rememberSwipeToDismissBoxState()
@@ -335,7 +340,7 @@ fun AndroidMealPlanDayItem(
                         isLoading -> CircularProgressIndicator(modifier = Modifier.size(18.dp))
 
                         error != null -> Text(
-                            text = "Failed to load dishes",
+                            text = error,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                         )

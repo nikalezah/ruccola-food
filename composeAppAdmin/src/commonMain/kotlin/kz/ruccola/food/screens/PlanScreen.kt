@@ -54,7 +54,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanScreen() {
-    val vm: PlanViewModel = viewModel { PlanViewModel() }
+    val vm: PlanViewModel = viewModel(factory = PlanViewModel.Factory)
     val state by vm.uiState.collectAsState()
 
     var showEditor by remember { mutableStateOf(false) }

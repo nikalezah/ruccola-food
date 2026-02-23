@@ -58,6 +58,7 @@ import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayApi
 import kz.ruccola.food.api.MealPlanDayDto
+import kz.ruccola.food.screens.MealPlanDayEditorScreen
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 
@@ -108,7 +109,7 @@ fun MealPlanDayScreen() {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(Strings.tabMealPlanDays) },
+                title = { Text(Strings.tabSchedule) },
                 navigationIcon = {
                     IconButton(onClick = { showHistory = true }) {
                         Icon(Icons.Default.History, contentDescription = "History")
