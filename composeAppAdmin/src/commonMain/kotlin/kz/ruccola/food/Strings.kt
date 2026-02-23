@@ -95,4 +95,12 @@ object Strings {
     const val editName = "Изменить название"
     const val editDescription = "Изменить описание"
     const val variants = "Варианты"
+    const val newPriceNoVariants = "Новая цена без вариантов"
+    const val newPriceWithVariants = "Новая цена с вариантами"
+    const val kcalDays = "ккал\\дни"
+    const val totalForPeriod = "Всего за период: %s"
+    const val createPlan = "Создать план"
+    const val editPlan = "Редактировать план"
+    const val noPlans = "Нет планов"
+    const val pricePerDayShort = "Цена за день"
 }

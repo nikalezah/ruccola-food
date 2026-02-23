@@ -35,9 +35,9 @@ import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.screens.AndroidCustomersScreen
 import kz.ruccola.food.screens.AndroidDayScreen
 import kz.ruccola.food.screens.AndroidMealPlanDayScreen
-import kz.ruccola.food.screens.AndroidPlanScreen
 import kz.ruccola.food.screens.DishScreen
 import kz.ruccola.food.screens.LoginScreen
+import kz.ruccola.food.screens.PlanScreen
 import kz.ruccola.food.screens.ProfileScreen
 import kz.ruccola.food.screens.RegisterScreen
 import kz.ruccola.food.theme.GreenLightColorScheme
@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity() {
                             var isViewingHistory by remember(selectedTab) { mutableStateOf(false) }
                             when (selectedTab) {
                                 0 -> {
-                                    AndroidPlanScreen()
+                                    PlanScreen()
                                 }
 
                                 1 -> {
@@ -146,7 +146,7 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 else -> {
-                                    AndroidPlanScreen()
+                                    PlanScreen()
                                 }
                             }
                         }

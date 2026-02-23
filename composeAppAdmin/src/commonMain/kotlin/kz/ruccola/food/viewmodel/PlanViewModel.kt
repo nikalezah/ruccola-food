@@ -1,0 +1,99 @@
+package kz.ruccola.food.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kz.ruccola.food.api.PlanApi
+import kz.ruccola.food.api.PlanCreateDto
+import kz.ruccola.food.api.PlanDto
+import kz.ruccola.food.api.PlanUpdateDto
+import kz.ruccola.food.model.PlanCalories
+import kz.ruccola.food.model.PlanDays
+
+class PlanViewModel : ViewModel() {
+    private val api = PlanApi()
+
+    private val _uiState = MutableStateFlow(PlanUiState())
+    val uiState: StateFlow<PlanUiState> = _uiState.asStateFlow()
+
+    init {
+        loadAll()
+    }
+
+    fun loadAll() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val plans = api.getAll()
+                _uiState.update { it.copy(items = plans, isLoading = false) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message ?: "Unknown error", isLoading = false) }
+            }
+        }
+    }
+
+    fun create(
+        calories: PlanCalories,
+        periodDays: PlanDays,
+        pricePerDay: Int,
+        allowVariantChoice: Boolean,
+    ) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, error = null) }
+            try {
+                api.create(PlanCreateDto(calories, periodDays, pricePerDay, allowVariantChoice))
+                _uiState.update { it.copy(isSaving = false) }
+                loadAll()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
+            }
+        }
+    }
+
+    fun update(
+        id: Int,
+        calories: PlanCalories?,
+        periodDays: PlanDays?,
+        pricePerDay: Int?,
+        allowVariantChoice: Boolean?,
+    ) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, error = null) }
+            try {
+                api.update(id, PlanUpdateDto(calories, periodDays, pricePerDay, allowVariantChoice))
+                _uiState.update { it.copy(isSaving = false) }
+                loadAll()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
+            }
+        }
+    }
+
+    fun delete(id: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, error = null) }
+            try {
+                api.delete(id)
+                _uiState.update { it.copy(isSaving = false) }
+                loadAll()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
+            }
+        }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+}
+
+data class PlanUiState(
+    val items: List<PlanDto> = emptyList(),
+    val isLoading: Boolean = false,
+    val isSaving: Boolean = false,
+    val error: String? = null,
+)

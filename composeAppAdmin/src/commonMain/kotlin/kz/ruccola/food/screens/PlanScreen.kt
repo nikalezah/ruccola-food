@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,16 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -31,35 +27,34 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.Strings
-import kz.ruccola.food.api.PlanApi
-import kz.ruccola.food.api.PlanCreateDto
 import kz.ruccola.food.api.PlanDto
-import kz.ruccola.food.api.PlanUpdateDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 import kz.ruccola.food.ui.FabMenu
 import kz.ruccola.food.ui.ToggleButtonsRow
+import kz.ruccola.food.viewmodel.PlanViewModel
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanScreen() {
-    var plans by remember { mutableStateOf<List<PlanDto>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    val vm: PlanViewModel = viewModel { PlanViewModel() }
+    val state by vm.uiState.collectAsState()
+
     var showEditor by remember { mutableStateOf(false) }
     var editingPlan by remember { mutableStateOf<PlanDto?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -68,37 +63,13 @@ fun PlanScreen() {
     var prefillCalories by remember { mutableStateOf<PlanCalories?>(null) }
     var prefillDays by remember { mutableStateOf<PlanDays?>(null) }
 
-    val scope = rememberCoroutineScope()
-    val planApi = remember { PlanApi() }
-
-    fun loadPlans() {
-        scope.launch {
-            isLoading = true
-            error = null
-            try {
-                plans = planApi.getAll()
-            } catch (e: Exception) {
-                error = e.message ?: "Ошибка загрузки планов"
-            } finally {
-                isLoading = false
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) { loadPlans() }
-
-    val noVariants = remember(plans) { plans.filter { !it.allowVariantChoice } }
-    val withVariants = remember(plans) { plans.filter { it.allowVariantChoice } }
+    val noVariants = remember(state.items) { state.items.filter { !it.allowVariantChoice } }
+    val withVariants = remember(state.items) { state.items.filter { it.allowVariantChoice } }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(Strings.tabPlans) },
-                actions = {
-                    IconButton(onClick = { loadPlans() }) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
-                    }
-                },
             )
         },
         floatingActionButton = {
@@ -110,11 +81,11 @@ fun PlanScreen() {
             }
             FabMenu(
                 listOf(
-                    Triple(null, "Новая цена без вариантов") {
+                    Triple(null, Strings.newPriceNoVariants) {
                         onClick()
                         createAllowVariant = false
                     },
-                    Triple(null, "Новая цена с вариантами") {
+                    Triple(null, Strings.newPriceWithVariants) {
                         onClick()
                         createAllowVariant = true
                     },
@@ -122,30 +93,41 @@ fun PlanScreen() {
             )
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            PrimaryTabRow(selectedTabIndex = selectedTab) {
-                Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Без вариантов") })
-                Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("С вариантами") })
-            }
+        PullToRefreshBox(
+            isRefreshing = state.isLoading,
+            onRefresh = { vm.loadAll() },
+            modifier = Modifier.fillMaxSize().padding(padding),
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                PrimaryTabRow(selectedTabIndex = selectedTab) {
+                    Tab(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        text = { Text(Strings.noVariants) },
+                    )
+                    Tab(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        text = { Text(Strings.withVariants) },
+                    )
+                }
 
-            Box(Modifier.fillMaxSize()) {
-                when {
-                    isLoading -> {
+                Box(Modifier.fillMaxSize()) {
+                    if (state.isLoading && state.items.isEmpty()) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
-
-                    error != null -> {
+                    } else if (state.error != null && state.items.isEmpty()) {
                         Column(
                             Modifier.align(Alignment.Center).padding(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text("Ошибка: $error", color = MaterialTheme.colorScheme.error)
+                            Text(
+                                Strings.errorPrefix.replace("%s", state.error ?: ""),
+                                color = MaterialTheme.colorScheme.error,
+                            )
                             Spacer(Modifier.height(8.dp))
-                            Button(onClick = { loadPlans() }) { Text(Strings.retry) }
+                            Button(onClick = { vm.loadAll() }) { Text(Strings.retry) }
                         }
-                    }
-
-                    else -> {
+                    } else {
                         val itemsToShow = if (selectedTab == 0) noVariants else withVariants
                         PlansTable(
                             items = itemsToShow,
@@ -177,25 +159,22 @@ fun PlanScreen() {
             initialDays = prefillDays,
             onDismiss = {
                 showEditor = false
-                editingPlan = null
-                prefillCalories = null
-                prefillDays = null
+                vm.clearError()
             },
-            onSave = {
+            onSave = { cals, days, ppd, allow ->
+                if (editingPlan == null) {
+                    vm.create(cals, days, ppd, allow)
+                } else {
+                    vm.update(editingPlan!!.id, cals, days, ppd, allow)
+                }
                 showEditor = false
-                editingPlan = null
-                prefillCalories = null
-                prefillDays = null
-                loadPlans()
             },
-            onDelete = {
+            onDelete = { id ->
+                vm.delete(id)
                 showEditor = false
-                editingPlan = null
-                prefillCalories = null
-                prefillDays = null
-                loadPlans()
             },
-            planApi = planApi,
+            isSaving = state.isSaving,
+            error = state.error,
         )
     }
 }
@@ -211,19 +190,19 @@ fun PlansTable(
     fun daysLabel(d: PlanDays) = d.amount.toString()
 
     fun daysInt(d: PlanDays) = d.amount
-    // Prepare distinct headers
+
     val caloriesList = remember(items) { items.map { it.calories }.distinct().sortedBy { it.ordinal } }
     val periods = remember(items) { items.map { it.periodDays }.distinct().sortedBy { it.ordinal } }
     val map = remember(items) { items.associateBy { it.calories to it.periodDays } }
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         if (items.isEmpty()) {
-            Box(Modifier.fillMaxSize()) { Text("Нет планов", Modifier.align(Alignment.Center)) }
+            Box(Modifier.fillMaxSize()) { Text(Strings.noPlans, Modifier.align(Alignment.Center)) }
             return@Column
         }
         // Header row
         Row(Modifier.fillMaxWidth()) {
-            Box(Modifier.width(72.dp)) { Text("ккал\\дни", style = MaterialTheme.typography.labelMedium) }
+            Box(Modifier.width(72.dp)) { Text(Strings.kcalDays, style = MaterialTheme.typography.labelMedium) }
             periods.forEach { d ->
                 Box(Modifier.weight(1f), Alignment.TopCenter) {
                     Text(daysLabel(d), style = MaterialTheme.typography.labelMedium)
@@ -288,9 +267,10 @@ fun PlanEditorDialog(
     initialCalories: PlanCalories?,
     initialDays: PlanDays?,
     onDismiss: () -> Unit,
-    onSave: () -> Unit,
-    onDelete: () -> Unit,
-    planApi: PlanApi,
+    onSave: (PlanCalories, PlanDays, Int, Boolean) -> Unit,
+    onDelete: (Int) -> Unit,
+    isSaving: Boolean,
+    error: String?,
 ) {
     fun calLabel(c: PlanCalories) = c.name.drop(1)
 
@@ -303,49 +283,14 @@ fun PlanEditorDialog(
     var ppd by remember { mutableStateOf(plan?.pricePerDay?.toString() ?: "") }
     var allow by remember { mutableStateOf(plan?.allowVariantChoice ?: (initialAllowForCreate ?: false)) }
 
-    var isSaving by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-
-    val scope = rememberCoroutineScope()
-
-    fun save() {
-        val price = ppd.toIntOrNull() ?: return
-        scope.launch {
-            isSaving = true
-            error = null
-            try {
-                if (plan == null) {
-                    planApi.create(PlanCreateDto(calories, days, price, allow))
-                } else {
-                    planApi.update(plan.id, PlanUpdateDto(calories, days, price, allow))
-                }
-                onSave()
-            } catch (e: Exception) {
-                error = e.message
-            } finally {
-                isSaving = false
-            }
-        }
-    }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
                 if (plan == null) {
-                    "Создать план — " + (
-                        if ((
-                                initialAllowForCreate
-                                    ?: false
-                            )
-                        ) {
-                            "С вариантами"
-                        } else {
-                            "Без вариантов"
-                        }
-                    )
+                    Strings.createPlan + " — " + (if (allow) Strings.withVariants else Strings.noVariants)
                 } else {
-                    "Редактировать план"
+                    Strings.editPlan
                 },
             )
         },
@@ -362,7 +307,7 @@ fun PlanEditorDialog(
                 }
 
                 if (plan == null) {
-                    Text("Калории: ${calLabel(calories)}", style = MaterialTheme.typography.labelLarge)
+                    Text("${Strings.calories}: ${calLabel(calories)}", style = MaterialTheme.typography.labelLarge)
                     Slider(
                         value = sliderPos,
                         onValueChange = { v ->
@@ -374,7 +319,7 @@ fun PlanEditorDialog(
                         steps = (calOptions.size - 2).coerceAtLeast(0),
                         enabled = !isSaving,
                     )
-                    Text("Дней", style = MaterialTheme.typography.labelLarge)
+                    Text(Strings.periodDays, style = MaterialTheme.typography.labelLarge)
                     ToggleButtonsRow(
                         options = PlanDays.entries.map { it.amount.toString() },
                         initialSelectedIndex = PlanDays.entries.indexOf(days),
@@ -382,8 +327,8 @@ fun PlanEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
-                    Text("Калории: ${calLabel(calories)}", style = MaterialTheme.typography.labelLarge)
-                    Text("Дней: ${daysLabel(days)}", style = MaterialTheme.typography.labelLarge)
+                    Text("${Strings.calories}: ${calLabel(calories)}", style = MaterialTheme.typography.labelLarge)
+                    Text("${Strings.periodDays}: ${daysLabel(days)}", style = MaterialTheme.typography.labelLarge)
                 }
 
                 OutlinedTextField(
@@ -392,34 +337,43 @@ fun PlanEditorDialog(
                         val filtered = it.filter { c -> c.isDigit() }
                         ppd = filtered
                     },
-                    label = { Text("Цена за день") },
+                    label = { Text(Strings.pricePerDayShort) },
                     singleLine = true,
                     enabled = !isSaving,
                 )
 
                 ppd.toIntOrNull()?.also {
-                    Text("Всего за период: ${it * daysInt(days)}", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        Strings.totalForPeriod.replace("%s", (it * daysInt(days)).toString()),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                 }
 
-                if (error != null) Text("Ошибка: $error", color = MaterialTheme.colorScheme.error)
+                if (error != null) {
+                    Text(Strings.errorPrefix.replace("%s", error), color = MaterialTheme.colorScheme.error)
+                }
             }
         },
         confirmButton = {
-            Button(onClick = { save() }, enabled = !isSaving && ppd.isNotEmpty()) { Text(Strings.save) }
+            Button(
+                onClick = {
+                    val price = ppd.toIntOrNull() ?: return@Button
+                    onSave(calories, days, price, allow)
+                },
+                enabled = !isSaving && ppd.isNotEmpty(),
+            ) {
+                Text(Strings.save)
+            }
         },
         dismissButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (plan != null) {
-                    TextButton(onClick = {
-                        scope.launch {
-                            try {
-                                planApi.delete(plan.id)
-                                onDelete()
-                            } catch (e: Exception) {
-                                error = e.message
-                            }
-                        }
-                    }, enabled = !isSaving) { Text(Strings.delete, color = MaterialTheme.colorScheme.error) }
+                    TextButton(
+                        onClick = { onDelete(plan.id) },
+                        enabled = !isSaving,
+                    ) {
+                        Text(Strings.delete, color = MaterialTheme.colorScheme.error)
+                    }
                 }
                 TextButton(onClick = onDismiss, enabled = !isSaving) { Text(Strings.cancel) }
             }
