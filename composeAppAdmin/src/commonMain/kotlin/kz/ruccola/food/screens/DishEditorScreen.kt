@@ -7,4 +7,5 @@ import kz.ruccola.food.api.DishDto
 expect fun DishEditorScreen(
     initialDish: DishDto?,
     onClose: () -> Unit,
+    token: String? = null,
 )

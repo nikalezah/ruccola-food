@@ -51,7 +51,7 @@ import kz.ruccola.food.viewmodel.DishViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun DishScreen() {
+fun DishScreen(token: String? = null) {
     val viewModel: DishViewModel = viewModel(factory = DishViewModel.Factory)
     val uiState by viewModel.uiState.collectAsState()
 
@@ -176,6 +176,7 @@ fun DishScreen() {
                     editingDish = null
                     viewModel.loadDishes()
                 },
+                token,
             )
         }
     }

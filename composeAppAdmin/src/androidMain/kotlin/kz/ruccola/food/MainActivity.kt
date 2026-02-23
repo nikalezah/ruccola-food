@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 1 -> {
-                                    DishScreen()
+                                    DishScreen(token)
                                 }
 
                                 2 -> {

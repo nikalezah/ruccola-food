@@ -1,5 +1,6 @@
 package kz.ruccola.food.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,7 +45,6 @@ import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import kz.ruccola.food.Strings
 import kz.ruccola.food.admin.screens.DishImagesEditorScreen
-import kz.ruccola.food.admin.screens.DishVariantEditorScreen
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.DishApi
@@ -60,6 +60,7 @@ import kz.ruccola.food.ui.SwipeToRemove
 actual fun DishEditorScreen(
     initialDish: DishDto?,
     onClose: () -> Unit,
+    token: String?,
 ) {
     val dishApi = remember { DishApi() }
     val customerApi = remember { CustomerApi() }
@@ -336,50 +337,52 @@ actual fun DishEditorScreen(
                 if (!variantsLoaded) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 } else {
-                    variants.forEach { v ->
-                        key(v.id) {
-                            SwipeToRemove(
-                                Icons.Default.Delete,
-                                Strings.delete,
-                                { deleteVariant(v) },
-                                CardDefaults.outlinedShape,
-                            ) {
-                                OutlinedCard(
-                                    onClick = {
-                                        editingVariant = v
-                                        variantEditorVisible = true
-                                    },
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        variants.forEach { v ->
+                            key(v.id) {
+                                SwipeToRemove(
+                                    Icons.Default.Delete,
+                                    Strings.delete,
+                                    { deleteVariant(v) },
+                                    CardDefaults.outlinedShape,
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Column(Modifier.padding(12.dp).weight(1f)) {
-                                            Text(v.description, style = MaterialTheme.typography.bodyLarge)
-                                            Spacer(Modifier.height(4.dp))
+                                    OutlinedCard(
+                                        onClick = {
+                                            editingVariant = v
+                                            variantEditorVisible = true
+                                        },
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Column(Modifier.padding(12.dp).weight(1f)) {
+                                                Text(v.description, style = MaterialTheme.typography.bodyLarge)
+                                                Spacer(Modifier.height(4.dp))
 
-                                            val ids = variantCustomers[v.id]
-                                            when {
-                                                customersLoading && ids == null -> {
-                                                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                                                }
-
-                                                ids.isNullOrEmpty() -> {
-                                                    Text(
-                                                        Strings.noCustomersBound,
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    )
-                                                }
-
-                                                else -> {
-                                                    val names = ids.map { cid ->
-                                                        val c = allCustomers?.find { it.id == cid }
-                                                        if (c != null) "${c.firstName} ${c.lastName}" else "ID $cid"
+                                                val ids = variantCustomers[v.id]
+                                                when {
+                                                    customersLoading && ids == null -> {
+                                                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                                                     }
-                                                    val line = names.joinToString(", ")
-                                                    Text(
-                                                        Strings.labelCustomers.replace("%s", line),
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    )
+
+                                                    ids.isNullOrEmpty() -> {
+                                                        Text(
+                                                            Strings.noCustomersBound,
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        )
+                                                    }
+
+                                                    else -> {
+                                                        val names = ids.map { cid ->
+                                                            val c = allCustomers?.find { it.id == cid }
+                                                            if (c != null) "${c.firstName} ${c.lastName}" else "ID $cid"
+                                                        }
+                                                        val line = names.joinToString(", ")
+                                                        Text(
+                                                            Strings.labelCustomers.replace("%s", line),
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
@@ -406,7 +409,7 @@ actual fun DishEditorScreen(
             existing = editingVariant,
             initialCustomerIds = editingVariant?.let { variantCustomers[it.id] },
             onClose = { variantEditorVisible = false },
-            onSaved = {
+            onSaved = { _, _ ->
                 variantEditorVisible = false
                 loadVariants()
             },
