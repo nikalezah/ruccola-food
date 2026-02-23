@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kz.ruccola.food.admin.Strings
+import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishDto

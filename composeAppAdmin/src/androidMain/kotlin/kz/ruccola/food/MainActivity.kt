@@ -31,12 +31,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.admin.screens.DishScreen
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.screens.AndroidCustomersScreen
 import kz.ruccola.food.screens.AndroidDayScreen
 import kz.ruccola.food.screens.AndroidMealPlanDayScreen
 import kz.ruccola.food.screens.AndroidPlanScreen
+import kz.ruccola.food.screens.DishScreen
 import kz.ruccola.food.screens.LoginScreen
 import kz.ruccola.food.screens.ProfileScreen
 import kz.ruccola.food.screens.RegisterScreen

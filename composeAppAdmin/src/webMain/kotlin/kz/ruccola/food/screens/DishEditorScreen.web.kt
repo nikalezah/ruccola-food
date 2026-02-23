@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,8 +40,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.browser.window
 import kotlinx.coroutines.launch
-import kz.ruccola.food.admin.Strings
+import kz.ruccola.food.Strings
+import kz.ruccola.food.admin.screens.DishImagesEditorScreen
+import kz.ruccola.food.admin.screens.DishVariantEditorScreen
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.DishApi
@@ -78,7 +81,7 @@ actual fun DishEditorScreen(
     var variantEditorVisible by remember { mutableStateOf(false) }
     var editingVariant by remember { mutableStateOf<DishVariantDto?>(null) }
     var imageEditorVisible by remember { mutableStateOf(false) }
-    val adminToken = remember { kotlinx.browser.window.localStorage.getItem("admin.token") ?: "" }
+    val adminToken = remember { window.localStorage.getItem("admin.token") ?: "" }
 
     fun loadVariants() {
         val id = dishState?.id ?: return

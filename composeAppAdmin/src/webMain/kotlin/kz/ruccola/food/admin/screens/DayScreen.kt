@@ -36,7 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import kz.ruccola.food.admin.Strings
+import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.api.DishWithMealDto

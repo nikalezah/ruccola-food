@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kz.ruccola.food.admin.Strings
+import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishImageDto
 import kz.ruccola.food.repository.DishRepository

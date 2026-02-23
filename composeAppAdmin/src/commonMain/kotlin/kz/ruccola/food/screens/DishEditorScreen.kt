@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.runtime.Composable
 import kz.ruccola.food.api.DishDto

@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kz.ruccola.food.MESSAGE_BODY_MAX_LENGTH
-import kz.ruccola.food.admin.Strings
+import kz.ruccola.food.Strings
 import kz.ruccola.food.api.ChatApi
 import kz.ruccola.food.api.ChatDto
 import kz.ruccola.food.api.MarkReadDto

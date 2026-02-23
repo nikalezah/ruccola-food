@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin
+package kz.ruccola.food
 
 object Strings {
     // Tabs
