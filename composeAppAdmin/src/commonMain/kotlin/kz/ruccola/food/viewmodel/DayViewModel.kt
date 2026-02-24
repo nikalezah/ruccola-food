@@ -1,20 +1,31 @@
 package kz.ruccola.food.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
-import kz.ruccola.food.repository.DayRepository
 
 class DayViewModel : ViewModel() {
-    private val repository = DayRepository()
+    private val api = DayApi()
 
     private val _uiState = MutableStateFlow(DayUiState())
     val uiState: StateFlow<DayUiState> = _uiState.asStateFlow()
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                DayViewModel()
+            }
+        }
+    }
 
     init {
         loadDays()
@@ -23,23 +34,25 @@ class DayViewModel : ViewModel() {
     fun loadDays() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            val result = repository.getAllDays()
-            result.onSuccess { days ->
-                _uiState.update { it.copy(days = days, isLoading = false) }
-            }.onFailure { e ->
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
+            try {
+                val days = api.getAllDays()
+                _uiState.update { it.copy(days = days.sortedByDescending { day -> day.date }, isLoading = false) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message ?: "Error", isLoading = false) }
             }
         }
     }
 
     fun triggerMidnight() {
         viewModelScope.launch {
-            // Let server compute latest Day + 1 if date not provided
-            val res = repository.triggerMidnight()
-            res.onSuccess {
+            _uiState.update { it.copy(isTriggeringMidnight = true, error = null) }
+            try {
+                api.triggerMidnight()
                 loadDays()
-            }.onFailure { e ->
+            } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
+            } finally {
+                _uiState.update { it.copy(isTriggeringMidnight = false) }
             }
         }
     }
@@ -52,5 +65,6 @@ class DayViewModel : ViewModel() {
 data class DayUiState(
     val days: List<DayDto> = emptyList(),
     val isLoading: Boolean = false,
+    val isTriggeringMidnight: Boolean = false,
     val error: String? = null,
 )

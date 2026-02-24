@@ -108,4 +108,12 @@ object Strings {
     const val mpdSubtitle = "Блюда приёмов пищи"
     const val pickDishFor = "Выберите блюдо для %s"
     const val tabSchedule = "Расписание"
+
+    // Days
+    const val screenHistoryTitle = "История"
+    const val triggeringMidnight = "Создание следующего дня..."
+    const val noDaysFound = "Дни не найдены"
+    const val clickMidnightToStart = "Нажмите Midnight чтобы запустить"
+    const val failedToLoadDishes = "Не удалось загрузить блюда"
+    const val noDishes = "Нет блюд"
 }

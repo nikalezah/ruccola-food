@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,76 +25,44 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.viewmodel.DayViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayScreen(onClose: () -> Unit) {
-    var days by remember { mutableStateOf<List<DayDto>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var triggeringMidnight by remember { mutableStateOf(false) }
-
-    val scope = rememberCoroutineScope()
-    val api = remember { DayApi() }
-
-    fun loadDays() {
-        scope.launch {
-            isLoading = true
-            error = null
-            try {
-                days = api.getAllDays()
-            } catch (e: Exception) {
-                error = e.message ?: "Ошибка загрузки дней"
-            } finally {
-                isLoading = false
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) { loadDays() }
+    val vm: DayViewModel = viewModel(factory = DayViewModel.Factory)
+    val state by vm.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("История") },
+                title = { Text(Strings.screenHistoryTitle) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = Strings.close)
                     }
                 },
                 actions = {
                     TextButton(
-                        onClick = {
-                            scope.launch {
-                                triggeringMidnight = true
-                                error = null
-                                try {
-                                    api.triggerMidnight()
-                                    loadDays()
-                                } catch (e: Exception) {
-                                    error = e.message
-                                } finally {
-                                    triggeringMidnight = false
-                                }
-                            }
-                        },
-                        enabled = !triggeringMidnight,
+                        onClick = { vm.triggerMidnight() },
+                        enabled = !state.isTriggeringMidnight,
                     ) {
                         Text("Midnight")
                     }
@@ -102,31 +70,38 @@ fun DayScreen(onClose: () -> Unit) {
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        PullToRefreshBox(
+            isRefreshing = state.isLoading,
+            onRefresh = { vm.loadDays() },
+            modifier = Modifier.fillMaxSize().padding(padding),
+        ) {
             when {
-                isLoading -> {
+                state.isLoading && state.days.isEmpty() -> {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
 
-                error != null -> {
+                state.error != null -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("Ошибка: $error", color = MaterialTheme.colorScheme.error)
+                        Text(
+                            text = Strings.errorPrefix.replace("%s", state.error ?: ""),
+                            color = MaterialTheme.colorScheme.error,
+                        )
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { loadDays() }) { Text(Strings.retry) }
+                        Button(onClick = { vm.loadDays() }) { Text(Strings.retry) }
                     }
                 }
 
-                days.isEmpty() -> {
+                state.days.isEmpty() -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("Дни не найдены")
+                        Text(Strings.noDaysFound)
                         Spacer(Modifier.height(8.dp))
-                        Text("Нажмите Midnight чтобы запустить", style = MaterialTheme.typography.bodySmall)
+                        Text(Strings.clickMidnightToStart, style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
@@ -135,20 +110,20 @@ fun DayScreen(onClose: () -> Unit) {
                         Modifier.fillMaxSize().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        items(days.sortedByDescending { it.date }) { day ->
+                        items(state.days) { day ->
                             DayItem(day)
                         }
                     }
                 }
             }
 
-            if (triggeringMidnight) {
+            if (state.isTriggeringMidnight) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Card {
                         Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             CircularProgressIndicator()
                             Spacer(Modifier.height(16.dp))
-                            Text("Создание следующего дня...")
+                            Text(Strings.triggeringMidnight)
                         }
                     }
                 }
@@ -183,19 +158,19 @@ fun DayItem(day: DayDto) {
                 isLoading -> CircularProgressIndicator(modifier = Modifier.size(18.dp))
 
                 error != null -> Text(
-                    text = "Failed to load dishes",
+                    text = Strings.failedToLoadDishes,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
 
                 dishes.isEmpty() -> Text(
-                    text = "No dishes",
+                    text = Strings.noDishes,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 else -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    dishes.forEach { d: DishWithMealDto ->
+                    dishes.forEach { d ->
                         SingleLineText("• ${d.dish.name}", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
