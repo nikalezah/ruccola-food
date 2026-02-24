@@ -32,12 +32,12 @@ import androidx.compose.ui.window.ComposeViewport
 import kotlinx.browser.window
 import kz.ruccola.food.Strings
 import kz.ruccola.food.admin.screens.LoginScreen
-import kz.ruccola.food.admin.screens.SettingsScreen
 import kz.ruccola.food.screens.CustomerScreen
 import kz.ruccola.food.screens.DayScreen
 import kz.ruccola.food.screens.DishScreen
 import kz.ruccola.food.screens.MealPlanDayScreen
 import kz.ruccola.food.screens.PlanScreen
+import kz.ruccola.food.screens.SettingsScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference
