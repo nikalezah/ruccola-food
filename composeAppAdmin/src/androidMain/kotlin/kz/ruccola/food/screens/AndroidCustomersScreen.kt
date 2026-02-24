@@ -191,7 +191,7 @@ fun AndroidCustomersScreen(token: String) {
     }
 
     if (selectedChatCustomer != null) {
-        AndroidAdminChatScreen(
+        ChatScreen(
             token = token,
             chatId = selectedChatId,
             customerName = "${selectedChatCustomer?.firstName} " +

@@ -33,10 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.screens.AndroidCustomersScreen
-import kz.ruccola.food.screens.AndroidMealPlanDayScreen
 import kz.ruccola.food.screens.DayScreen
 import kz.ruccola.food.screens.DishScreen
 import kz.ruccola.food.screens.LoginScreen
+import kz.ruccola.food.screens.MealPlanDayScreen
 import kz.ruccola.food.screens.PlanScreen
 import kz.ruccola.food.screens.ProfileScreen
 import kz.ruccola.food.screens.RegisterScreen
@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
                                         DayScreen { isViewingHistory = false }
                                         BackHandler { isViewingHistory = false }
                                     } else {
-                                        AndroidMealPlanDayScreen { isViewingHistory = true }
+                                        MealPlanDayScreen { isViewingHistory = true }
                                     }
                                 }
 

@@ -33,13 +33,15 @@ import kotlinx.browser.window
 import kz.ruccola.food.Strings
 import kz.ruccola.food.admin.screens.CustomerScreen
 import kz.ruccola.food.admin.screens.LoginScreen
-import kz.ruccola.food.admin.screens.MealPlanDayScreen
 import kz.ruccola.food.admin.screens.SettingsScreen
+import kz.ruccola.food.screens.DayScreen
 import kz.ruccola.food.screens.DishScreen
+import kz.ruccola.food.screens.MealPlanDayScreen
 import kz.ruccola.food.screens.PlanScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.BackHandler
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
 
@@ -200,12 +202,18 @@ fun AdminMainScreen(
         },
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
+            var isViewingHistory by remember(selectedTab) { mutableStateOf(false) }
             when (selectedTab) {
                 0 -> PlanScreen()
 
                 1 -> DishScreen()
 
-                2 -> MealPlanDayScreen()
+                2 -> if (isViewingHistory) {
+                    DayScreen { isViewingHistory = false }
+                    BackHandler { isViewingHistory = false }
+                } else {
+                    MealPlanDayScreen { isViewingHistory = true }
+                }
 
                 3 -> CustomerScreen(
                     token = token,
