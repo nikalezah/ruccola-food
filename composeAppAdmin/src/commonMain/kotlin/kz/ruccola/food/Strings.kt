@@ -11,6 +11,7 @@ object Strings {
     // Chats
     const val chatEmpty = "Нет сообщений"
     const val chatMessagePlaceholder = "Введите сообщение"
+    const val chatOpen = "Открыть чат"
 
     // Settings
     const val screenSettingsTitle = "Настройки"
@@ -116,4 +117,5 @@ object Strings {
     const val clickMidnightToStart = "Нажмите Midnight чтобы запустить"
     const val failedToLoadDishes = "Не удалось загрузить блюда"
     const val noDishes = "Нет блюд"
+    const val labelCalories = "Калории: %s"
 }

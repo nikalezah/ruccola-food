@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,72 +26,52 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.Strings
-import kz.ruccola.food.api.ChatApi
-import kz.ruccola.food.api.ChatListItemDto
-import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
-import kz.ruccola.food.screens.ChatScreen
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.viewmodel.CustomersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomerScreen(
     token: String,
-    onChatOpenChanged: (Boolean) -> Unit,
-    onUnreadChanged: (Boolean) -> Unit,
+    onChatOpenChanged: (Boolean) -> Unit = {},
+    onUnreadChanged: (Boolean) -> Unit = {},
 ) {
-    var customers by remember { mutableStateOf<List<CustomerDto>>(emptyList()) }
-    var chats by remember { mutableStateOf<Map<Int, ChatListItemDto>>(emptyMap()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    val viewModel: CustomersViewModel = viewModel { CustomersViewModel() }
+    val uiState by viewModel.uiState.collectAsState()
+
     var selectedChatCustomer by remember { mutableStateOf<CustomerDto?>(null) }
     var selectedChatId by remember { mutableStateOf<Int?>(null) }
     var selectedCustomerDetails by remember { mutableStateOf<CustomerDto?>(null) }
 
-    val scope = rememberCoroutineScope()
-    val api = remember { CustomerApi() }
-    val chatApi = remember { ChatApi() }
-
-    fun loadCustomers() {
-        scope.launch {
-            isLoading = true
-            error = null
-            try {
-                val loadedCustomers = api.getAll(token)
-                val chatItems = chatApi.getChats(token)
-                customers = loadedCustomers
-                chats = chatItems.associateBy { it.customerId }
-            } catch (e: Exception) {
-                error = e.message ?: Strings.error
-            } finally {
-                isLoading = false
-            }
-        }
+    LaunchedEffect(token) {
+        viewModel.loadCustomers(token)
     }
 
-    LaunchedEffect(Unit) { loadCustomers() }
     LaunchedEffect(selectedChatCustomer) {
         onChatOpenChanged(selectedChatCustomer != null)
     }
-    LaunchedEffect(chats) {
-        val hasUnread = chats.values.any { chat ->
+
+    LaunchedEffect(uiState.chats) {
+        val hasUnread = uiState.chats.values.any { chat ->
             chat.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
         }
         onUnreadChanged(hasUnread)
     }
+
     DisposableEffect(Unit) {
         onDispose { onChatOpenChanged(false) }
     }
@@ -105,25 +85,25 @@ fun CustomerScreen(
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
-                isLoading -> {
+                uiState.isLoading && uiState.customers.isEmpty() -> {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
 
-                error != null -> {
+                uiState.error != null -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            Strings.errorPrefix.replace("%s", error ?: "[?]"),
+                            Strings.errorPrefix.replace("%s", uiState.error ?: "[?]"),
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { loadCustomers() }) { Text(Strings.retry) }
+                        Button(onClick = { viewModel.loadCustomers(token) }) { Text(Strings.retry) }
                     }
                 }
 
-                customers.isEmpty() -> {
+                uiState.customers.isEmpty() && !uiState.isLoading -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -137,27 +117,42 @@ fun CustomerScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(8.dp),
                     ) {
-                        items(customers) { c ->
-                            val chat = chats[c.id]
+                        items(uiState.customers) { c ->
+                            val chat = uiState.chats[c.id]
                             val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
                             ListItem(
                                 modifier = Modifier.fillMaxWidth().clickable { selectedCustomerDetails = c },
                                 headlineContent = { Text("${c.firstName} ${c.lastName}") },
                                 supportingContent = {
-                                    SingleLineText("${c.address} - Calories: ${c.calories?.toString() ?: "-"}")
+                                    SingleLineText(
+                                        "${c.address} - ${Strings.labelCalories.replace(
+                                            "%s",
+                                            c.calories?.toString() ?: "-",
+                                        )}",
+                                    )
                                 },
                                 trailingContent = {
                                     val onClick = {
                                         selectedChatCustomer = c
-                                        selectedChatId = chats[c.id]?.id
+                                        selectedChatId = uiState.chats[c.id]?.id
                                     }
                                     val chatButton: @Composable () -> Unit = {
                                         IconButton(onClick = onClick) {
-                                            Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = "Chat")
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Outlined.Chat,
+                                                contentDescription = Strings.chatOpen,
+                                            )
                                         }
                                     }
                                     if (isUnread) {
-                                        BadgedBox(badge = { Badge() }, badgeOffset = DpOffset((-6).dp, 6.dp)) {
+                                        BadgedBox(
+                                            badge = {
+                                                Badge {
+                                                    Text("1")
+                                                }
+                                            },
+                                            badgeOffset = DpOffset((-6).dp, 6.dp),
+                                        ) {
                                             chatButton()
                                         }
                                     } else {
@@ -191,6 +186,7 @@ fun CustomerScreen(
             onBack = {
                 selectedChatCustomer = null
                 selectedChatId = null
+                viewModel.loadCustomers(token)
             },
         )
     }
