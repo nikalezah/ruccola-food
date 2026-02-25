@@ -1,4 +1,4 @@
-package kz.ruccola.food.admin.screens
+package kz.ruccola.food.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,11 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.Key
@@ -26,33 +23,18 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.Strings
-import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
+import kz.ruccola.food.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     onLoggedIn: (resp: AuthResponseDto) -> Unit,
-    authApi: AuthApi = AuthApi(),
+    viewModel: LoginViewModel = viewModel { LoginViewModel() },
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
-
-    fun tryLogin() {
-        scope.launch {
-            error = null
-            try {
-                val resp = authApi.login(email.trim(), password)
-                onLoggedIn(resp)
-            } catch (t: Throwable) {
-                error = t.message ?: Strings.loginFailed
-            }
-        }
-    }
 
     fun Modifier.handleTabAndEnter(): Modifier =
         this.onPreviewKeyEvent { event ->
@@ -64,7 +46,7 @@ fun LoginScreen(
                 }
 
                 Key.Enter -> {
-                    tryLogin()
+                    viewModel.login(onLoggedIn)
                     true
                 }
 
@@ -76,18 +58,20 @@ fun LoginScreen(
 
     Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(Strings.login, style = MaterialTheme.typography.titleLarge)
+
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = uiState.email,
+            onValueChange = { viewModel.updateEmail(it) },
             label = { Text(Strings.email) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .handleTabAndEnter(),
         )
+
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = uiState.password,
+            onValueChange = { viewModel.updatePassword(it) },
             label = { Text(Strings.password) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
@@ -96,16 +80,17 @@ fun LoginScreen(
                 .handleTabAndEnter(),
         )
 
-        if (error != null) {
-            Text(text = error!!, color = MaterialTheme.colorScheme.error)
+        if (uiState.loginError != null) {
+            Text(text = uiState.loginError!!, color = MaterialTheme.colorScheme.error)
         }
+
         Button(
-            onClick = { tryLogin() },
+            onClick = { viewModel.login(onLoggedIn) },
+            enabled = !uiState.isLoggingIn,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            modifier = Modifier
-                .handleTabAndEnter(),
+            modifier = Modifier.handleTabAndEnter(),
         ) {
-            Text(Strings.login)
+            Text(if (uiState.isLoggingIn) Strings.loggingIn else Strings.login)
         }
     }
 }

@@ -39,15 +39,10 @@ object Strings {
 
     // Auth
     const val login = "Войти"
-    const val register = "Регистрация"
     const val email = "Email"
     const val password = "Пароль"
-    const val confirmPassword = "Подтвердите пароль"
     const val loggingIn = "Вход..."
-    const val registering = "Регистрация..."
     const val loginFailed = "Ошибка входа"
-    const val registerFailed = "Ошибка регистрации"
-    const val goToRegister = "Зарегистрироваться"
     const val backToLogin = "Назад к входу"
 
     // Common
