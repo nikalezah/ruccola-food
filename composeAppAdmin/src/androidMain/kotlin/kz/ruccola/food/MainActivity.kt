@@ -44,7 +44,6 @@ import kz.ruccola.food.screens.DishScreen
 import kz.ruccola.food.screens.LoginScreen
 import kz.ruccola.food.screens.MealPlanDayScreen
 import kz.ruccola.food.screens.PlanScreen
-import kz.ruccola.food.screens.RegisterScreen
 import kz.ruccola.food.screens.SettingsScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
@@ -74,7 +73,6 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(colorScheme = colorScheme) {
                 var role by remember { mutableStateOf<String?>(null) }
                 var token by remember { mutableStateOf<String?>(null) }
-                var showRegister by remember { mutableStateOf(false) }
 
                 if (role == null || token == null) {
                     var loginLoading by remember { mutableStateOf(true) }
@@ -93,18 +91,6 @@ class MainActivity : ComponentActivity() {
                         Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
                             androidx.compose.material3.CircularProgressIndicator()
                         }
-                    } else if (showRegister) {
-                        RegisterScreen(
-                            onRegistered = { resp ->
-                                role = resp.user.role
-                                token = resp.token
-                                scope.launch {
-                                    AppPreferences.setRole(context, role)
-                                    AppPreferences.setToken(context, token)
-                                }
-                            },
-                            onBackToLogin = { showRegister = false },
-                        )
                     } else {
                         LoginScreen(
                             onLoggedIn = { resp ->
@@ -115,7 +101,6 @@ class MainActivity : ComponentActivity() {
                                     AppPreferences.setToken(context, token)
                                 }
                             },
-                            onGoToRegister = { showRegister = true },
                         )
                     }
                 } else if (role == "ADMIN") {

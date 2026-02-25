@@ -33,10 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kz.ruccola.food.LocalStrings
+import kz.ruccola.food.Strings
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.WeeklyPlanDayDto
-import kz.ruccola.food.customer.LocalStrings
-import kz.ruccola.food.customer.Strings
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SingleLineText

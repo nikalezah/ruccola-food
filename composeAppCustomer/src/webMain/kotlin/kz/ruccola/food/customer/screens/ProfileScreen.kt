@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
@@ -53,7 +54,6 @@ import kz.ruccola.food.api.CustomerPlanDetailsDto
 import kz.ruccola.food.api.CustomerUpdateDto
 import kz.ruccola.food.api.PlanApi
 import kz.ruccola.food.api.PlanDto
-import kz.ruccola.food.customer.LocalStrings
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kotlin.math.roundToInt

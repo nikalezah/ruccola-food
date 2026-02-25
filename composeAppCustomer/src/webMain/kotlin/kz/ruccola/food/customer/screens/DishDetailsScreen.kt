@@ -29,9 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
-import kz.ruccola.food.customer.LocalStrings
 import kz.ruccola.food.ui.SquareImagesCarousel200
 
 @OptIn(ExperimentalMaterial3Api::class)

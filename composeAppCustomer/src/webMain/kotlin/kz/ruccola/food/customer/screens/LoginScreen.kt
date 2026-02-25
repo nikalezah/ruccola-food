@@ -28,9 +28,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
-import kz.ruccola.food.customer.LocalStrings
 
 @Composable
 fun LoginScreen(

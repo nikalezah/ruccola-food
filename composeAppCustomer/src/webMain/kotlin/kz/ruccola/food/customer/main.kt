@@ -24,11 +24,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeViewport
 import kotlinx.browser.window
+import kz.ruccola.food.EnStrings
+import kz.ruccola.food.KkStrings
+import kz.ruccola.food.LocalStrings
+import kz.ruccola.food.RuStrings
 import kz.ruccola.food.customer.screens.ChatListScreen
 import kz.ruccola.food.customer.screens.LoginScreen
 import kz.ruccola.food.customer.screens.ProfileScreen
-import kz.ruccola.food.customer.screens.RegisterScreen
 import kz.ruccola.food.customer.screens.ScheduleScreen
+import kz.ruccola.food.screens.RegisterScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference

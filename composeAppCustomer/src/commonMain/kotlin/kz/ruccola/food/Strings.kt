@@ -1,4 +1,4 @@
-package kz.ruccola.food.customer
+package kz.ruccola.food
 
 import androidx.compose.runtime.compositionLocalOf
 

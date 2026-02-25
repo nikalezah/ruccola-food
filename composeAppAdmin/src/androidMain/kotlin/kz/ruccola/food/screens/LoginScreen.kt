@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kz.ruccola.food.Strings
 import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.api.UserWithPasswordDto
@@ -34,7 +35,6 @@ import kz.ruccola.food.api.UserWithPasswordDto
 @Composable
 fun LoginScreen(
     onLoggedIn: (resp: AuthResponseDto) -> Unit,
-    onGoToRegister: () -> Unit,
     authApi: AuthApi = AuthApi(),
 ) {
     var email by remember { mutableStateOf("") }
@@ -60,17 +60,17 @@ fun LoginScreen(
     }
 
     Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Login", style = MaterialTheme.typography.titleLarge)
+        Text(Strings.login, style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text(Strings.email) },
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(Strings.password) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
         )
@@ -143,18 +143,13 @@ fun LoginScreen(
                         val resp = authApi.login(email.trim(), password)
                         onLoggedIn(resp)
                     } catch (t: Throwable) {
-                        error = t.message ?: "Login failed"
+                        error = t.message ?: Strings.loginFailed
                     }
                 }
             },
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         ) {
-            Text("Sign in")
+            Text(Strings.login)
         }
-        Text(
-            text = "No account? Register",
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable { onGoToRegister() },
-        )
     }
 }

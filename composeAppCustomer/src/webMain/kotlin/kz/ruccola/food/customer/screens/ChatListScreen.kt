@@ -27,10 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.api.ChatApi
 import kz.ruccola.food.api.ChatDto
 import kz.ruccola.food.api.MessageDto
-import kz.ruccola.food.customer.LocalStrings
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.SingleLineText
