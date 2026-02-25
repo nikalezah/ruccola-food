@@ -18,9 +18,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.back_to_login
+import food.composeappadmin.generated.resources.chat_empty
+import food.composeappadmin.generated.resources.chat_message_placeholder
+import food.composeappadmin.generated.resources.error_prefix
 import kz.ruccola.food.ui.ChatUi
 import kz.ruccola.food.viewmodel.ChatViewModel
+import org.jetbrains.compose.resources.stringResource
 
 fun parseUserId(token: String): Int? {
     if (!token.startsWith("dummy-token-")) return null
@@ -38,7 +43,7 @@ fun ChatScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currentUserId = remember(token) { parseUserId(token) }
-    val errorText = uiState.error?.let { Strings.errorPrefix.replace("%s", it) }
+    val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
     LaunchedEffect(token, chatId) {
         viewModel.setChatId(token, chatId)
@@ -52,7 +57,7 @@ fun ChatScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = Strings.backToLogin,
+                            contentDescription = stringResource(Res.string.back_to_login),
                         )
                     }
                 },
@@ -65,8 +70,8 @@ fun ChatScreen(
             messageBody = uiState.messageBody,
             onMessageBodyChange = { viewModel.onMessageBodyChange(it) },
             onSendMessage = { viewModel.sendMessage() },
-            placeholder = Strings.chatMessagePlaceholder,
-            emptyText = Strings.chatEmpty,
+            placeholder = stringResource(Res.string.chat_message_placeholder),
+            emptyText = stringResource(Res.string.chat_empty),
             errorText = errorText,
             isLoading = uiState.isLoading,
             inputEnabled = chatId != null,

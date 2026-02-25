@@ -41,13 +41,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.add
+import food.composeappadmin.generated.resources.archive
+import food.composeappadmin.generated.resources.error
+import food.composeappadmin.generated.resources.error_prefix
+import food.composeappadmin.generated.resources.loading
+import food.composeappadmin.generated.resources.no_items
+import food.composeappadmin.generated.resources.retry
+import food.composeappadmin.generated.resources.tab_dishes
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -66,7 +75,7 @@ fun DishScreen(token: String? = null) {
         topBar = {
             if (!editorVisible) {
                 CenterAlignedTopAppBar(
-                    title = { Text(Strings.tabDishes) },
+                    title = { Text(stringResource(Res.string.tab_dishes)) },
                 )
             }
         },
@@ -78,7 +87,7 @@ fun DishScreen(token: String? = null) {
                         editorVisible = true
                     },
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = Strings.add)
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
                 }
             }
         },
@@ -104,7 +113,7 @@ fun DishScreen(token: String? = null) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(Strings.loading)
+                        Text(stringResource(Res.string.loading))
                     }
                 }
 
@@ -114,7 +123,7 @@ fun DishScreen(token: String? = null) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            Strings.errorPrefix.replace("%s", uiState.error ?: Strings.error),
+                            stringResource(Res.string.error_prefix, uiState.error ?: stringResource(Res.string.error)),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.error,
                         )
@@ -130,10 +139,10 @@ fun DishScreen(token: String? = null) {
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
-                                contentDescription = Strings.retry,
+                                contentDescription = stringResource(Res.string.retry),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(Strings.retry)
+                            Text(stringResource(Res.string.retry))
                         }
                     }
                 }
@@ -143,7 +152,7 @@ fun DishScreen(token: String? = null) {
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(Strings.noItems)
+                        Text(stringResource(Res.string.no_items))
                     }
                 }
 
@@ -191,7 +200,7 @@ private fun DishListItem(
 ) {
     val imageUrl = dish.images.firstOrNull()?.url
 
-    SwipeToRemove(Icons.Filled.Archive, Strings.archive, onArchive) {
+    SwipeToRemove(Icons.Filled.Archive, stringResource(Res.string.archive), onArchive) {
         ListItem(
             leadingContent = {
                 if (imageUrl != null) {

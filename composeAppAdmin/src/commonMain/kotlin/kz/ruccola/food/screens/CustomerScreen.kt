@@ -36,12 +36,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.chat_open
+import food.composeappadmin.generated.resources.error_prefix
+import food.composeappadmin.generated.resources.label_calories
+import food.composeappadmin.generated.resources.no_customers_found
+import food.composeappadmin.generated.resources.retry
+import food.composeappadmin.generated.resources.tab_customers
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.CustomersViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +86,7 @@ fun CustomerScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(Strings.tabCustomers) },
+                title = { Text(stringResource(Res.string.tab_customers)) },
             )
         },
     ) { padding ->
@@ -95,11 +102,11 @@ fun CustomerScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            Strings.errorPrefix.replace("%s", uiState.error ?: "[?]"),
+                            stringResource(Res.string.error_prefix, uiState.error ?: "[?]"),
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { viewModel.loadCustomers(token) }) { Text(Strings.retry) }
+                        Button(onClick = { viewModel.loadCustomers(token) }) { Text(stringResource(Res.string.retry)) }
                     }
                 }
 
@@ -108,7 +115,7 @@ fun CustomerScreen(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(Strings.noCustomersFound)
+                        Text(stringResource(Res.string.no_customers_found))
                     }
                 }
 
@@ -125,10 +132,9 @@ fun CustomerScreen(
                                 headlineContent = { Text("${c.firstName} ${c.lastName}") },
                                 supportingContent = {
                                     SingleLineText(
-                                        "${c.address} - ${Strings.labelCalories.replace(
-                                            "%s",
-                                            c.calories?.toString() ?: "-",
-                                        )}",
+                                        "${c.address} - ${
+                                            stringResource(Res.string.label_calories, c.calories?.toString() ?: "-")
+                                        }",
                                     )
                                 },
                                 trailingContent = {
@@ -140,7 +146,7 @@ fun CustomerScreen(
                                         IconButton(onClick = onClick) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Outlined.Chat,
-                                                contentDescription = Strings.chatOpen,
+                                                contentDescription = stringResource(Res.string.chat_open),
                                             )
                                         }
                                     }

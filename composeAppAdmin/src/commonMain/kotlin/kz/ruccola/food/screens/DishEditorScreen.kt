@@ -40,13 +40,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.add
+import food.composeappadmin.generated.resources.cancel
+import food.composeappadmin.generated.resources.close
+import food.composeappadmin.generated.resources.delete
+import food.composeappadmin.generated.resources.description
+import food.composeappadmin.generated.resources.edit
+import food.composeappadmin.generated.resources.edit_description
+import food.composeappadmin.generated.resources.edit_dish
+import food.composeappadmin.generated.resources.edit_name
+import food.composeappadmin.generated.resources.images
+import food.composeappadmin.generated.resources.label_customers
+import food.composeappadmin.generated.resources.name
+import food.composeappadmin.generated.resources.new_dish
+import food.composeappadmin.generated.resources.no_customers_bound
+import food.composeappadmin.generated.resources.save
+import food.composeappadmin.generated.resources.variants
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.provideAdminToken
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishEditorViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,10 +83,12 @@ fun DishEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (uiState.dish == null) Strings.newDish else Strings.editDish) },
+                title = {
+                    Text(stringResource(if (uiState.dish == null) Res.string.new_dish else Res.string.edit_dish))
+                },
                 navigationIcon = {
                     IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
@@ -96,7 +115,7 @@ fun DishEditorScreen(
                 OutlinedTextField(
                     value = uiState.name,
                     onValueChange = { viewModel.onNameChange(it) },
-                    label = { Text(Strings.name) },
+                    label = { Text(stringResource(Res.string.name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = !uiState.isBusy,
@@ -105,7 +124,7 @@ fun DishEditorScreen(
                 OutlinedTextField(
                     value = uiState.description,
                     onValueChange = { viewModel.onDescriptionChange(it) },
-                    label = { Text(Strings.description) },
+                    label = { Text(stringResource(Res.string.description)) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     enabled = !uiState.isBusy,
@@ -146,10 +165,14 @@ fun DishEditorScreen(
                             TextButton(enabled = temp.isNotBlank() && !uiState.isBusy, onClick = {
                                 showEditName = false
                                 viewModel.updateDishName(temp)
-                            }) { Text(Strings.save) }
+                            }) { Text(stringResource(Res.string.save)) }
                         },
-                        dismissButton = { TextButton(onClick = { showEditName = false }) { Text(Strings.cancel) } },
-                        title = { Text(Strings.editName) },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                showEditName = false
+                            }) { Text(stringResource(Res.string.cancel)) }
+                        },
+                        title = { Text(stringResource(Res.string.edit_name)) },
                         text = {
                             OutlinedTextField(
                                 value = temp,
@@ -169,14 +192,14 @@ fun DishEditorScreen(
                             TextButton(enabled = !uiState.isBusy, onClick = {
                                 showEditDescription = false
                                 viewModel.updateDishDescription(temp)
-                            }) { Text(Strings.save) }
+                            }) { Text(stringResource(Res.string.save)) }
                         },
                         dismissButton = {
                             TextButton(onClick = {
                                 showEditDescription = false
-                            }) { Text(Strings.cancel) }
+                            }) { Text(stringResource(Res.string.cancel)) }
                         },
-                        title = { Text(Strings.editDescription) },
+                        title = { Text(stringResource(Res.string.edit_description)) },
                         text = {
                             OutlinedTextField(
                                 value = temp,
@@ -190,10 +213,10 @@ fun DishEditorScreen(
 
                 Spacer(Modifier.height(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(Strings.images, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(Res.string.images), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = { imageEditorVisible = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit images")
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(Res.string.edit))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -201,12 +224,16 @@ fun DishEditorScreen(
 
                 Spacer(Modifier.height(24.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(Strings.variants, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        stringResource(Res.string.variants),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                    )
                     IconButton(enabled = !uiState.isBusy, onClick = {
                         editingVariant = null
                         variantEditorVisible = true
                     }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add variant")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.add))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -219,7 +246,7 @@ fun DishEditorScreen(
                             key(v.id) {
                                 SwipeToRemove(
                                     Icons.Default.Delete,
-                                    Strings.delete,
+                                    stringResource(Res.string.delete),
                                     { viewModel.deleteVariant(v) },
                                     CardDefaults.outlinedShape,
                                     enabled = !uiState.isBusy,
@@ -243,7 +270,7 @@ fun DishEditorScreen(
 
                                                     ids.isNullOrEmpty() -> {
                                                         Text(
-                                                            Strings.noCustomersBound,
+                                                            stringResource(Res.string.no_customers_bound),
                                                             style = MaterialTheme.typography.bodySmall,
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                         )
@@ -256,7 +283,7 @@ fun DishEditorScreen(
                                                         }
                                                         val line = names.joinToString(", ")
                                                         Text(
-                                                            Strings.labelCustomers.replace("%s", line),
+                                                            stringResource(Res.string.label_customers, line),
                                                             style = MaterialTheme.typography.bodySmall,
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                         )

@@ -48,7 +48,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.cancel
+import food.composeappadmin.generated.resources.close
+import food.composeappadmin.generated.resources.delete
+import food.composeappadmin.generated.resources.edit_day
+import food.composeappadmin.generated.resources.meal_afternoon_snack
+import food.composeappadmin.generated.resources.meal_breakfast
+import food.composeappadmin.generated.resources.meal_brunch
+import food.composeappadmin.generated.resources.meal_dinner
+import food.composeappadmin.generated.resources.meal_lunch
+import food.composeappadmin.generated.resources.mpd_subtitle
+import food.composeappadmin.generated.resources.new_day
+import food.composeappadmin.generated.resources.pick_dish_for
+import food.composeappadmin.generated.resources.save
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.model.Meal
@@ -60,6 +73,7 @@ import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -112,20 +126,20 @@ fun MealPlanDayEditorScreen(
             TopAppBar(
                 title = {
                     val serial = initialItem?.serial ?: nextSerial
-                    val title = if (initialItem == null) Strings.newDay else Strings.editDay
-                    Text(title.replace("%s", serial.toString()))
+                    val titleRes = if (initialItem == null) Res.string.new_day else Res.string.edit_day
+                    Text(stringResource(titleRes, serial.toString()))
                 },
-                subtitle = { Text(Strings.mpdSubtitle) },
+                subtitle = { Text(stringResource(Res.string.mpd_subtitle)) },
                 navigationIcon = {
                     IconButton(onClick = { if (!state.isSaving) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = Strings.close)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
                     ApplyIconButton(
                         onClick = { save() },
                         enabled = initialized && !state.isSaving,
-                        contentDescription = Strings.save,
+                        contentDescription = stringResource(Res.string.save),
                     )
                 },
             )
@@ -135,18 +149,20 @@ fun MealPlanDayEditorScreen(
                 var showPickerForMeal by remember { mutableStateOf<Meal?>(null) }
                 FabMenu(
                     Meal.entries.map { meal ->
-                        Triple(null, meal.toLocalizedString()) { showPickerForMeal = meal }
+                        val label = meal.toLocalizedString()
+                        Triple(null, label) { showPickerForMeal = meal }
                     },
                 )
 
                 if (showPickerForMeal != null) {
+                    val mealToPick = showPickerForMeal!!
                     LaunchedEffect(Unit) {
                         dishVm.loadDishes()
                     }
 
                     AlertDialog(
                         onDismissRequest = { showPickerForMeal = null },
-                        title = { Text(Strings.pickDishFor.replace("%s", showPickerForMeal!!.toLocalizedString())) },
+                        title = { Text(stringResource(Res.string.pick_dish_for, mealToPick.toLocalizedString())) },
                         text = {
                             Box(modifier = Modifier.sizeIn(minWidth = 300.dp, maxWidth = 500.dp, maxHeight = 400.dp)) {
                                 if (dishState.isLoading) {
@@ -193,7 +209,9 @@ fun MealPlanDayEditorScreen(
                         },
                         confirmButton = {},
                         dismissButton = {
-                            TextButton(onClick = { showPickerForMeal = null }) { Text(Strings.cancel) }
+                            TextButton(onClick = { showPickerForMeal = null }) {
+                                Text(stringResource(Res.string.cancel))
+                            }
                         },
                     )
                 }
@@ -218,7 +236,7 @@ fun MealPlanDayEditorScreen(
                         localDishIdToMeal.remove(d.dish.id)
                         localDishes.removeAll { it.dish.id == d.dish.id }
                     }
-                    SwipeToRemove(Icons.Default.Delete, Strings.delete, onDelete) {
+                    SwipeToRemove(Icons.Default.Delete, stringResource(Res.string.delete), onDelete) {
                         ListItem(
                             leadingContent = {
                                 val imageUrl = d.dish.images.firstOrNull()?.url
@@ -234,9 +252,7 @@ fun MealPlanDayEditorScreen(
                             supportingContent = { SingleLineText(d.dish.description) },
                             trailingContent = {
                                 val timeText = d.meal.time.let {
-                                    "${it.hour.toString().padStart(2, '0')}:${
-                                        it.minute.toString().padStart(2, '0')
-                                    }"
+                                    "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}"
                                 }
                                 Text(
                                     "${timeText}\n${d.meal.toLocalizedString().replaceFirst(' ', '\n')}",
@@ -252,11 +268,12 @@ fun MealPlanDayEditorScreen(
     }
 }
 
+@Composable
 private fun Meal.toLocalizedString() =
     when (this) {
-        Meal.BREAKFAST -> Strings.mealBreakfast
-        Meal.BRUNCH -> Strings.mealBrunch
-        Meal.LAUNCH -> Strings.mealLunch
-        Meal.AFTERNOON_SNACK -> Strings.mealAfternoonSnack
-        Meal.DINNER -> Strings.mealDinner
+        Meal.BREAKFAST -> stringResource(Res.string.meal_breakfast)
+        Meal.BRUNCH -> stringResource(Res.string.meal_brunch)
+        Meal.LAUNCH -> stringResource(Res.string.meal_lunch)
+        Meal.AFTERNOON_SNACK -> stringResource(Res.string.meal_afternoon_snack)
+        Meal.DINNER -> stringResource(Res.string.meal_dinner)
     }

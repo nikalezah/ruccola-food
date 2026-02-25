@@ -39,7 +39,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.add
+import food.composeappadmin.generated.resources.close
+import food.composeappadmin.generated.resources.delete
+import food.composeappadmin.generated.resources.images
+import food.composeappadmin.generated.resources.no_items
+import food.composeappadmin.generated.resources.save
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.provideImagePicker
 import kz.ruccola.food.ui.ApplyIconButton
@@ -47,6 +53,7 @@ import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishImagesViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,23 +80,24 @@ fun DishImagesEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(Strings.images) },
+                title = { Text(stringResource(Res.string.images)) },
                 navigationIcon = {
                     IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
                     ApplyIconButton(
                         onClick = { viewModel.save() },
                         enabled = !uiState.isBusy,
+                        contentDescription = stringResource(Res.string.save),
                     )
                 },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { if (!uiState.isBusy) onPickImage(viewModel) }) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
             }
         },
     ) { padding ->
@@ -106,7 +114,7 @@ fun DishImagesEditorScreen(
             }
 
             if (uiState.workingList.isEmpty()) {
-                Text(Strings.noItems, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.no_items), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -116,7 +124,7 @@ fun DishImagesEditorScreen(
                         val previousPosition = originalPositions[item.fileId] ?: (index + 1)
                         SwipeToRemove(
                             Icons.Default.Delete,
-                            Strings.delete,
+                            stringResource(Res.string.delete),
                             { viewModel.removeImage(item) },
                             CardDefaults.outlinedShape,
                             enabled = !uiState.isBusy,

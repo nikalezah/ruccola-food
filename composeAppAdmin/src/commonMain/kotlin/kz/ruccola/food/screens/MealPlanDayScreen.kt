@@ -56,12 +56,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.add
+import food.composeappadmin.generated.resources.delete
+import food.composeappadmin.generated.resources.error_prefix
+import food.composeappadmin.generated.resources.no_data
+import food.composeappadmin.generated.resources.no_items
+import food.composeappadmin.generated.resources.retry
+import food.composeappadmin.generated.resources.screen_history_title
+import food.composeappadmin.generated.resources.tab_schedule
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -90,10 +99,13 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(Strings.tabSchedule) },
+                title = { Text(stringResource(Res.string.tab_schedule)) },
                 navigationIcon = {
                     IconButton(onClick = onHistoryClick) {
-                        Icon(Icons.Default.History, contentDescription = "History")
+                        Icon(
+                            Icons.Default.History,
+                            contentDescription = stringResource(Res.string.screen_history_title),
+                        )
                     }
                 },
                 actions = {
@@ -150,11 +162,11 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = Strings.errorPrefix.replace("%s", state.error ?: ""),
+                            text = stringResource(Res.string.error_prefix, state.error ?: ""),
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { vm.loadAll() }) { Text(Strings.retry) }
+                        Button(onClick = { vm.loadAll() }) { Text(stringResource(Res.string.retry)) }
                     }
                 }
 
@@ -163,12 +175,12 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(Strings.noItems)
+                        Text(stringResource(Res.string.no_items))
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = {
                             editingDay = null
                             showEditor = true
-                        }) { Text(Strings.add) }
+                        }) { Text(stringResource(Res.string.add)) }
                     }
                 }
 
@@ -276,7 +288,7 @@ fun MealPlanDayItem(
 
     SwipeToRemove(
         Icons.Default.Delete,
-        Strings.delete,
+        stringResource(Res.string.delete),
         onDelete,
         CardDefaults.outlinedShape,
         swipeEnabled,
@@ -328,7 +340,7 @@ fun MealPlanDayItem(
                         isLoading -> CircularProgressIndicator(modifier = Modifier.size(18.dp))
 
                         dishes.isEmpty() -> Text(
-                            text = Strings.noData,
+                            text = stringResource(Res.string.no_data),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

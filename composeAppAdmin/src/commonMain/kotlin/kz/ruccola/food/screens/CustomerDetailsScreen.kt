@@ -17,8 +17,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.address
+import food.composeappadmin.generated.resources.back_to_login
+import food.composeappadmin.generated.resources.calories
+import food.composeappadmin.generated.resources.email
+import food.composeappadmin.generated.resources.first_name
+import food.composeappadmin.generated.resources.last_name
+import food.composeappadmin.generated.resources.no_data
 import kz.ruccola.food.api.CustomerDto
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +48,7 @@ fun CustomerDetailsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = Strings.backToLogin,
+                            contentDescription = stringResource(Res.string.back_to_login),
                         )
                     }
                 },
@@ -51,13 +59,18 @@ fun CustomerDetailsScreen(
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            CustomerDetailRow(label = Strings.firstName, value = customer.firstName)
-            CustomerDetailRow(label = Strings.lastName, value = customer.lastName)
-            CustomerDetailRow(label = Strings.email, value = customer.email)
-            CustomerDetailRow(label = Strings.address, value = customer.address.ifBlank { Strings.noData })
+            CustomerDetailRow(label = stringResource(Res.string.first_name), value = customer.firstName)
+            CustomerDetailRow(label = stringResource(Res.string.last_name), value = customer.lastName)
+            CustomerDetailRow(label = stringResource(Res.string.email), value = customer.email)
             CustomerDetailRow(
-                label = Strings.calories,
-                value = customer.calories?.toString() ?: Strings.noData,
+                label = stringResource(Res.string.address),
+                value = customer.address.ifBlank {
+                    stringResource(Res.string.no_data)
+                },
+            )
+            CustomerDetailRow(
+                label = stringResource(Res.string.calories),
+                value = customer.calories?.toString() ?: stringResource(Res.string.no_data),
             )
         }
     }

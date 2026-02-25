@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishUpdateDto
@@ -104,7 +103,7 @@ class DishImagesViewModel(
                 }
                 _uiState.update { it.copy(dish = updated, isBusy = false, isSaved = true) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isBusy = false, error = e.message ?: Strings.saveFailed) }
+                _uiState.update { it.copy(isBusy = false, error = e.message ?: "Failed to save") }
             }
         }
     }

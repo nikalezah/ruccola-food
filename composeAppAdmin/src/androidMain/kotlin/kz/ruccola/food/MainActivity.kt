@@ -35,6 +35,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.tab_customers
+import food.composeappadmin.generated.resources.tab_dishes
+import food.composeappadmin.generated.resources.tab_plans
+import food.composeappadmin.generated.resources.tab_schedule
+import food.composeappadmin.generated.resources.tab_settings
 import kotlinx.coroutines.launch
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.localization.AppPreferences
@@ -50,6 +56,7 @@ import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
+import org.jetbrains.compose.resources.stringResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,27 +121,27 @@ class MainActivity : ComponentActivity() {
                                         LabeledNavigationTab(
                                             Icons.Filled.PriceChange,
                                             Icons.Outlined.PriceChange,
-                                            "Цены",
+                                            stringResource(Res.string.tab_plans),
                                         ),
                                         LabeledNavigationTab(
                                             Icons.Filled.DinnerDining,
                                             Icons.Outlined.DinnerDining,
-                                            "Блюда",
+                                            stringResource(Res.string.tab_dishes),
                                         ),
                                         LabeledNavigationTab(
                                             Icons.Filled.CalendarMonth,
                                             Icons.Outlined.CalendarMonth,
-                                            "Расписание",
+                                            stringResource(Res.string.tab_schedule),
                                         ),
                                         LabeledNavigationTab(
                                             Icons.Filled.Groups,
                                             Icons.Outlined.Groups,
-                                            "Клиенты",
+                                            stringResource(Res.string.tab_customers),
                                         ),
                                         LabeledNavigationTab(
                                             Icons.Filled.Settings,
                                             Icons.Outlined.Settings,
-                                            "Настройки",
+                                            stringResource(Res.string.tab_settings),
                                         ),
                                     ),
                                     selected = { selectedTab },

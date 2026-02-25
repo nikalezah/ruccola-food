@@ -37,12 +37,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.click_midnight_to_start
+import food.composeappadmin.generated.resources.close
+import food.composeappadmin.generated.resources.error_prefix
+import food.composeappadmin.generated.resources.failed_to_load_dishes
+import food.composeappadmin.generated.resources.no_days_found
+import food.composeappadmin.generated.resources.no_dishes
+import food.composeappadmin.generated.resources.retry
+import food.composeappadmin.generated.resources.screen_history_title
+import food.composeappadmin.generated.resources.triggering_midnight
 import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.DayViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +63,10 @@ fun DayScreen(onClose: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(Strings.screenHistoryTitle) },
+                title = { Text(stringResource(Res.string.screen_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = Strings.close)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
@@ -86,11 +96,11 @@ fun DayScreen(onClose: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = Strings.errorPrefix.replace("%s", state.error ?: ""),
+                            text = stringResource(Res.string.error_prefix, state.error ?: ""),
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { vm.loadDays() }) { Text(Strings.retry) }
+                        Button(onClick = { vm.loadDays() }) { Text(stringResource(Res.string.retry)) }
                     }
                 }
 
@@ -99,9 +109,12 @@ fun DayScreen(onClose: () -> Unit) {
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(Strings.noDaysFound)
+                        Text(stringResource(Res.string.no_days_found))
                         Spacer(Modifier.height(8.dp))
-                        Text(Strings.clickMidnightToStart, style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(Res.string.click_midnight_to_start),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
 
@@ -123,7 +136,7 @@ fun DayScreen(onClose: () -> Unit) {
                         Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             CircularProgressIndicator()
                             Spacer(Modifier.height(16.dp))
-                            Text(Strings.triggeringMidnight)
+                            Text(stringResource(Res.string.triggering_midnight))
                         }
                     }
                 }
@@ -158,13 +171,13 @@ fun DayItem(day: DayDto) {
                 isLoading -> CircularProgressIndicator(modifier = Modifier.size(18.dp))
 
                 error != null -> Text(
-                    text = Strings.failedToLoadDishes,
+                    text = stringResource(Res.string.failed_to_load_dishes),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
 
                 dishes.isEmpty() -> Text(
-                    text = Strings.noDishes,
+                    text = stringResource(Res.string.no_dishes),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

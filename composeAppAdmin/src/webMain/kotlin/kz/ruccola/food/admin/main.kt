@@ -29,8 +29,14 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeViewport
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.log_out
+import food.composeappadmin.generated.resources.tab_customers
+import food.composeappadmin.generated.resources.tab_dishes
+import food.composeappadmin.generated.resources.tab_meal_plan_days
+import food.composeappadmin.generated.resources.tab_plans
+import food.composeappadmin.generated.resources.tab_settings
 import kotlinx.browser.window
-import kz.ruccola.food.Strings
 import kz.ruccola.food.screens.CustomerScreen
 import kz.ruccola.food.screens.DayScreen
 import kz.ruccola.food.screens.DishScreen
@@ -44,6 +50,7 @@ import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.BackHandler
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
@@ -120,7 +127,7 @@ fun AdminApp() {
                             window.localStorage.removeItem("admin.token")
                         },
                     ) {
-                        Text(Strings.logOut)
+                        Text(stringResource(Res.string.log_out))
                     }
                 }
             }
@@ -160,28 +167,28 @@ fun AdminMainScreen(
                         LabeledNavigationTab(
                             Icons.Filled.PriceChange,
                             Icons.Outlined.PriceChange,
-                            Strings.tabPlans,
+                            stringResource(Res.string.tab_plans),
                         ),
                         LabeledNavigationTab(
                             Icons.Filled.DinnerDining,
                             Icons.Outlined.DinnerDining,
-                            Strings.tabDishes,
+                            stringResource(Res.string.tab_dishes),
                         ),
                         LabeledNavigationTab(
                             Icons.Filled.CalendarMonth,
                             Icons.Outlined.CalendarMonth,
-                            Strings.tabMealPlanDays,
+                            stringResource(Res.string.tab_meal_plan_days),
                         ),
                         LabeledNavigationTab(
                             Icons.Filled.Groups,
                             Icons.Outlined.Groups,
-                            Strings.tabCustomers,
+                            stringResource(Res.string.tab_customers),
                             showBadge = hasUnreadChats,
                         ),
                         LabeledNavigationTab(
                             Icons.Filled.Settings,
                             Icons.Outlined.Settings,
-                            Strings.tabSettings,
+                            stringResource(Res.string.tab_settings),
                         ),
                     ),
                     selected = { selectedTab },

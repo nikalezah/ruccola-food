@@ -30,10 +30,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.close
+import food.composeappadmin.generated.resources.edit_variant
+import food.composeappadmin.generated.resources.new_variant
+import food.composeappadmin.generated.resources.no_customers_found
+import food.composeappadmin.generated.resources.save
+import food.composeappadmin.generated.resources.search_customers
+import food.composeappadmin.generated.resources.tab_customers
+import food.composeappadmin.generated.resources.variant_description
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.viewmodel.DishVariantViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,16 +70,19 @@ fun DishVariantEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (existing == null) Strings.newVariant else Strings.editVariant) },
+                title = {
+                    Text(stringResource(if (existing == null) Res.string.new_variant else Res.string.edit_variant))
+                },
                 navigationIcon = {
                     IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
                     ApplyIconButton(
                         onClick = { viewModel.save() },
                         enabled = uiState.description.isNotBlank() && !uiState.isBusy,
+                        contentDescription = stringResource(Res.string.save),
                     )
                 },
             )
@@ -88,20 +100,20 @@ fun DishVariantEditorScreen(
             OutlinedTextField(
                 value = uiState.description,
                 onValueChange = { viewModel.onDescriptionChange(it) },
-                label = { Text(Strings.variantDescription) },
+                label = { Text(stringResource(Res.string.variant_description)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2,
                 enabled = !uiState.isBusy,
             )
 
             Spacer(Modifier.height(24.dp))
-            Text(Strings.tabCustomers, style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.tab_customers), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.onQueryChange(it) },
-                placeholder = { Text(Strings.searchCustomers) },
+                placeholder = { Text(stringResource(Res.string.search_customers)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -120,7 +132,7 @@ fun DishVariantEditorScreen(
                 } ?: emptyList()
 
                 if (filtered.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                    Text(Strings.noCustomersFound, modifier = Modifier.padding(vertical = 8.dp))
+                    Text(stringResource(Res.string.no_customers_found), modifier = Modifier.padding(vertical = 8.dp))
                 }
 
                 LazyColumn(modifier = Modifier.weight(1f)) {

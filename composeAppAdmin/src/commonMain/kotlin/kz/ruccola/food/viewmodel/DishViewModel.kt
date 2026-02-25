@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kz.ruccola.food.Strings
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishDto
@@ -44,7 +43,7 @@ class DishViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: Strings.error,
+                        error = e.message ?: "Error",
                     )
                 }
             }
@@ -67,7 +66,7 @@ class DishViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: Strings.error,
+                        error = e.message ?: "Error",
                     )
                 }
             }
@@ -88,7 +87,7 @@ class DishViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: Strings.error,
+                        error = e.message ?: "Error",
                     )
                 }
             }
@@ -110,7 +109,7 @@ class DishViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: Strings.error,
+                        error = e.message ?: "Error",
                     )
                 }
             }
@@ -125,13 +124,13 @@ class DishViewModel : ViewModel() {
                 if (success) {
                     loadDishes()
                 } else {
-                    _uiState.update { it.copy(isLoading = false, error = Strings.error) }
+                    _uiState.update { it.copy(isLoading = false, error = "Error") }
                 }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: Strings.error,
+                        error = e.message ?: "Error",
                     )
                 }
             }

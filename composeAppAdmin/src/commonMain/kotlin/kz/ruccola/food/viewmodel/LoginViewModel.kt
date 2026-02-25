@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kz.ruccola.food.Strings
 import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
 
@@ -42,7 +41,7 @@ class LoginViewModel : ViewModel() {
                 val resp = authApi.login(email, password)
                 onLoggedIn(resp)
             } catch (t: Throwable) {
-                _uiState.update { it.copy(loginError = t.message ?: Strings.loginFailed) }
+                _uiState.update { it.copy(loginError = t.message ?: "Login failed") }
             } finally {
                 _uiState.update { it.copy(isLoggingIn = false) }
             }

@@ -42,13 +42,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.calories
+import food.composeappadmin.generated.resources.cancel
+import food.composeappadmin.generated.resources.create_plan
+import food.composeappadmin.generated.resources.delete
+import food.composeappadmin.generated.resources.edit_plan
+import food.composeappadmin.generated.resources.error_prefix
+import food.composeappadmin.generated.resources.kcal_days
+import food.composeappadmin.generated.resources.new_price_no_variants
+import food.composeappadmin.generated.resources.new_price_with_variants
+import food.composeappadmin.generated.resources.no_plans
+import food.composeappadmin.generated.resources.no_variants
+import food.composeappadmin.generated.resources.period_days
+import food.composeappadmin.generated.resources.price_per_day_short
+import food.composeappadmin.generated.resources.retry
+import food.composeappadmin.generated.resources.save
+import food.composeappadmin.generated.resources.tab_plans
+import food.composeappadmin.generated.resources.total_for_period
+import food.composeappadmin.generated.resources.with_variants
 import kz.ruccola.food.api.PlanDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 import kz.ruccola.food.ui.FabMenu
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.PlanViewModel
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +90,7 @@ fun PlanScreen() {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(Strings.tabPlans) },
+                title = { Text(stringResource(Res.string.tab_plans)) },
             )
         },
         floatingActionButton = {
@@ -83,11 +102,11 @@ fun PlanScreen() {
             }
             FabMenu(
                 listOf(
-                    Triple(null, Strings.newPriceNoVariants) {
+                    Triple(null, stringResource(Res.string.new_price_no_variants)) {
                         onClick()
                         createAllowVariant = false
                     },
-                    Triple(null, Strings.newPriceWithVariants) {
+                    Triple(null, stringResource(Res.string.new_price_with_variants)) {
                         onClick()
                         createAllowVariant = true
                     },
@@ -105,12 +124,12 @@ fun PlanScreen() {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
-                        text = { Text(Strings.noVariants) },
+                        text = { Text(stringResource(Res.string.no_variants)) },
                     )
                     Tab(
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
-                        text = { Text(Strings.withVariants) },
+                        text = { Text(stringResource(Res.string.with_variants)) },
                     )
                 }
 
@@ -123,11 +142,11 @@ fun PlanScreen() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                Strings.errorPrefix.replace("%s", state.error ?: ""),
+                                stringResource(Res.string.error_prefix, state.error ?: ""),
                                 color = MaterialTheme.colorScheme.error,
                             )
                             Spacer(Modifier.height(8.dp))
-                            Button(onClick = { vm.loadAll() }) { Text(Strings.retry) }
+                            Button(onClick = { vm.loadAll() }) { Text(stringResource(Res.string.retry)) }
                         }
                     } else {
                         val itemsToShow = if (selectedTab == 0) noVariants else withVariants
@@ -199,12 +218,17 @@ fun PlansTable(
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         if (items.isEmpty()) {
-            Box(Modifier.fillMaxSize()) { Text(Strings.noPlans, Modifier.align(Alignment.Center)) }
+            Box(Modifier.fillMaxSize()) { Text(stringResource(Res.string.no_plans), Modifier.align(Alignment.Center)) }
             return@Column
         }
         // Header row
         Row(Modifier.fillMaxWidth()) {
-            Box(Modifier.width(72.dp)) { Text(Strings.kcalDays, style = MaterialTheme.typography.labelMedium) }
+            Box(Modifier.width(72.dp)) {
+                Text(
+                    stringResource(Res.string.kcal_days),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
             periods.forEach { d ->
                 Box(Modifier.weight(1f), Alignment.TopCenter) {
                     Text(daysLabel(d), style = MaterialTheme.typography.labelMedium)
@@ -288,13 +312,14 @@ fun PlanEditorDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(
-                if (plan == null) {
-                    Strings.createPlan + " — " + (if (allow) Strings.withVariants else Strings.noVariants)
-                } else {
-                    Strings.editPlan
-                },
-            )
+            val title = if (plan == null) {
+                val type =
+                    if (allow) stringResource(Res.string.with_variants) else stringResource(Res.string.no_variants)
+                "${stringResource(Res.string.create_plan)} — $type"
+            } else {
+                stringResource(Res.string.edit_plan)
+            }
+            Text(title)
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -309,7 +334,10 @@ fun PlanEditorDialog(
                 }
 
                 if (plan == null) {
-                    Text("${Strings.calories}: ${calLabel(calories)}", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        "${stringResource(Res.string.calories)}: ${calLabel(calories)}",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                     Slider(
                         value = sliderPos,
                         onValueChange = { v ->
@@ -321,7 +349,7 @@ fun PlanEditorDialog(
                         steps = (calOptions.size - 2).coerceAtLeast(0),
                         enabled = !isSaving,
                     )
-                    Text(Strings.periodDays, style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(Res.string.period_days), style = MaterialTheme.typography.labelLarge)
                     ToggleButtonsRow(
                         options = PlanDays.entries.map { it.amount.toString() },
                         initialSelectedIndex = PlanDays.entries.indexOf(days),
@@ -329,8 +357,14 @@ fun PlanEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
-                    Text("${Strings.calories}: ${calLabel(calories)}", style = MaterialTheme.typography.labelLarge)
-                    Text("${Strings.periodDays}: ${daysLabel(days)}", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        "${stringResource(Res.string.calories)}: ${calLabel(calories)}",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Text(
+                        "${stringResource(Res.string.period_days)}: ${daysLabel(days)}",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                 }
 
                 OutlinedTextField(
@@ -339,20 +373,20 @@ fun PlanEditorDialog(
                         val filtered = it.filter { c -> c.isDigit() }
                         ppd = filtered
                     },
-                    label = { Text(Strings.pricePerDayShort) },
+                    label = { Text(stringResource(Res.string.price_per_day_short)) },
                     singleLine = true,
                     enabled = !isSaving,
                 )
 
                 ppd.toIntOrNull()?.also {
                     Text(
-                        Strings.totalForPeriod.replace("%s", (it * daysInt(days)).toString()),
+                        stringResource(Res.string.total_for_period, (it * daysInt(days)).toString()),
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
 
                 if (error != null) {
-                    Text(Strings.errorPrefix.replace("%s", error), color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(Res.string.error_prefix, error), color = MaterialTheme.colorScheme.error)
                 }
             }
         },
@@ -364,7 +398,7 @@ fun PlanEditorDialog(
                 },
                 enabled = !isSaving && ppd.isNotEmpty(),
             ) {
-                Text(Strings.save)
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
@@ -374,10 +408,10 @@ fun PlanEditorDialog(
                         onClick = { onDelete(plan.id) },
                         enabled = !isSaving,
                     ) {
-                        Text(Strings.delete, color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(Res.string.delete), color = MaterialTheme.colorScheme.error)
                     }
                 }
-                TextButton(onClick = onDismiss, enabled = !isSaving) { Text(Strings.cancel) }
+                TextButton(onClick = onDismiss, enabled = !isSaving) { Text(stringResource(Res.string.cancel)) }
             }
         },
     )

@@ -24,9 +24,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.Strings
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.email
+import food.composeappadmin.generated.resources.logging_in
+import food.composeappadmin.generated.resources.login
+import food.composeappadmin.generated.resources.password
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.viewmodel.LoginViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -57,12 +62,12 @@ fun LoginScreen(
         }
 
     Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(Strings.login, style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(Res.string.login), style = MaterialTheme.typography.titleLarge)
 
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { viewModel.updateEmail(it) },
-            label = { Text(Strings.email) },
+            label = { Text(stringResource(Res.string.email)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,7 +77,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.updatePassword(it) },
-            label = { Text(Strings.password) },
+            label = { Text(stringResource(Res.string.password)) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier
@@ -90,7 +95,7 @@ fun LoginScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             modifier = Modifier.handleTabAndEnter(),
         ) {
-            Text(if (uiState.isLoggingIn) Strings.loggingIn else Strings.login)
+            Text(if (uiState.isLoggingIn) stringResource(Res.string.logging_in) else stringResource(Res.string.login))
         }
     }
 }

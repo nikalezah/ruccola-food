@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kz.ruccola.food.Strings
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.DishApi
@@ -95,7 +94,7 @@ class DishVariantViewModel(
                 dishApi.setVariantCustomers(dishId, variant.id, currentState.selectedCustomerIds.toList())
                 _uiState.update { it.copy(savedVariant = variant) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: Strings.saveFailed) }
+                _uiState.update { it.copy(error = e.message ?: "Failed to save") }
             } finally {
                 _uiState.update { it.copy(isBusy = false) }
             }

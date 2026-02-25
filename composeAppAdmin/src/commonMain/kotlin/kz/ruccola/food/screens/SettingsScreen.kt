@@ -16,10 +16,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.log_out
+import food.composeappadmin.generated.resources.screen_settings_title
+import food.composeappadmin.generated.resources.theme_dark
+import food.composeappadmin.generated.resources.theme_light
+import food.composeappadmin.generated.resources.theme_section_title
+import food.composeappadmin.generated.resources.theme_system
 import kotlinx.coroutines.launch
-import kz.ruccola.food.Strings
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.ToggleButtonsRow
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +40,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(Strings.screenSettingsTitle) },
+                title = { Text(stringResource(Res.string.screen_settings_title)) },
             )
         },
     ) { padding ->
@@ -41,8 +48,12 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(Strings.themeSectionTitle, style = MaterialTheme.typography.titleMedium)
-            val themeOptions = listOf(Strings.themeSystem, Strings.themeLight, Strings.themeDark)
+            Text(stringResource(Res.string.theme_section_title), style = MaterialTheme.typography.titleMedium)
+            val themeOptions = listOf(
+                stringResource(Res.string.theme_system),
+                stringResource(Res.string.theme_light),
+                stringResource(Res.string.theme_dark),
+            )
             val themeIndex = when (themePreference) {
                 ThemePreference.SYSTEM -> 0
                 ThemePreference.LIGHT -> 1
@@ -67,7 +78,7 @@ fun SettingsScreen(
                 onClick = { scope.launch { onLoggedOut() } },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(Strings.logOut)
+                Text(stringResource(Res.string.log_out))
             }
         }
     }
