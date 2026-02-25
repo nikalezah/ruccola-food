@@ -14,8 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kz.ruccola.food.screens.AdminMainScreen
-import kz.ruccola.food.screens.LoginScreen
+import kz.ruccola.food.screen.AdminMainScreen
+import kz.ruccola.food.screen.LoginScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference

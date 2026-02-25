@@ -1,4 +1,4 @@
-package kz.ruccola.food.screens
+package kz.ruccola.food.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

@@ -1,4 +1,4 @@
-package kz.ruccola.food.screens
+package kz.ruccola.food.screen
 
 import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
