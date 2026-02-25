@@ -44,13 +44,13 @@
     <string name="back_to_login">Назад к входу</string>
 
     <!-- Common -->
-    <string name="error_prefix">Ошибка: %s</string>
+    <string name="error_prefix">Ошибка: %1$s</string>
     <string name="no_variants">Без вариантов</string>
     <string name="with_variants">С вариантами</string>
     <string name="period_days">Период дней</string>
     <string name="no_plans_available">Нет доступных планов для выбранной опции</string>
-    <string name="label_price_per_day">Цена за день: %s</string>
-    <string name="format_kcal">%s ккал</string>
+    <string name="label_price_per_day">Цена за день: %1$s</string>
+    <string name="format_kcal">%1$s ккал</string>
     <string name="loading">Загрузка...</string>
     <string name="error">Ошибка</string>
     <string name="retry">Повторить</string>
@@ -78,7 +78,7 @@
     <string name="bind_customer">Привязать клиента</string>
     <string name="price">Цена</string>
     <string name="calories">Калории</string>
-    <string name="label_customers">Клиенты: %s</string>
+    <string name="label_customers">Клиенты: %1$s</string>
     <string name="no_customers_bound">Клиенты не привязаны</string>
     <string name="image">Изображение</string>
     <string name="images">Изображения</string>
@@ -92,15 +92,15 @@
     <string name="new_price_no_variants">Новая цена без вариантов</string>
     <string name="new_price_with_variants">Новая цена с вариантами</string>
     <string name="kcal_days">ккал\\дни</string>
-    <string name="total_for_period">Всего за период: %s</string>
+    <string name="total_for_period">Всего за период: %1$s</string>
     <string name="create_plan">Создать план</string>
     <string name="edit_plan">Редактировать план</string>
     <string name="no_plans">Нет планов</string>
     <string name="price_per_day_short">Цена за день</string>
-    <string name="new_day">Новый день №%s</string>
-    <string name="edit_day">Изменить день №%s</string>
+    <string name="new_day">Новый день №%1$s</string>
+    <string name="edit_day">Изменить день №%1$s</string>
     <string name="mpd_subtitle">Блюда приёмов пищи</string>
-    <string name="pick_dish_for">Выберите блюдо для %s</string>
+    <string name="pick_dish_for">Выберите блюдо для %1$s</string>
     <string name="tab_schedule">Расписание</string>
 
     <!-- Days -->
@@ -110,5 +110,5 @@
     <string name="click_midnight_to_start">Нажмите Midnight чтобы запустить</string>
     <string name="failed_to_load_dishes">Не удалось загрузить блюда</string>
     <string name="no_dishes">Нет блюд</string>
-    <string name="label_calories">Калории: %s</string>
+    <string name="label_calories">Калории: %1$s</string>
 </resources>
