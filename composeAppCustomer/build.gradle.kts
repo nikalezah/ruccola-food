@@ -74,6 +74,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(compose.materialIconsExtended)
+            implementation(libs.kotlinx.datetime)
             implementation(projects.shared)
         }
         val webMain by creating {

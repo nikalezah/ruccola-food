@@ -31,8 +31,8 @@ import kz.ruccola.food.RuStrings
 import kz.ruccola.food.customer.screens.ChatListScreen
 import kz.ruccola.food.customer.screens.LoginScreen
 import kz.ruccola.food.customer.screens.ProfileScreen
-import kz.ruccola.food.customer.screens.ScheduleScreen
 import kz.ruccola.food.screen.RegisterScreen
+import kz.ruccola.food.screen.ScheduleScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference
