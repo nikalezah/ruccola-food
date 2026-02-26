@@ -31,6 +31,7 @@ import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.api.ChatApi
 import kz.ruccola.food.api.ChatDto
 import kz.ruccola.food.api.MessageDto
+import kz.ruccola.food.screen.ChatScreen
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.SingleLineText

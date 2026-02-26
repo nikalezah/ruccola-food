@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kz.ruccola.food.api.MessageDto
+import kz.ruccola.food.formatDateTime
 
 @Composable
 fun ChatUi(
@@ -53,6 +54,7 @@ fun ChatUi(
     isLoading: Boolean,
     inputEnabled: Boolean,
     sendEnabled: Boolean,
+    locale: String,
     modifier: Modifier = Modifier,
     maxBodyLength: Int = 1000,
 ) {
@@ -143,7 +145,7 @@ fun ChatUi(
                                         )
                                     }
                                     Text(
-                                        text = message.createdAt.toString(),
+                                        text = formatDateTime(message.createdAt, locale),
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }

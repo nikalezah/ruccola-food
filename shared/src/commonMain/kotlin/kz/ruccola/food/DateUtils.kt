@@ -50,3 +50,14 @@ fun formatDate(
         else -> "$dayOfWeekName, $day.$month"
     }
 }
+
+fun formatDateTime(
+    dateTime: kotlinx.datetime.LocalDateTime,
+    locale: String,
+): String {
+    val date = dateTime.date
+    val formattedDate = formatDate(date, locale)
+    val hour = dateTime.hour.toString().padStart(2, '0')
+    val minute = dateTime.minute.toString().padStart(2, '0')
+    return "$formattedDate $hour:$minute"
+}
