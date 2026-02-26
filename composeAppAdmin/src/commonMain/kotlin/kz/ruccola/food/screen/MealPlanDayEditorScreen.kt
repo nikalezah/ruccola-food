@@ -64,13 +64,13 @@ import food.composeappadmin.generated.resources.pick_dish_for
 import food.composeappadmin.generated.resources.save
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
+import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.FabMenu
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
-import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
 import org.jetbrains.compose.resources.stringResource

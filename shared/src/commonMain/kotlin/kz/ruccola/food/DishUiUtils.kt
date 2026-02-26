@@ -1,6 +1,4 @@
-package kz.ruccola.food.ui
-
-import kz.ruccola.food.BASE_URL
+package kz.ruccola.food
 
 fun dishImageUrl(url: String): String {
     val base = BASE_URL

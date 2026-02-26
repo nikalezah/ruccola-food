@@ -39,11 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.Strings
+import kz.ruccola.food.dishImageUrl
+import kz.ruccola.food.formatDate
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SingleLineText
-import kz.ruccola.food.ui.dishImageUrl
-import kz.ruccola.food.ui.formatDate
 import kz.ruccola.food.viewmodel.ScheduleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

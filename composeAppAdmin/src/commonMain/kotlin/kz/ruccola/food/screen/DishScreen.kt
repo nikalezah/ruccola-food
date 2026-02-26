@@ -51,10 +51,10 @@ import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_dishes
 import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
-import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishViewModel
 import org.jetbrains.compose.resources.stringResource
 

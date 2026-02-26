@@ -47,11 +47,11 @@ import food.composeappadmin.generated.resources.images
 import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.save
 import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.provideImagePicker
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SwipeToRemove
-import kz.ruccola.food.ui.dishImageUrl
 import kz.ruccola.food.viewmodel.DishImagesViewModel
 import org.jetbrains.compose.resources.stringResource
 

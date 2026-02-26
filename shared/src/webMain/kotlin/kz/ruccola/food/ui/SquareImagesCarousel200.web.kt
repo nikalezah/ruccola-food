@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import kz.ruccola.food.dishImageUrl
 
 @Composable
 actual fun SquareImagesCarousel200(imageUrls: List<String>) {
