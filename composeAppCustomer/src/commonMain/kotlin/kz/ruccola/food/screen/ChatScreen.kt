@@ -7,7 +7,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -52,49 +54,51 @@ fun ChatScreen(
         viewModel.startPolling(token)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(strings.chatSupportTitle) },
-                navigationIcon = {
-                    if (onBack != null) {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null,
-                            )
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(strings.chatSupportTitle) },
+                    navigationIcon = {
+                        if (onBack != null) {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = null,
+                                )
+                            }
                         }
-                    }
-                },
-            )
-        },
-    ) { padding ->
-        val pullToRefreshState = rememberPullToRefreshState()
+                    },
+                )
+            },
+        ) { padding ->
+            val pullToRefreshState = rememberPullToRefreshState()
 
-        PullToRefreshBox(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.loadChat(token, isRefreshing = true) },
-            state = pullToRefreshState,
-            modifier = Modifier.fillMaxSize().padding(padding),
-        ) {
-            ChatUi(
-                messages = uiState.messages,
-                currentUserId = currentUserId,
-                messageBody = messageBody,
-                onMessageBodyChange = { messageBody = it },
-                onSendMessage = {
-                    viewModel.sendMessage(token, messageBody)
-                    messageBody = ""
-                },
-                placeholder = strings.chatPlaceholder,
-                emptyText = strings.chatEmpty,
-                errorText = errorText,
-                isLoading = uiState.isLoading,
-                inputEnabled = true,
-                sendEnabled = true,
-                locale = strings.locale,
-                modifier = Modifier.fillMaxSize().padding(12.dp),
-            )
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.loadChat(token, isRefreshing = true) },
+                state = pullToRefreshState,
+                modifier = Modifier.fillMaxSize().padding(padding),
+            ) {
+                ChatUi(
+                    messages = uiState.messages,
+                    currentUserId = currentUserId,
+                    messageBody = messageBody,
+                    onMessageBodyChange = { messageBody = it },
+                    onSendMessage = {
+                        viewModel.sendMessage(token, messageBody)
+                        messageBody = ""
+                    },
+                    placeholder = strings.chatPlaceholder,
+                    emptyText = strings.chatEmpty,
+                    errorText = errorText,
+                    isLoading = uiState.isLoading,
+                    inputEnabled = true,
+                    sendEnabled = true,
+                    locale = strings.locale,
+                    modifier = Modifier.fillMaxSize().padding(12.dp),
+                )
+            }
         }
     }
 }

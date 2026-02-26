@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -78,36 +79,53 @@ class MainActivity : ComponentActivity() {
                         }
                     } else {
                         var selectedTab by remember { mutableIntStateOf(0) }
+                        var isChatOpen by remember { mutableStateOf(false) }
+                        val showBottomBar = !(selectedTab == 1 && isChatOpen)
+
                         Scaffold(
                             bottomBar = {
-                                LabeledNavigationBar(
-                                    tabs = listOf(
-                                        LabeledNavigationTab(
-                                            Icons.Filled.DinnerDining,
-                                            Icons.Outlined.DinnerDining,
-                                            stringResource(R.string.tab_dishes),
+                                if (showBottomBar) {
+                                    LabeledNavigationBar(
+                                        tabs = listOf(
+                                            LabeledNavigationTab(
+                                                Icons.Filled.DinnerDining,
+                                                Icons.Outlined.DinnerDining,
+                                                stringResource(R.string.tab_dishes),
+                                            ),
+                                            LabeledNavigationTab(
+                                                Icons.AutoMirrored.Filled.Chat,
+                                                Icons.AutoMirrored.Outlined.Chat,
+                                                stringResource(R.string.tab_chat),
+                                            ),
+                                            LabeledNavigationTab(
+                                                Icons.Filled.ManageAccounts,
+                                                Icons.Outlined.ManageAccounts,
+                                                stringResource(R.string.tab_profile),
+                                            ),
                                         ),
-                                        LabeledNavigationTab(
-                                            Icons.AutoMirrored.Filled.Chat,
-                                            Icons.AutoMirrored.Outlined.Chat,
-                                            stringResource(R.string.tab_chat),
-                                        ),
-                                        LabeledNavigationTab(
-                                            Icons.Filled.ManageAccounts,
-                                            Icons.Outlined.ManageAccounts,
-                                            stringResource(R.string.tab_profile),
-                                        ),
-                                    ),
-                                    selected = { selectedTab },
-                                    onSelect = { selectedTab = it },
-                                )
+                                        selected = { selectedTab },
+                                        onSelect = { tab ->
+                                            selectedTab = tab
+                                            if (tab != 1) {
+                                                isChatOpen = false
+                                            }
+                                        },
+                                    )
+                                }
                             },
                         ) { padding ->
-                            Box(Modifier.padding(padding)) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(padding),
+                            ) {
                                 when (selectedTab) {
                                     0 -> ScheduleScreen(token = token!!)
 
-                                    1 -> ChatListScreen(token = token!!)
+                                    1 -> ChatListScreen(
+                                        token = token!!,
+                                        onChatOpenChanged = { isChatOpen = it },
+                                    )
 
                                     2 -> ProfileScreen(
                                         token = token!!,

@@ -61,33 +61,34 @@ fun ChatListScreen(
         onDispose { onChatOpenChanged(false) }
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(strings.screenChatListTitle) },
-            )
-        },
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                }
+    Box(Modifier.fillMaxSize()) {
+        when {
+            uiState.isLoading -> {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
 
-                errorText != null -> {
-                    Text(errorText, modifier = Modifier.align(Alignment.Center))
-                }
+            errorText != null -> {
+                Text(errorText, modifier = Modifier.align(Alignment.Center))
+            }
 
-                uiState.chat == null -> {
-                    Text(strings.chatEmpty, modifier = Modifier.align(Alignment.Center))
-                }
+            uiState.chat == null -> {
+                Text(strings.chatEmpty, modifier = Modifier.align(Alignment.Center))
+            }
 
-                else -> {
-                    val chat = uiState.chat
-                    val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
-                    val messageText = uiState.lastMessage?.body ?: strings.chatEmpty
+            else -> {
+                val chat = uiState.chat
+                val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
+                val messageText = uiState.lastMessage?.body ?: strings.chatEmpty
+
+                Scaffold(
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            title = { Text(strings.screenChatListTitle) },
+                        )
+                    },
+                ) { padding ->
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(padding),
                         contentPadding = PaddingValues(12.dp),
                     ) {
                         item {
@@ -111,12 +112,12 @@ fun ChatListScreen(
                 }
             }
         }
-    }
 
-    if (isChatOpen) {
-        ChatScreen(
-            token = token,
-            onBack = { isChatOpen = false },
-        )
+        if (isChatOpen) {
+            ChatScreen(
+                token = token,
+                onBack = { isChatOpen = false },
+            )
+        }
     }
 }
