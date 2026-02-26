@@ -28,9 +28,9 @@ import kz.ruccola.food.EnStrings
 import kz.ruccola.food.KkStrings
 import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.RuStrings
-import kz.ruccola.food.customer.screens.ChatListScreen
 import kz.ruccola.food.customer.screens.LoginScreen
 import kz.ruccola.food.customer.screens.ProfileScreen
+import kz.ruccola.food.screen.ChatListScreen
 import kz.ruccola.food.screen.RegisterScreen
 import kz.ruccola.food.screen.ScheduleScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme

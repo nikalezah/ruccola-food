@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.localization.AppPreferences
-import kz.ruccola.food.screen.ChatScreen
+import kz.ruccola.food.screen.ChatListScreen
 import kz.ruccola.food.screen.LoginScreen
 import kz.ruccola.food.screen.ProfileScreen
 import kz.ruccola.food.screen.RegisterScreen
@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
                                 when (selectedTab) {
                                     0 -> ScheduleScreen(token = token!!)
 
-                                    1 -> ChatScreen(token = token!!)
+                                    1 -> ChatListScreen(token = token!!)
 
                                     2 -> ProfileScreen(
                                         token = token!!,

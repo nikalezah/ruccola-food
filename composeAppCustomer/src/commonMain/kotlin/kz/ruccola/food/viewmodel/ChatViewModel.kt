@@ -36,11 +36,30 @@ class ChatViewModel : ViewModel() {
                 val chat = api.getMyChat(token)
                 _uiState.update { it.copy(chat = chat, error = null) }
                 loadMessages(token, chat.id)
+                loadLastMessage(token, chat)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: e.toString()) }
             } finally {
                 _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
             }
+        }
+    }
+
+    private suspend fun loadLastMessage(
+        token: String,
+        chat: ChatDto,
+    ) {
+        try {
+            val afterId = chat.lastMessageId?.minus(1)
+            val lastMessage = api.getMessages(
+                token = token,
+                chatId = chat.id,
+                afterId = afterId,
+                limit = 1,
+            ).lastOrNull()
+            _uiState.update { it.copy(lastMessage = lastMessage) }
+        } catch (e: Exception) {
+            // Non-critical error
         }
     }
 
@@ -101,6 +120,7 @@ class ChatViewModel : ViewModel() {
 data class ChatUiState(
     val chat: ChatDto? = null,
     val messages: List<MessageDto> = emptyList(),
+    val lastMessage: MessageDto? = null,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val error: String? = null,
