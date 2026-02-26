@@ -65,6 +65,7 @@ interface Strings {
     val themeSystem: String
     val themeLight: String
     val themeDark: String
+    val screenDishDetailsTitle: String
 }
 
 object RuStrings : Strings {
@@ -130,6 +131,7 @@ object RuStrings : Strings {
     override val themeSystem = "Системная"
     override val themeLight = "Светлая"
     override val themeDark = "Темная"
+    override val screenDishDetailsTitle = "Детали блюда"
 }
 
 object EnStrings : Strings {
@@ -195,6 +197,7 @@ object EnStrings : Strings {
     override val themeSystem = "System"
     override val themeLight = "Light"
     override val themeDark = "Dark"
+    override val screenDishDetailsTitle = "Dish details"
 }
 
 object KkStrings : Strings {
@@ -260,6 +263,7 @@ object KkStrings : Strings {
     override val themeSystem = "Жүйе"
     override val themeLight = "Жарық"
     override val themeDark = "Қараңғы"
+    override val screenDishDetailsTitle = "Тағам мәліметтері"
 }
 
 val LocalStrings = compositionLocalOf<Strings> { RuStrings }

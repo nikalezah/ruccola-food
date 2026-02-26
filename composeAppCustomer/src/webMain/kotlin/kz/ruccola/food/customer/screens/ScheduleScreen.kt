@@ -38,6 +38,7 @@ import kz.ruccola.food.Strings
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.WeeklyPlanDayDto
 import kz.ruccola.food.model.Meal
+import kz.ruccola.food.screen.DishDetailsScreen
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.dishImageUrl

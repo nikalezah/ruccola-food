@@ -70,7 +70,7 @@ fun AndroidCustomerWeekScreen(token: String) {
 
     // Dish details view
     selectedDishId?.let { dishId ->
-        AndroidDishDetailsScreen(
+        DishDetailsScreen(
             dishId = dishId,
             onBack = { selectedDishId = null },
         )
