@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,8 +68,8 @@ class MainActivity : ComponentActivity() {
             }
 
             MaterialTheme(colorScheme = colorScheme) {
-                var token by remember { mutableStateOf<String?>(null) }
-                var showRegister by remember { mutableStateOf(false) }
+                var token by rememberSaveable { mutableStateOf<String?>(null) }
+                var showRegister by rememberSaveable { mutableStateOf(false) }
 
                 val strings = remember(language) {
                     when (language?.take(2)) {
@@ -97,8 +98,8 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     } else {
-                        var selectedTab by remember { mutableIntStateOf(0) }
-                        var isChatOpen by remember { mutableStateOf(false) }
+                        var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+                        var isChatOpen by rememberSaveable { mutableStateOf(false) }
                         val showBottomBar = !(selectedTab == 1 && isChatOpen)
 
                         Scaffold(

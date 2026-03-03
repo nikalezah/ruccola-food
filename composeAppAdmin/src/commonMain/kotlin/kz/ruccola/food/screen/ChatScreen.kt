@@ -76,6 +76,7 @@ fun ChatScreen(
             isLoading = uiState.isLoading,
             inputEnabled = chatId != null,
             sendEnabled = chatId != null && uiState.messageBody.isNotBlank(),
+            locale = "ru-RU",
             modifier = Modifier.fillMaxSize().padding(padding).padding(12.dp),
         )
     }
