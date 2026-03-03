@@ -2,7 +2,6 @@ package kz.ruccola.food.route
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
-import io.ktor.server.resources.get
 import io.ktor.server.resources.post
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -53,11 +52,5 @@ fun Route.configureAuthRoutes() {
 
     post<Auth.Logout> {
         call.respond(HttpStatusCode.OK)
-    }
-
-    // todo: remove
-    // Dev/testing endpoint that includes password (for login autofill convenience)
-    get<Auth.UsersWithPasswords> {
-        call.respond(userService.findAll())
     }
 }

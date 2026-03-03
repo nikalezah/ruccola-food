@@ -2,7 +2,6 @@ package kz.ruccola.food.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.request.header
 import io.ktor.client.request.setBody
@@ -29,13 +28,6 @@ class Auth {
 
     @Resource("logout")
     class Logout(
-        val parent: Auth = Auth(),
-    )
-
-    // todo: remove
-    // Dev/testing endpoint that includes password (for login autofill convenience)
-    @Resource("users-with-passwords")
-    class UsersWithPasswords(
         val parent: Auth = Auth(),
     )
 }
@@ -84,10 +76,6 @@ class AuthApi(
             throw Exception("HTTP ${response.status.value}")
         }
     }
-
-    // todo: remove
-    // Dev/testing endpoint that includes password (for login autofill convenience)
-    suspend fun getUsersWithPasswords(): List<UserWithPasswordDto> = client.get(Auth.UsersWithPasswords()).body()
 }
 
 enum class Role { ADMIN, CUSTOMER }
@@ -120,16 +108,5 @@ data class RegisterRequestDto(
 @Serializable
 data class LoginRequestDto(
     val email: String,
-    val password: String,
-)
-
-@Serializable
-data class UserWithPasswordDto(
-    val id: Int,
-    val email: String,
-    val firstName: String,
-    val lastName: String,
-    val address: String? = null,
-    val role: String,
     val password: String,
 )
