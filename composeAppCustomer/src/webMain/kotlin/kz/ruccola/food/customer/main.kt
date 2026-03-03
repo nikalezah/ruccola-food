@@ -29,8 +29,8 @@ import kz.ruccola.food.KkStrings
 import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.RuStrings
 import kz.ruccola.food.customer.screens.LoginScreen
-import kz.ruccola.food.customer.screens.ProfileScreen
 import kz.ruccola.food.screen.ChatListScreen
+import kz.ruccola.food.screen.ProfileScreen
 import kz.ruccola.food.screen.RegisterScreen
 import kz.ruccola.food.screen.ScheduleScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
@@ -167,21 +167,29 @@ fun MainScreen(
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
             when (selectedTab) {
-                0 -> ScheduleScreen(token)
+                0 -> {
+                    ScheduleScreen(token)
+                }
 
-                1 -> ChatListScreen(
-                    token = token,
-                    onChatOpenChanged = { isChatOpen = it },
-                    onUnreadChanged = { hasUnreadChat = it },
-                )
+                1 -> {
+                    ChatListScreen(
+                        token = token,
+                        onChatOpenChanged = { isChatOpen = it },
+                        onUnreadChanged = { hasUnreadChat = it },
+                    )
+                }
 
-                2 -> ProfileScreen(
-                    token,
-                    onLoggedOut = onLoggedOut,
-                    onLanguageChanged = onLanguageChanged,
-                    themePreference = themePreference,
-                    onThemePreferenceChanged = onThemePreferenceChanged,
-                )
+                2 -> {
+                    val currentLang = window.localStorage.getItem("customer.language") ?: "ru"
+                    ProfileScreen(
+                        token = token,
+                        onLoggedOut = onLoggedOut,
+                        onLanguageChanged = onLanguageChanged,
+                        currentLanguage = currentLang,
+                        themePreference = themePreference,
+                        onThemePreferenceChanged = onThemePreferenceChanged,
+                    )
+                }
             }
         }
     }

@@ -14,10 +14,16 @@ val Context.appDataStore by preferencesDataStore(name = APP_PREFS_NAME)
 
 object AppPreferences {
     private val KEY_LANGUAGE_TAG: Preferences.Key<String> = stringPreferencesKey("app_language_tag")
+    private val KEY_THEME_PREFERENCE: Preferences.Key<String> = stringPreferencesKey("app_theme_preference")
 
     fun languageTagFlow(context: Context): Flow<String?> =
         context.appDataStore.data.map { prefs ->
             prefs[KEY_LANGUAGE_TAG]
+        }
+
+    fun themePreferenceFlow(context: Context): Flow<String?> =
+        context.appDataStore.data.map { prefs ->
+            prefs[KEY_THEME_PREFERENCE]
         }
 
     suspend fun setLanguageTag(
@@ -29,6 +35,19 @@ object AppPreferences {
                 prefs.remove(KEY_LANGUAGE_TAG)
             } else {
                 prefs[KEY_LANGUAGE_TAG] = tag
+            }
+        }
+    }
+
+    suspend fun setThemePreference(
+        context: Context,
+        preference: String?,
+    ) {
+        context.appDataStore.edit { prefs ->
+            if (preference.isNullOrBlank()) {
+                prefs.remove(KEY_THEME_PREFERENCE)
+            } else {
+                prefs[KEY_THEME_PREFERENCE] = preference
             }
         }
     }
