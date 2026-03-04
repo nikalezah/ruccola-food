@@ -36,7 +36,7 @@ class ChatRoutesTest {
     private suspend fun loginAdmin(client: HttpClient): String {
         val resp = client.post("/api/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(LoginRequestDto("admin@interna.food", "admin"))
+            setBody(LoginRequestDto("admin@ruccola.food", "admin"))
         }
         assertEquals(HttpStatusCode.OK, resp.status)
         val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject

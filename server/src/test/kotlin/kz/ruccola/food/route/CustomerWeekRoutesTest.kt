@@ -40,7 +40,7 @@ class CustomerWeekRoutesTest {
             // Login as admin (any authenticated user is enough for this endpoint)
             val loginResp = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginRequestDto("admin@interna.food", "admin"))
+                setBody(LoginRequestDto("admin@ruccola.food", "admin"))
             }
             assertEquals(HttpStatusCode.OK, loginResp.status)
             val token = Json.parseToJsonElement(loginResp.bodyAsText()).jsonObject["token"]!!.jsonPrimitive.content

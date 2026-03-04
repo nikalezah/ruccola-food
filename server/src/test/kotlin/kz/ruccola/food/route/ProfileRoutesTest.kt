@@ -37,7 +37,7 @@ class ProfileRoutesTest {
             // Login as admin to get token
             suspendTransaction {
                 val userId = Users.insertAndGetId {
-                    it[Users.email] = "customer1@interna.food"
+                    it[Users.email] = "customer1@ruccola.food"
                     it[Users.password] = "123qwe"
                     it[Users.firstName] = "Customer"
                     it[Users.lastName] = "One"
@@ -50,7 +50,7 @@ class ProfileRoutesTest {
             }
             val loginResp = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginRequestDto("customer1@interna.food", "123qwe"))
+                setBody(LoginRequestDto("customer1@ruccola.food", "123qwe"))
             }
             assertEquals(HttpStatusCode.OK, loginResp.status)
             val loginJson = Json.parseToJsonElement(loginResp.bodyAsText()).jsonObject
@@ -61,7 +61,7 @@ class ProfileRoutesTest {
             }
             assertEquals(HttpStatusCode.OK, profResp.status)
             val profJson = Json.parseToJsonElement(profResp.bodyAsText()).jsonObject
-            assertEquals("customer1@interna.food", profJson["email"]!!.jsonPrimitive.content)
+            assertEquals("customer1@ruccola.food", profJson["email"]!!.jsonPrimitive.content)
             assertEquals("CUSTOMER", profJson["role"]!!.jsonPrimitive.content)
         }
 

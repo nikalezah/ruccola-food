@@ -29,14 +29,14 @@ class AuthRoutesTest {
         testApp { client ->
             val response = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginRequestDto("admin@interna.food", "admin"))
+                setBody(LoginRequestDto("admin@ruccola.food", "admin"))
             }
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
             val json = Json.parseToJsonElement(body).jsonObject
             assertTrue(json.containsKey("token"))
             val user = json["user"]!!.jsonObject
-            assertEquals("admin@interna.food", user["email"]!!.jsonPrimitive.content)
+            assertEquals("admin@ruccola.food", user["email"]!!.jsonPrimitive.content)
             assertEquals("ADMIN", user["role"]!!.jsonPrimitive.content)
         }
 
@@ -45,7 +45,7 @@ class AuthRoutesTest {
         testApp { client ->
             val response = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginRequestDto("admin@interna.food", "wrong"))
+                setBody(LoginRequestDto("admin@ruccola.food", "wrong"))
             }
             assertEquals(HttpStatusCode.Unauthorized, response.status)
         }
