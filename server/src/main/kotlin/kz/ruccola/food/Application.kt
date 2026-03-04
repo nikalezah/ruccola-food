@@ -6,6 +6,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.cio.EngineMain
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -26,7 +27,6 @@ import kz.ruccola.food.route.configureFileRoutes
 import kz.ruccola.food.route.configureMealPlanDayRoutes
 import kz.ruccola.food.route.configurePlanRoutes
 import kz.ruccola.food.service.DayService
-import kz.ruccola.food.service.FileService.Companion.FILES_DIR_PATH
 import kz.ruccola.food.service.FileService.Companion.FILES_URL_PREFIX
 import kz.ruccola.food.service.MealPlanDayService
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -35,7 +35,20 @@ import java.io.File
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
+object AppConfig {
+    lateinit var config: ApplicationConfig
+
+    val storagePath
+        get() = config.property("ktor.storage.path").getString()
+
+    fun init(config: ApplicationConfig) {
+        this.config = config
+    }
+}
+
 fun Application.module() {
+    AppConfig.init(environment.config)
+
     // Install plugins
     install(CallLogging)
     install(ContentNegotiation) {
@@ -63,7 +76,7 @@ fun Application.module() {
     install(Resources)
 
     routing {
-        staticFiles(FILES_URL_PREFIX, File(FILES_DIR_PATH))
+        staticFiles(FILES_URL_PREFIX, File(AppConfig.storagePath))
         route("/api/") {
             configureAuthRoutes()
             configurePlanRoutes()

@@ -5,6 +5,7 @@ import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.io.readByteArray
+import kz.ruccola.food.AppConfig
 import kz.ruccola.food.api.FileDto
 import kz.ruccola.food.dbQuery
 import kz.ruccola.food.model.Files
@@ -20,12 +21,11 @@ import java.nio.file.Files as NioFiles
 class FileService {
     companion object {
         // todo: move somewhere else
-        const val FILES_DIR_PATH = "server/files"
         const val FILES_URL_PREFIX = "/files"
     }
 
     private fun ensureUploadDir(): File {
-        val dir = File(FILES_DIR_PATH)
+        val dir = File(AppConfig.storagePath)
         if (!dir.exists()) {
             dir.mkdirs()
         }
