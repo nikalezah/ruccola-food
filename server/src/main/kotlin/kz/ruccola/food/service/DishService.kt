@@ -241,7 +241,7 @@ class DishService {
     fun toDishImageDto(row: ResultRow): DishImageDto =
         DishImageDto(
             row[DishImages.id].value,
-            "/${FILES_URL_PREFIX}/${row[Files.filename]}",
+            "${FILES_URL_PREFIX}/${row[Files.filename]}",
             row[DishImages.fileId].value,
         )
 
