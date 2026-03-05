@@ -2,9 +2,6 @@ package kz.ruccola.food.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
@@ -69,11 +66,7 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
                 checked = fabMenuExpanded,
                 onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
             ) {
-                val imageVector by remember {
-                    derivedStateOf {
-                        if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
-                    }
-                }
+                val imageVector = if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
                 Icon(
                     painter = rememberVectorPainter(imageVector),
                     contentDescription = null,
@@ -84,23 +77,24 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
     ) {
         items.forEachIndexed { i, (icon, label, onClick) ->
             FloatingActionButtonMenuItem(
-                modifier = Modifier.semantics {
-                    isTraversalGroup = true
-                    // Add a custom a11y action to allow closing the menu when focusing on
-                    // the last menu item, since the close button comes before the first
-                    // menu item in the traversal order.
-                    if (i == items.size - 1) {
-                        customActions = listOf(
-                            CustomAccessibilityAction(
-                                label = "Close menu",
-                                action = {
-                                    fabMenuExpanded = false
-                                    true
-                                },
-                            ),
-                        )
+                modifier = Modifier
+                    .semantics {
+                        isTraversalGroup = true
+                        // Add a custom a11y action to allow closing the menu when focusing on
+                        // the last menu item, since the close button comes before the first
+                        // menu item in the traversal order.
+                        if (i == items.size - 1) {
+                            customActions = listOf(
+                                CustomAccessibilityAction(
+                                    label = "Close menu",
+                                    action = {
+                                        fabMenuExpanded = false
+                                        true
+                                    },
+                                ),
+                            )
+                        }
                     }
-                }
                     .then(
                         if (i == 0) {
                             Modifier.onKeyEvent {

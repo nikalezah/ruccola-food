@@ -53,7 +53,6 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.coil.compose)
-            implementation(libs.androidx.materialIconsExtended)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.datastore.preferences)
@@ -73,13 +72,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.kotlinx.datetime)
-            implementation(compose.materialIconsExtended)
             implementation(projects.shared)
         }
         val webMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation(compose.materialIconsExtended)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.contentNegotiation)
                 implementation(libs.ktor.serialization.json)

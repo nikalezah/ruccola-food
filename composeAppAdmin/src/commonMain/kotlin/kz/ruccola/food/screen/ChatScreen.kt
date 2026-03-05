@@ -2,8 +2,6 @@ package kz.ruccola.food.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,6 +22,7 @@ import food.composeappadmin.generated.resources.chat_empty
 import food.composeappadmin.generated.resources.chat_message_placeholder
 import food.composeappadmin.generated.resources.error_prefix
 import kz.ruccola.food.ui.ChatUi
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.viewmodel.ChatViewModel
 import org.jetbrains.compose.resources.stringResource
 
@@ -56,7 +55,7 @@ fun ChatScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.Filled.ArrowBack,
                             contentDescription = stringResource(Res.string.back_to_login),
                         )
                     }

@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.datetime.LocalDate
 import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.ProfileViewModel
 import kotlin.math.roundToInt
@@ -70,7 +69,7 @@ fun ProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             onClick = { viewModel.logout(token, onLoggedOut) },
         ) {
-            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
+            Icon(Icons.Filled.Logout, contentDescription = "Logout")
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text(strings.logOut)
         }

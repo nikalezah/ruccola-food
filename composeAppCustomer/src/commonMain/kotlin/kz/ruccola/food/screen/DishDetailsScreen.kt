@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.LocalStrings
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import kz.ruccola.food.viewmodel.DishViewModel
 
@@ -51,7 +50,7 @@ fun DishDetailsScreen(
                 title = { Text(state.dish?.name ?: strings.screenDishDetailsTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
             )

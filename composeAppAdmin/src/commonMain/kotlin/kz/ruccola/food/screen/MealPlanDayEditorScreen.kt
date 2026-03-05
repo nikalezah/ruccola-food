@@ -16,9 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +66,7 @@ import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.FabMenu
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishViewModel
@@ -132,7 +130,7 @@ fun MealPlanDayEditorScreen(
                 subtitle = { Text(stringResource(Res.string.mpd_subtitle)) },
                 navigationIcon = {
                     IconButton(onClick = { if (!state.isSaving) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
@@ -236,7 +234,7 @@ fun MealPlanDayEditorScreen(
                         localDishIdToMeal.remove(d.dish.id)
                         localDishes.removeAll { it.dish.id == d.dish.id }
                     }
-                    SwipeToRemove(Icons.Default.Delete, stringResource(Res.string.delete), onDelete) {
+                    SwipeToRemove(Icons.Filled.Delete, stringResource(Res.string.delete), onDelete) {
                         ListItem(
                             leadingContent = {
                                 val imageUrl = d.dish.images.firstOrNull()?.url

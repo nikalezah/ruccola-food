@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.ChatViewModel
 
@@ -97,7 +96,7 @@ fun ChatListScreen(
                                 supportingContent = { SingleLineText(messageText) },
                                 trailingContent = {
                                     val icon: @Composable () -> Unit = {
-                                        Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null)
+                                        Icon(Icons.Outlined.Chat, contentDescription = null)
                                     }
                                     if (isUnread) {
                                         BadgedBox(badge = { Badge() }) { icon() }

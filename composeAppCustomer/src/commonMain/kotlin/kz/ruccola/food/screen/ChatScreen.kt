@@ -2,8 +2,6 @@ package kz.ruccola.food.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.ui.ChatUi
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.viewmodel.ChatViewModel
 
 private fun parseUserId(token: String): Int? {
@@ -63,7 +62,7 @@ fun ChatScreen(
                         if (onBack != null) {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    imageVector = Icons.Filled.ArrowBack,
                                     contentDescription = null,
                                 )
                             }

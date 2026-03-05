@@ -3,17 +3,6 @@ package kz.ruccola.food.screen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.DinnerDining
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.PriceChange
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.DinnerDining
-import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.PriceChange
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +19,7 @@ import food.composeappadmin.generated.resources.tab_plans
 import food.composeappadmin.generated.resources.tab_settings
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.BackHandler
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
 import org.jetbrains.compose.resources.stringResource

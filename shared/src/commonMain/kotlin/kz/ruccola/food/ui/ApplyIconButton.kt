@@ -1,8 +1,6 @@
 package kz.ruccola.food.ui
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon

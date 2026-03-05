@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,6 +44,7 @@ import food.composeappadmin.generated.resources.tab_customers
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.CustomersViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -145,7 +144,7 @@ fun CustomerScreen(
                                     val chatButton: @Composable () -> Unit = {
                                         IconButton(onClick = onClick) {
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Outlined.Chat,
+                                                imageVector = Icons.Outlined.Chat,
                                                 contentDescription = stringResource(Res.string.chat_open),
                                             )
                                         }

@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -41,6 +38,7 @@ import food.composeappadmin.generated.resources.tab_customers
 import food.composeappadmin.generated.resources.variant_description
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.ui.ApplyIconButton
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.viewmodel.DishVariantViewModel
 import org.jetbrains.compose.resources.stringResource
 
@@ -75,7 +73,7 @@ fun DishVariantEditorScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
@@ -114,7 +112,7 @@ fun DishVariantEditorScreen(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.onQueryChange(it) },
                 placeholder = { Text(stringResource(Res.string.search_customers)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 enabled = !uiState.isBusy,

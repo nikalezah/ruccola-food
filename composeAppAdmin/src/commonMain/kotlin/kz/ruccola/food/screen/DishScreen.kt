@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -53,6 +49,7 @@ import food.composeappadmin.generated.resources.tab_dishes
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishViewModel

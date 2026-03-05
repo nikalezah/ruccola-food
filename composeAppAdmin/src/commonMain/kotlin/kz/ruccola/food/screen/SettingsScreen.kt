@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,6 +28,7 @@ import food.composeappadmin.generated.resources.theme_section_title
 import food.composeappadmin.generated.resources.theme_system
 import kotlinx.coroutines.launch
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.ToggleButtonsRow
 import org.jetbrains.compose.resources.stringResource
 
@@ -78,6 +82,8 @@ fun SettingsScreen(
                 onClick = { scope.launch { onLoggedOut() } },
                 modifier = Modifier.fillMaxWidth(),
             ) {
+                Icon(Icons.Filled.Logout, contentDescription = "Logout")
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(stringResource(Res.string.log_out))
             }
         }

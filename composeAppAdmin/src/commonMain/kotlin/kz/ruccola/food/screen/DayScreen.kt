@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,6 +48,7 @@ import food.composeappadmin.generated.resources.triggering_midnight
 import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.api.DishWithMealDto
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.DayViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -66,7 +65,7 @@ fun DayScreen(onClose: () -> Unit) {
                 title = { Text(stringResource(Res.string.screen_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {

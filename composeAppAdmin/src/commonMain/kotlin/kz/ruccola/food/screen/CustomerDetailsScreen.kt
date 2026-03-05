@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +24,7 @@ import food.composeappadmin.generated.resources.first_name
 import food.composeappadmin.generated.resources.last_name
 import food.composeappadmin.generated.resources.no_data
 import kz.ruccola.food.api.CustomerDto
+import kz.ruccola.food.ui.Icons
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +46,7 @@ fun CustomerDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.Filled.ArrowBack,
                             contentDescription = stringResource(Res.string.back_to_login),
                         )
                     }

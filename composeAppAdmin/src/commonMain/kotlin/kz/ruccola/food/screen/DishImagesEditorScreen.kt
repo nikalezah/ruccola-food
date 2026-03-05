@@ -12,13 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -51,6 +44,7 @@ import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.provideImagePicker
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishImagesViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -83,7 +77,7 @@ fun DishImagesEditorScreen(
                 title = { Text(stringResource(Res.string.images)) },
                 navigationIcon = {
                     IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
@@ -123,7 +117,7 @@ fun DishImagesEditorScreen(
                     itemsIndexed(uiState.workingList, key = { _, item -> item.fileId }) { index, item ->
                         val previousPosition = originalPositions[item.fileId] ?: (index + 1)
                         SwipeToRemove(
-                            Icons.Default.Delete,
+                            Icons.Filled.Delete,
                             stringResource(Res.string.delete),
                             { viewModel.removeImage(item) },
                             CardDefaults.outlinedShape,
@@ -145,7 +139,7 @@ fun DishImagesEditorScreen(
                                         if (previousPosition != index + 1) {
                                             Spacer(Modifier.width(6.dp))
                                             Icon(
-                                                Icons.AutoMirrored.Filled.ArrowForward,
+                                                Icons.Filled.ArrowForward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(16.dp),
                                                 tint = MaterialTheme.colorScheme.primary,

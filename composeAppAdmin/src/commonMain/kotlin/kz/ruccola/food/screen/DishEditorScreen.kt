@@ -10,16 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -60,6 +53,8 @@ import food.composeappadmin.generated.resources.variants
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.provideAdminToken
+import kz.ruccola.food.ui.ApplyIconButton
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishEditorViewModel
@@ -88,17 +83,15 @@ fun DishEditorScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
                     }
                 },
                 actions = {
                     if (uiState.dish == null) {
-                        FilledIconButton(
+                        ApplyIconButton(
                             onClick = { viewModel.saveDish() },
                             enabled = uiState.name.isNotBlank() && !uiState.isBusy,
-                        ) {
-                            Icon(Icons.Default.Check, contentDescription = "Save")
-                        }
+                        )
                     }
                 },
             )
@@ -141,7 +134,7 @@ fun DishEditorScreen(
                         modifier = Modifier.weight(1f),
                     )
                     IconButton(onClick = { showEditName = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit name")
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit name")
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -152,7 +145,7 @@ fun DishEditorScreen(
                         modifier = Modifier.weight(1f),
                     )
                     IconButton(onClick = { showEditDescription = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit description")
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit description")
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -216,7 +209,7 @@ fun DishEditorScreen(
                     Text(stringResource(Res.string.images), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = { imageEditorVisible = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(Res.string.edit))
+                        Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.edit))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -233,7 +226,7 @@ fun DishEditorScreen(
                         editingVariant = null
                         variantEditorVisible = true
                     }) {
-                        Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.add))
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -245,7 +238,7 @@ fun DishEditorScreen(
                         uiState.variants.forEach { v ->
                             key(v.id) {
                                 SwipeToRemove(
-                                    Icons.Default.Delete,
+                                    Icons.Filled.Delete,
                                     stringResource(Res.string.delete),
                                     { viewModel.deleteVariant(v) },
                                     CardDefaults.outlinedShape,

@@ -8,13 +8,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.filled.DinnerDining
-import androidx.compose.material.icons.filled.ManageAccounts
-import androidx.compose.material.icons.outlined.DinnerDining
-import androidx.compose.material.icons.outlined.ManageAccounts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
@@ -40,6 +33,7 @@ import kz.ruccola.food.screen.ScheduleScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
 import kz.ruccola.food.theme.GreenLightColorScheme
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
 
@@ -113,8 +107,8 @@ class MainActivity : ComponentActivity() {
                                                 stringResource(R.string.tab_dishes),
                                             ),
                                             LabeledNavigationTab(
-                                                Icons.AutoMirrored.Filled.Chat,
-                                                Icons.AutoMirrored.Outlined.Chat,
+                                                Icons.Filled.Chat,
+                                                Icons.Outlined.Chat,
                                                 stringResource(R.string.tab_chat),
                                             ),
                                             LabeledNavigationTab(

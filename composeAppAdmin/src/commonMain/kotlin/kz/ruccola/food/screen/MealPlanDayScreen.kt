@@ -15,16 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material.icons.filled.Today
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -67,6 +57,7 @@ import food.composeappadmin.generated.resources.screen_history_title
 import food.composeappadmin.generated.resources.tab_schedule
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
@@ -103,7 +94,7 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                 navigationIcon = {
                     IconButton(onClick = onHistoryClick) {
                         Icon(
-                            Icons.Default.History,
+                            Icons.Filled.History,
                             contentDescription = stringResource(Res.string.screen_history_title),
                         )
                     }
@@ -126,9 +117,9 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                         ),
                     ) {
                         if (reorderMode) {
-                            Icon(Icons.Default.Check, contentDescription = "Done")
+                            Icon(Icons.Filled.Check, contentDescription = "Done")
                         } else {
-                            Icon(Icons.Default.SwapVert, contentDescription = "Reorder")
+                            Icon(Icons.Filled.SwapVert, contentDescription = "Reorder")
                         }
                     }
                 },
@@ -142,7 +133,7 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                     showEditor = true
                 },
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                Icon(Icons.Filled.Add, contentDescription = "Add")
             }
         },
     ) { padding ->
@@ -222,7 +213,7 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                                                 }
                                             },
                                             enabled = workingList.indexOf(day) > 0,
-                                        ) { Icon(Icons.Default.ArrowUpward, contentDescription = "Up") }
+                                        ) { Icon(Icons.Filled.ArrowUpward, contentDescription = "Up") }
                                         IconButton(
                                             onClick = {
                                                 val idx = workingList.indexOf(day)
@@ -232,7 +223,7 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                                                 }
                                             },
                                             enabled = workingList.indexOf(day) < workingList.size - 1,
-                                        ) { Icon(Icons.Default.ArrowDownward, contentDescription = "Down") }
+                                        ) { Icon(Icons.Filled.ArrowDownward, contentDescription = "Down") }
                                     }
                                 }
                             }
@@ -287,7 +278,7 @@ fun MealPlanDayItem(
     }
 
     SwipeToRemove(
-        Icons.Default.Delete,
+        Icons.Filled.Delete,
         stringResource(Res.string.delete),
         onDelete,
         CardDefaults.outlinedShape,
@@ -310,7 +301,7 @@ fun MealPlanDayItem(
                     Text("$previousPosition", style = MaterialTheme.typography.titleMedium)
                     if (showReorderPosition && currentPosition != previousPosition) {
                         Icon(
-                            Icons.Default.ArrowDownward,
+                            Icons.Filled.ArrowDownward,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary,

@@ -34,15 +34,13 @@ kotlin {
             implementation(libs.compose.animation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.components.resources)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.resources)
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.serialization.json)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
-            implementation(compose.ui)
-            implementation(libs.compose.ui)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
