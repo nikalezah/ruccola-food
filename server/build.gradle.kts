@@ -1,4 +1,7 @@
 plugins {
+    // todo: move to a root `build.gradle.kts` for other modules when works with all KMP targets
+    alias(libs.plugins.dependencyAnalysis)
+
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.serialization)
@@ -21,8 +24,6 @@ application {
 
 dependencies {
     implementation(projects.shared)
-    implementation(libs.klogging)
-    implementation(libs.slf4j.klogging)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.resources)
     implementation(libs.ktor.server.cio)
@@ -31,14 +32,15 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.serialization.json)
     implementation(libs.kotlinx.serialization.json)
+    runtimeOnly(libs.slf4j.klogging)
 
     // Database
     implementation(libs.exposed.core)
-    implementation(libs.exposed.dao)
     implementation(libs.exposed.r2dbc)
     implementation(libs.exposed.dateTime)
-    implementation(libs.r2dbc.pool)
-    implementation(libs.r2dbc.postgresql)
+    runtimeOnly(libs.exposed.dao)
+    runtimeOnly(libs.r2dbc.pool)
+    runtimeOnly(libs.r2dbc.postgresql)
     implementation(platform(libs.netty.bom))
 
     testImplementation(libs.ktor.server.testHost)

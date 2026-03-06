@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -10,6 +13,15 @@ plugins {
 }
 
 kotlin {
+    applyDefaultHierarchyTemplate {
+        common {
+            group("web") {
+                withJs()
+                withWasmJs()
+            }
+        }
+    }
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -28,6 +40,11 @@ kotlin {
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.ktor.client.android)
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.coil.compose)
+        }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -42,22 +59,13 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
         }
-        androidMain.dependencies {
-            implementation(libs.ktor.client.android)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.coil.compose)
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
-        val webMain by creating {
-            dependsOn(commonMain.get())
+        named("webMain") {
             dependencies {
                 implementation(libs.ktor.client.core)
             }
-        }
-        jsMain.get().dependsOn(webMain)
-        wasmJsMain.get().dependsOn(webMain)
-
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
         }
     }
 }

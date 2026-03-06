@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -10,6 +13,15 @@ plugins {
 }
 
 kotlin {
+    applyDefaultHierarchyTemplate {
+        common {
+            group("web") {
+                withJs()
+                withWasmJs()
+            }
+        }
+    }
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -74,20 +86,16 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(projects.shared)
         }
-        val webMain by creating {
-            dependsOn(commonMain.get())
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+        named("webMain") {
             dependencies {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.contentNegotiation)
                 implementation(libs.ktor.serialization.json)
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
+                implementation(libs.kotlinx.browser)
             }
-        }
-        jsMain.get().dependsOn(webMain)
-        wasmJsMain.get().dependsOn(webMain)
-
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
         }
     }
 }

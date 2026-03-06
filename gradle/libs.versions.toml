@@ -1,4 +1,5 @@
 [versions]
+dependency-analysis = "3.6.1"
 agp = "8.12.3" # todo: upgrade to 9.0 when IDEA Android pluging will support it
 android-compileSdk = "36"
 android-minSdk = "24"
@@ -13,8 +14,9 @@ coil-compose = "2.7.0"
 compose-multiplatform = "1.10.1"
 compose-material3 = "1.10.0-alpha05"
 kotlin = "2.3.10"
-kotlinx-serialization = "1.10.0"
+kotlinx-browser = "0.5.0"
 kotlinx-datetime = "0.7.1"
+kotlinx-serialization = "1.10.0"
 ktlint = "14.0.1"
 ktlint-engine = "1.8.0"
 ktor = "3.4.1"
@@ -42,14 +44,13 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-mu
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
 compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose-multiplatform" }
-klogging = { module = "io.klogging:klogging", version.ref = "klogging" }
+#klogging = { module = "io.klogging:klogging", version.ref = "klogging" }
 slf4j-klogging = { module = "io.klogging:slf4j-klogging", version.ref = "klogging" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
-ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-resources = { module = "io.ktor:ktor-server-resources", version.ref = "ktor" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
@@ -64,10 +65,12 @@ exposed-dateTime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", v
 r2dbc-pool = { module = "io.r2dbc:r2dbc-pool", version.ref = "r2dbc-pool" }
 r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbc-postgresql" }
 netty-bom = { module = "io.netty:netty-bom", version.ref = "netty" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 [plugins]
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
