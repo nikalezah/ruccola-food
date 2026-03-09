@@ -8,7 +8,13 @@ fun formatDate(
     date: LocalDate,
     locale: String,
 ): String {
-    val dayOfWeekName = when (locale) {
+    val normalizedLocale = when {
+        locale.startsWith("ru") -> "ru-RU"
+        locale.startsWith("en") -> "en-US"
+        locale.startsWith("kk") -> "kk-KZ"
+        else -> "ru-RU"
+    }
+    val dayOfWeekName = when (normalizedLocale) {
         "en-US" -> when (date.dayOfWeek) {
             DayOfWeek.MONDAY -> "Monday"
             DayOfWeek.TUESDAY -> "Tuesday"
@@ -39,13 +45,13 @@ fun formatDate(
             DayOfWeek.SUNDAY -> "Жексенбі"
         }
 
-        else -> throw IllegalArgumentException("Unsupported locale: $locale")
+        else -> throw IllegalArgumentException("Unsupported locale: $normalizedLocale")
     }
 
     val day = date.day.toString().padStart(2, '0')
     val month = date.month.number.toString().padStart(2, '0')
 
-    return when (locale) {
+    return when (normalizedLocale) {
         "en-US" -> "$dayOfWeekName, $month/$day"
         else -> "$dayOfWeekName, $day.$month"
     }

@@ -22,10 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.LocalStrings
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.chat_empty
+import food.composeappcustomer.generated.resources.chat_placeholder
+import food.composeappcustomer.generated.resources.chat_support_title
+import food.composeappcustomer.generated.resources.error_prefix
 import kz.ruccola.food.ui.ChatUi
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.viewmodel.ChatViewModel
+import org.jetbrains.compose.resources.stringResource
 
 private fun parseUserId(token: String): Int? {
     if (!token.startsWith("dummy-token-")) return null
@@ -39,11 +44,10 @@ fun ChatScreen(
     onBack: (() -> Unit)? = null,
     viewModel: ChatViewModel = viewModel { ChatViewModel() },
 ) {
-    val strings = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
     val currentUserId = remember(token) { parseUserId(token) }
     var messageBody by remember { mutableStateOf("") }
-    val errorText = uiState.error?.let { strings.errorPrefix.replace("%s", it) }
+    val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
     LaunchedEffect(token) {
         viewModel.loadChat(token)
@@ -57,7 +61,7 @@ fun ChatScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(strings.chatSupportTitle) },
+                    title = { Text(stringResource(Res.string.chat_support_title)) },
                     navigationIcon = {
                         if (onBack != null) {
                             IconButton(onClick = onBack) {
@@ -88,13 +92,13 @@ fun ChatScreen(
                         viewModel.sendMessage(token, messageBody)
                         messageBody = ""
                     },
-                    placeholder = strings.chatPlaceholder,
-                    emptyText = strings.chatEmpty,
+                    placeholder = stringResource(Res.string.chat_placeholder),
+                    emptyText = stringResource(Res.string.chat_empty),
                     errorText = errorText,
                     isLoading = uiState.isLoading,
                     inputEnabled = true,
                     sendEnabled = true,
-                    locale = strings.locale,
+                    locale = "ru-RU", // Default locale as used in RuStrings, ideally this should also be a resource or dynamic
                     modifier = Modifier.fillMaxSize().padding(12.dp),
                 )
             }

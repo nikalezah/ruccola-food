@@ -25,12 +25,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.LocalStrings
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.chat_empty
+import food.composeappcustomer.generated.resources.chat_support_title
+import food.composeappcustomer.generated.resources.error_prefix
+import food.composeappcustomer.generated.resources.screen_chat_list_title
 import kz.ruccola.food.ui.Badge
 import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.ChatViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,10 +45,9 @@ fun ChatListScreen(
     onUnreadChanged: (Boolean) -> Unit = {},
     viewModel: ChatViewModel = viewModel { ChatViewModel() },
 ) {
-    val strings = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
     var isChatOpen by remember { mutableStateOf(false) }
-    val errorText = uiState.error?.let { strings.errorPrefix.replace("%s", it) }
+    val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
     LaunchedEffect(token) {
         viewModel.loadChat(token)
@@ -71,18 +75,18 @@ fun ChatListScreen(
             }
 
             uiState.chat == null -> {
-                Text(strings.chatEmpty, modifier = Modifier.align(Alignment.Center))
+                Text(stringResource(Res.string.chat_empty), modifier = Modifier.align(Alignment.Center))
             }
 
             else -> {
                 val chat = uiState.chat
                 val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
-                val messageText = uiState.lastMessage?.body ?: strings.chatEmpty
+                val messageText = uiState.lastMessage?.body ?: stringResource(Res.string.chat_empty)
 
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
-                            title = { Text(strings.screenChatListTitle) },
+                            title = { Text(stringResource(Res.string.screen_chat_list_title)) },
                         )
                     },
                 ) { padding ->
@@ -92,7 +96,7 @@ fun ChatListScreen(
                     ) {
                         item {
                             ListItem(
-                                headlineContent = { Text(strings.chatSupportTitle) },
+                                headlineContent = { Text(stringResource(Res.string.chat_support_title)) },
                                 supportingContent = { SingleLineText(messageText) },
                                 trailingContent = {
                                     val icon: @Composable () -> Unit = {

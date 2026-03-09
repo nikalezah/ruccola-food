@@ -21,10 +21,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.tab_chat
+import food.composeappcustomer.generated.resources.tab_profile
+import food.composeappcustomer.generated.resources.tab_schedule
 import kotlinx.coroutines.launch
 import kz.ruccola.food.localization.AppLocaleManager
 import kz.ruccola.food.localization.AppPreferences
+import kz.ruccola.food.localization.LocalLocale
 import kz.ruccola.food.screen.ChatListScreen
 import kz.ruccola.food.screen.LoginScreen
 import kz.ruccola.food.screen.ProfileScreen
@@ -36,6 +40,7 @@ import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
+import org.jetbrains.compose.resources.stringResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,19 +66,13 @@ class MainActivity : ComponentActivity() {
                 ThemePreference.SYSTEM -> if (isSystemDark) GreenDarkColorScheme else GreenLightColorScheme
             }
 
-            MaterialTheme(colorScheme = colorScheme) {
-                var token by rememberSaveable { mutableStateOf<String?>(null) }
-                var showRegister by rememberSaveable { mutableStateOf(false) }
+            CompositionLocalProvider(
+                LocalLocale provides (language ?: AppLocaleManager.getCurrentLanguageTag(context)),
+            ) {
+                MaterialTheme(colorScheme = colorScheme) {
+                    var token by rememberSaveable { mutableStateOf<String?>(null) }
+                    var showRegister by rememberSaveable { mutableStateOf(false) }
 
-                val strings = remember(language) {
-                    when (language?.take(2)) {
-                        "en" -> EnStrings
-                        "kk" -> KkStrings
-                        else -> RuStrings
-                    }
-                }
-
-                CompositionLocalProvider(LocalStrings provides strings) {
                     val scope = rememberCoroutineScope()
                     if (token == null) {
                         if (showRegister) {
@@ -104,17 +103,17 @@ class MainActivity : ComponentActivity() {
                                             LabeledNavigationTab(
                                                 Icons.Filled.DinnerDining,
                                                 Icons.Outlined.DinnerDining,
-                                                stringResource(R.string.tab_dishes),
+                                                stringResource(Res.string.tab_schedule),
                                             ),
                                             LabeledNavigationTab(
                                                 Icons.Filled.Chat,
                                                 Icons.Outlined.Chat,
-                                                stringResource(R.string.tab_chat),
+                                                stringResource(Res.string.tab_chat),
                                             ),
                                             LabeledNavigationTab(
                                                 Icons.Filled.ManageAccounts,
                                                 Icons.Outlined.ManageAccounts,
-                                                stringResource(R.string.tab_profile),
+                                                stringResource(Res.string.tab_profile),
                                             ),
                                         ),
                                         selected = { selectedTab },

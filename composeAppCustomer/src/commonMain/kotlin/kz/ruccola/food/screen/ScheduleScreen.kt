@@ -37,14 +37,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.LocalStrings
-import kz.ruccola.food.Strings
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.error_prefix
+import food.composeappcustomer.generated.resources.loading
+import food.composeappcustomer.generated.resources.meal_afternoon_snack
+import food.composeappcustomer.generated.resources.meal_breakfast
+import food.composeappcustomer.generated.resources.meal_brunch
+import food.composeappcustomer.generated.resources.meal_dinner
+import food.composeappcustomer.generated.resources.meal_lunch
+import food.composeappcustomer.generated.resources.no_dishes
+import food.composeappcustomer.generated.resources.tab_schedule
 import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.formatDate
+import kz.ruccola.food.localization.LocalLocale
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.ScheduleViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,8 +62,8 @@ fun ScheduleScreen(
     token: String,
     viewModel: ScheduleViewModel = viewModel { ScheduleViewModel() },
 ) {
-    val strings = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
+    val currentLocale = LocalLocale.current
 
     // Local navigation to dish details
     var selectedDishId by remember { mutableStateOf<Int?>(null) }
@@ -74,7 +84,7 @@ fun ScheduleScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(strings.tabSchedule) },
+                title = { Text(stringResource(Res.string.tab_schedule)) },
             )
         },
     ) { padding ->
@@ -94,11 +104,11 @@ fun ScheduleScreen(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = strings.errorPrefix.replace("%s", uiState.error!!),
+                        text = stringResource(Res.string.error_prefix, uiState.error!!),
                         color = MaterialTheme.colorScheme.error,
                     )
                     Button(onClick = { viewModel.loadSchedule(token) }) {
-                        Text(strings.loading) // Or a retry string if available
+                        Text(stringResource(Res.string.loading)) // Or a retry string if available
                     }
                 }
 
@@ -113,7 +123,7 @@ fun ScheduleScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(strings.noDishes)
+                    Text(stringResource(Res.string.no_dishes))
                 }
 
                 else -> LazyColumn(
@@ -124,8 +134,8 @@ fun ScheduleScreen(
                         HorizontalDivider()
                         Spacer(Modifier.height(8.dp))
                         // Header: Day of week + DD.MM.YYYY
-                        val header = remember(day.date, strings.locale) {
-                            formatDate(day.date, strings.locale)
+                        val header = remember(day.date, currentLocale) {
+                            formatDate(day.date, currentLocale)
                         }
                         Text(
                             header,
@@ -136,7 +146,7 @@ fun ScheduleScreen(
 
                         if (day.dishes.isEmpty()) {
                             Text(
-                                strings.noDishes,
+                                stringResource(Res.string.no_dishes),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 8.dp),
@@ -159,7 +169,7 @@ fun ScheduleScreen(
                                     trailingContent = {
                                         Text(
                                             "${d.meal.time}\n${
-                                                d.meal.toLocalizedString(strings).replaceFirst(' ', '\n')
+                                                stringResource(d.meal.toResource()).replaceFirst(' ', '\n')
                                             }",
                                             textAlign = TextAlign.End,
                                         )
@@ -176,11 +186,11 @@ fun ScheduleScreen(
     }
 }
 
-private fun Meal.toLocalizedString(strings: Strings) =
+private fun Meal.toResource() =
     when (this) {
-        Meal.BREAKFAST -> strings.mealBreakfast
-        Meal.BRUNCH -> strings.mealBrunch
-        Meal.LAUNCH -> strings.mealLunch
-        Meal.AFTERNOON_SNACK -> strings.mealAfternoonSnack
-        Meal.DINNER -> strings.mealDinner
+        Meal.BREAKFAST -> Res.string.meal_breakfast
+        Meal.BRUNCH -> Res.string.meal_brunch
+        Meal.LAUNCH -> Res.string.meal_lunch
+        Meal.AFTERNOON_SNACK -> Res.string.meal_afternoon_snack
+        Meal.DINNER -> Res.string.meal_dinner
     }

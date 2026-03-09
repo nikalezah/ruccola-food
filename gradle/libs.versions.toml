@@ -1,6 +1,6 @@
 [versions]
 dependency-analysis = "3.6.1"
-agp = "8.12.3" # todo: upgrade to 9.0 when IDEA Android pluging will support it
+agp = "8.12.3" # todo: upgrade to 9 when supported by IntelliJ IDEA
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"

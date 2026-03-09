@@ -25,10 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.LocalStrings
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.error_prefix
+import food.composeappcustomer.generated.resources.screen_dish_details_title
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import kz.ruccola.food.viewmodel.DishViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +40,6 @@ fun DishDetailsScreen(
     onBack: () -> Unit,
     viewModel: DishViewModel = viewModel { DishViewModel() },
 ) {
-    val strings = LocalStrings.current
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(dishId) {
@@ -47,7 +49,7 @@ fun DishDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(state.dish?.name ?: strings.screenDishDetailsTitle) },
+                title = { Text(state.dish?.name ?: stringResource(Res.string.screen_dish_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -63,7 +65,10 @@ fun DishDetailsScreen(
         when {
             error != null -> {
                 Column(Modifier.padding(padding).padding(16.dp)) {
-                    Text(text = strings.errorPrefix.replace("%s", error), color = MaterialTheme.colorScheme.error)
+                    Text(
+                        text = stringResource(Res.string.error_prefix, error),
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
             }
 

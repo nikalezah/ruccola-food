@@ -16,11 +16,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeViewport
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.tab_chat
+import food.composeappcustomer.generated.resources.tab_profile
+import food.composeappcustomer.generated.resources.tab_schedule
 import kotlinx.browser.window
-import kz.ruccola.food.EnStrings
-import kz.ruccola.food.KkStrings
-import kz.ruccola.food.LocalStrings
-import kz.ruccola.food.RuStrings
+import kz.ruccola.food.localization.LocalLocale
 import kz.ruccola.food.screen.ChatListScreen
 import kz.ruccola.food.screen.LoginScreen
 import kz.ruccola.food.screen.ProfileScreen
@@ -32,6 +33,7 @@ import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
@@ -55,13 +57,7 @@ fun App() {
         ThemePreference.SYSTEM -> if (isSystemDark) GreenDarkColorScheme else GreenLightColorScheme
     }
 
-    val strings = when (language) {
-        "en" -> EnStrings
-        "kk" -> KkStrings
-        else -> RuStrings
-    }
-
-    CompositionLocalProvider(LocalStrings provides strings) {
+    CompositionLocalProvider(LocalLocale provides language) {
         MaterialTheme(colorScheme = colorScheme) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 when {
@@ -123,7 +119,6 @@ fun MainScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var isChatOpen by remember { mutableStateOf(false) }
     var hasUnreadChat by remember { mutableStateOf(false) }
-    val strings = LocalStrings.current
     val showBottomBar = !(selectedTab == 1 && isChatOpen)
 
     Scaffold(
@@ -134,18 +129,18 @@ fun MainScreen(
                         LabeledNavigationTab(
                             Icons.Filled.DinnerDining,
                             Icons.Outlined.DinnerDining,
-                            strings.tabSchedule,
+                            stringResource(Res.string.tab_schedule),
                         ),
                         LabeledNavigationTab(
                             Icons.Filled.Chat,
                             Icons.Outlined.Chat,
-                            strings.tabChat,
+                            stringResource(Res.string.tab_chat),
                             showBadge = hasUnreadChat,
                         ),
                         LabeledNavigationTab(
                             Icons.Filled.ManageAccounts,
                             Icons.Outlined.ManageAccounts,
-                            strings.tabProfile,
+                            stringResource(Res.string.tab_profile),
                         ),
                     ),
                     selected = { selectedTab },

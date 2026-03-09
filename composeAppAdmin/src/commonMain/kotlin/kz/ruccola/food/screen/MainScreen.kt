@@ -25,7 +25,7 @@ import kz.ruccola.food.ui.LabeledNavigationTab
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun AdminMainScreen(
+fun MainScreen(
     token: String,
     onLoggedOut: () -> Unit,
     themePreference: ThemePreference,

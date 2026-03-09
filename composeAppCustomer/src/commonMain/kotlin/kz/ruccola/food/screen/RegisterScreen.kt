@@ -24,9 +24,19 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.LocalStrings
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.address
+import food.composeappcustomer.generated.resources.back_to_login
+import food.composeappcustomer.generated.resources.confirm_password
+import food.composeappcustomer.generated.resources.email
+import food.composeappcustomer.generated.resources.first_name
+import food.composeappcustomer.generated.resources.last_name
+import food.composeappcustomer.generated.resources.password
+import food.composeappcustomer.generated.resources.register
+import food.composeappcustomer.generated.resources.registering
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.viewmodel.RegisterViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RegisterScreen(
@@ -36,7 +46,6 @@ fun RegisterScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
-    val strings = LocalStrings.current
 
     fun tryRegister() {
         viewModel.register(onRegistered)
@@ -63,39 +72,39 @@ fun RegisterScreen(
         }
 
     Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(strings.register, style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(Res.string.register), style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { viewModel.updateEmail(it) },
-            label = { Text(strings.email) },
+            label = { Text(stringResource(Res.string.email)) },
             modifier = Modifier.fillMaxWidth().handleTabAndEnter(),
             singleLine = true,
         )
         OutlinedTextField(
             value = uiState.firstName,
             onValueChange = { viewModel.updateFirstName(it) },
-            label = { Text(strings.firstName) },
+            label = { Text(stringResource(Res.string.first_name)) },
             modifier = Modifier.fillMaxWidth().handleTabAndEnter(),
             singleLine = true,
         )
         OutlinedTextField(
             value = uiState.lastName,
             onValueChange = { viewModel.updateLastName(it) },
-            label = { Text(strings.lastName) },
+            label = { Text(stringResource(Res.string.last_name)) },
             modifier = Modifier.fillMaxWidth().handleTabAndEnter(),
             singleLine = true,
         )
         OutlinedTextField(
             value = uiState.address,
             onValueChange = { viewModel.updateAddress(it) },
-            label = { Text(strings.address) },
+            label = { Text(stringResource(Res.string.address)) },
             modifier = Modifier.fillMaxWidth().handleTabAndEnter(),
             singleLine = true,
         )
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.updatePassword(it) },
-            label = { Text(strings.password) },
+            label = { Text(stringResource(Res.string.password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth().handleTabAndEnter(),
             singleLine = true,
@@ -103,7 +112,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = uiState.confirmPassword,
             onValueChange = { viewModel.updateConfirmPassword(it) },
-            label = { Text(strings.confirmPassword) },
+            label = { Text(stringResource(Res.string.confirm_password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth().handleTabAndEnter(),
             singleLine = true,
@@ -117,10 +126,10 @@ fun RegisterScreen(
             modifier = Modifier.handleTabAndEnter(),
             enabled = !uiState.isLoading,
         ) {
-            Text(if (uiState.isLoading) strings.registering else strings.register)
+            Text(if (uiState.isLoading) stringResource(Res.string.registering) else stringResource(Res.string.register))
         }
         Button(onClick = onBackToLogin, enabled = !uiState.isLoading) {
-            Text(strings.backToLogin)
+            Text(stringResource(Res.string.back_to_login))
         }
     }
 }

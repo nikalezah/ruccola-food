@@ -25,9 +25,16 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kz.ruccola.food.LocalStrings
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.email
+import food.composeappcustomer.generated.resources.go_to_register
+import food.composeappcustomer.generated.resources.logging_in
+import food.composeappcustomer.generated.resources.login
+import food.composeappcustomer.generated.resources.login_failed
+import food.composeappcustomer.generated.resources.password
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.viewmodel.LoginViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -36,11 +43,11 @@ fun LoginScreen(
     viewModel: LoginViewModel = viewModel { LoginViewModel() },
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val strings = LocalStrings.current
     val focusManager = LocalFocusManager.current
+    val loginFailedMsg = stringResource(Res.string.login_failed)
 
     fun tryLogin() {
-        viewModel.login(onLoggedIn, strings.loginFailed)
+        viewModel.login(onLoggedIn, loginFailedMsg)
     }
 
     fun Modifier.handleTabAndEnter(): Modifier =
@@ -64,11 +71,11 @@ fun LoginScreen(
         }
 
     Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(strings.login, style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(Res.string.login), style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { viewModel.updateEmail(it) },
-            label = { Text(strings.email) },
+            label = { Text(stringResource(Res.string.email)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,7 +84,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.updatePassword(it) },
-            label = { Text(strings.password) },
+            label = { Text(stringResource(Res.string.password)) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier
@@ -95,11 +102,19 @@ fun LoginScreen(
                 enabled = !uiState.isLoading,
                 modifier = Modifier.handleTabAndEnter(),
             ) {
-                Text(if (uiState.isLoading) strings.loggingIn else strings.login)
+                Text(
+                    if (uiState.isLoading) {
+                        stringResource(Res.string.logging_in)
+                    } else {
+                        stringResource(
+                            Res.string.login,
+                        )
+                    },
+                )
             }
 
             TextButton(onClick = onGoToRegister) {
-                Text(strings.goToRegister)
+                Text(stringResource(Res.string.go_to_register))
             }
         }
     }

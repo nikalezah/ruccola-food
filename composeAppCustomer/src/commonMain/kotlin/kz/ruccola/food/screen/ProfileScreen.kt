@@ -37,12 +37,47 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import food.composeappcustomer.generated.resources.Res
+import food.composeappcustomer.generated.resources.address
+import food.composeappcustomer.generated.resources.cancel
+import food.composeappcustomer.generated.resources.choose_plan
+import food.composeappcustomer.generated.resources.chosen_plan_title
+import food.composeappcustomer.generated.resources.days_quantity
+import food.composeappcustomer.generated.resources.edit_personal_info_title
+import food.composeappcustomer.generated.resources.error_prefix
+import food.composeappcustomer.generated.resources.first_name
+import food.composeappcustomer.generated.resources.format_kcal
+import food.composeappcustomer.generated.resources.label_address
+import food.composeappcustomer.generated.resources.label_calories
+import food.composeappcustomer.generated.resources.label_email
+import food.composeappcustomer.generated.resources.label_end_date
+import food.composeappcustomer.generated.resources.label_name
+import food.composeappcustomer.generated.resources.label_price_per_day
+import food.composeappcustomer.generated.resources.label_start_date
+import food.composeappcustomer.generated.resources.label_total_price
+import food.composeappcustomer.generated.resources.language_section_title
+import food.composeappcustomer.generated.resources.last_name
+import food.composeappcustomer.generated.resources.loading_plan
+import food.composeappcustomer.generated.resources.log_out
+import food.composeappcustomer.generated.resources.no_plan_selected
+import food.composeappcustomer.generated.resources.no_plans_available
+import food.composeappcustomer.generated.resources.no_variants
+import food.composeappcustomer.generated.resources.period_days
+import food.composeappcustomer.generated.resources.save
+import food.composeappcustomer.generated.resources.saving
+import food.composeappcustomer.generated.resources.screen_profile_title
+import food.composeappcustomer.generated.resources.theme_dark
+import food.composeappcustomer.generated.resources.theme_light
+import food.composeappcustomer.generated.resources.theme_section_title
+import food.composeappcustomer.generated.resources.theme_system
+import food.composeappcustomer.generated.resources.with_variants
 import kotlinx.datetime.LocalDate
-import kz.ruccola.food.LocalStrings
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.ProfileViewModel
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +91,6 @@ fun ProfileScreen(
     onThemePreferenceChanged: (ThemePreference) -> Unit,
     viewModel: ProfileViewModel = viewModel { ProfileViewModel() },
 ) {
-    val strings = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(token) {
@@ -71,14 +105,14 @@ fun ProfileScreen(
         ) {
             Icon(Icons.Filled.Logout, contentDescription = "Logout")
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(strings.logOut)
+            Text(stringResource(Res.string.log_out))
         }
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(strings.screenProfileTitle) },
+                title = { Text(stringResource(Res.string.screen_profile_title)) },
             )
         },
     ) { padding ->
@@ -93,7 +127,7 @@ fun ProfileScreen(
 
                 uiState.error != null -> {
                     Text(
-                        strings.errorPrefix.replace("%s", uiState.error ?: ""),
+                        stringResource(Res.string.error_prefix, uiState.error ?: ""),
                         color = MaterialTheme.colorScheme.error,
                     )
                     LogoutButton()
@@ -106,14 +140,12 @@ fun ProfileScreen(
                         onClick = { viewModel.setEditing(true) },
                     ) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text(strings.labelEmail.replace("%s", customer.email))
+                            Text(stringResource(Res.string.label_email, customer.email))
                             Text(
-                                strings.labelName
-                                    .replaceFirst("%s", customer.firstName)
-                                    .replaceFirst("%s", customer.lastName),
+                                stringResource(Res.string.label_name, customer.firstName, customer.lastName),
                             )
                             if (customer.address.isNotBlank()) {
-                                Text(strings.labelAddress.replace("%s", customer.address))
+                                Text(stringResource(Res.string.label_address, customer.address))
                             }
                         }
                     }
@@ -126,15 +158,15 @@ fun ProfileScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                                Text(strings.loadingPlan)
+                                Text(stringResource(Res.string.loading_plan))
                             }
                         }
 
                         uiState.customerPlan == null -> {
-                            Text(strings.noPlanSelected)
+                            Text(stringResource(Res.string.no_plan_selected))
                             Button(onClick = {
                                 viewModel.setShowPlanDialog(true)
-                            }) { Text(strings.choosePlan) }
+                            }) { Text(stringResource(Res.string.choose_plan)) }
                         }
 
                         else -> {
@@ -146,24 +178,12 @@ fun ProfileScreen(
                             val endDate = LocalDate.fromEpochDays(endEpoch)
                             val totalPrice = plan.pricePerDay * days
 
-                            val kcalText = strings.formatKcal.replace("%s", plan.calories.amount.toString())
+                            val kcalText = stringResource(Res.string.format_kcal, plan.calories.amount.toString())
                             val totalPriceText = totalPrice.toString()
                             val startDateText = startDate.toString()
                             val endDateText = endDate.toString()
 
-                            val daysText = when {
-                                days % 10 == 1 && days % 100 != 11 -> strings.daysQuantityOne.replace(
-                                    "%d",
-                                    days.toString(),
-                                )
-
-                                days % 10 in 2..4 && days % 100 !in 12..14 -> strings.daysQuantityFew.replace(
-                                    "%d",
-                                    days.toString(),
-                                )
-
-                                else -> strings.daysQuantityMany.replace("%d", days.toString())
-                            }
+                            val daysText = pluralStringResource(Res.plurals.days_quantity, days, days)
 
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth(),
@@ -171,14 +191,14 @@ fun ProfileScreen(
                             ) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     Text(
-                                        strings.chosenPlanTitle,
+                                        stringResource(Res.string.chosen_plan_title),
                                         style = MaterialTheme.typography.titleMedium,
                                     )
-                                    Text(strings.labelCalories.replace("%s", kcalText))
+                                    Text(stringResource(Res.string.label_calories, kcalText))
                                     Text(daysText)
-                                    Text(strings.labelTotalPrice.replace("%s", totalPriceText))
-                                    Text(strings.labelStartDate.replace("%s", startDateText))
-                                    Text(strings.labelEndDate.replace("%s", endDateText))
+                                    Text(stringResource(Res.string.label_total_price, totalPriceText))
+                                    Text(stringResource(Res.string.label_start_date, startDateText))
+                                    Text(stringResource(Res.string.label_end_date, endDateText))
                                 }
                             }
                         }
@@ -202,14 +222,18 @@ fun ProfileScreen(
                     }
 
                     Spacer(Modifier.height(16.dp))
-                    Text(strings.themeSectionTitle, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(Res.string.theme_section_title), style = MaterialTheme.typography.titleMedium)
                     val themeIndex = when (themePreference) {
                         ThemePreference.SYSTEM -> 0
                         ThemePreference.LIGHT -> 1
                         ThemePreference.DARK -> 2
                     }
                     ToggleButtonsRow(
-                        listOf(strings.themeSystem, strings.themeLight, strings.themeDark),
+                        listOf(
+                            stringResource(Res.string.theme_system),
+                            stringResource(Res.string.theme_light),
+                            stringResource(Res.string.theme_dark),
+                        ),
                         themeIndex,
                         onSelectedIndexChange = { i ->
                             val newPreference = when (i) {
@@ -222,7 +246,10 @@ fun ProfileScreen(
                     )
 
                     Spacer(Modifier.height(16.dp))
-                    Text(strings.languageSectionTitle, style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        stringResource(Res.string.language_section_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                     val languages = listOf("English", "Русский", "Қазақ")
                     val initialIndex = when (currentLanguage) {
                         "en" -> 0
@@ -260,7 +287,6 @@ private fun PersonalInfoEditDialog(
     initialLastName: String,
     initialAddress: String,
 ) {
-    val strings = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
 
     var firstName by remember { mutableStateOf(initialFirstName) }
@@ -271,7 +297,7 @@ private fun PersonalInfoEditDialog(
         onDismissRequest = { viewModel.setEditing(false) },
         title = {
             Text(
-                strings.editPersonalInfoTitle,
+                stringResource(Res.string.edit_personal_info_title),
                 style = MaterialTheme.typography.titleMedium,
             )
         },
@@ -282,25 +308,25 @@ private fun PersonalInfoEditDialog(
                 OutlinedTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
-                    label = { Text(strings.firstName) },
+                    label = { Text(stringResource(Res.string.first_name)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = lastName,
                     onValueChange = { lastName = it },
-                    label = { Text(strings.lastName) },
+                    label = { Text(stringResource(Res.string.last_name)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
-                    label = { Text(strings.address) },
+                    label = { Text(stringResource(Res.string.address)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
 
                 if (uiState.saveError != null) {
                     Text(
-                        strings.errorPrefix.replace("%s", uiState.saveError!!),
+                        stringResource(Res.string.error_prefix, uiState.saveError!!),
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -313,7 +339,7 @@ private fun PersonalInfoEditDialog(
                 },
                 enabled = !uiState.isSaving,
             ) {
-                Text(if (uiState.isSaving) strings.saving else strings.save)
+                Text(if (uiState.isSaving) stringResource(Res.string.saving) else stringResource(Res.string.save))
             }
         },
         dismissButton = {
@@ -321,7 +347,7 @@ private fun PersonalInfoEditDialog(
                 onClick = { viewModel.setEditing(false) },
                 enabled = !uiState.isSaving,
             ) {
-                Text(strings.cancel)
+                Text(stringResource(Res.string.cancel))
             }
         },
     )
@@ -332,16 +358,15 @@ private fun PlanSelectionDialog(
     token: String,
     viewModel: ProfileViewModel,
 ) {
-    val strings = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
 
     AlertDialog(
         onDismissRequest = { viewModel.setShowPlanDialog(false) },
-        title = { Text(strings.choosePlan, style = MaterialTheme.typography.titleMedium) },
+        title = { Text(stringResource(Res.string.choose_plan), style = MaterialTheme.typography.titleMedium) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ToggleButtonsRow(
-                    options = listOf(strings.noVariants, strings.withVariants),
+                    options = listOf(stringResource(Res.string.no_variants), stringResource(Res.string.with_variants)),
                     initialSelectedIndex = if (uiState.allowVariants) 1 else 0,
                     onSelectedIndexChange = { i: Int -> viewModel.setAllowVariants(i == 1) },
                 )
@@ -352,7 +377,7 @@ private fun PlanSelectionDialog(
                     val shownCalories = uiState.caloriesOptions.getOrNull(uiState.caloriesIndex)
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         val caloriesLabel = shownCalories?.toString() ?: "-"
-                        Text(strings.labelCalories.replace("%s", caloriesLabel))
+                        Text(stringResource(Res.string.label_calories, caloriesLabel))
                         Slider(
                             value = uiState.caloriesIndex.toFloat(),
                             onValueChange = { viewModel.setCaloriesIndex(it.roundToInt()) },
@@ -361,11 +386,11 @@ private fun PlanSelectionDialog(
                         )
                     }
                 } else if (!uiState.isLoadingPlansForDialog) {
-                    Text(strings.noPlansAvailable)
+                    Text(stringResource(Res.string.no_plans_available))
                 }
 
                 if (uiState.daysOptions.isNotEmpty()) {
-                    Text(strings.periodDays)
+                    Text(stringResource(Res.string.period_days))
                     ToggleButtonsRow(
                         options = uiState.daysOptions.map { it.toString() },
                         initialSelectedIndex = uiState.selectedDayIndex ?: 0,
@@ -388,12 +413,12 @@ private fun PlanSelectionDialog(
 
                 val pricePerDayText = matchingPlan?.pricePerDay?.toString() ?: "-"
                 val totalPriceText = totalPrice?.toString() ?: "-"
-                Text(strings.labelPricePerDay.replace("%s", pricePerDayText))
-                Text(strings.labelTotalPrice.replace("%s", totalPriceText))
+                Text(stringResource(Res.string.label_price_per_day, pricePerDayText))
+                Text(stringResource(Res.string.label_total_price, totalPriceText))
 
                 if (uiState.dialogError != null) {
                     Text(
-                        strings.errorPrefix.replace("%s", uiState.dialogError!!),
+                        stringResource(Res.string.error_prefix, uiState.dialogError!!),
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -416,14 +441,14 @@ private fun PlanSelectionDialog(
                 onClick = { viewModel.savePlan(token) },
                 enabled = matchingPlan != null && !uiState.isSavingPlan,
             ) {
-                Text(if (uiState.isSavingPlan) strings.saving else strings.save)
+                Text(if (uiState.isSavingPlan) stringResource(Res.string.saving) else stringResource(Res.string.save))
             }
         },
         dismissButton = {
             OutlinedButton(
                 onClick = { viewModel.setShowPlanDialog(false) },
                 enabled = !uiState.isSavingPlan,
-            ) { Text(strings.cancel) }
+            ) { Text(stringResource(Res.string.cancel)) }
         },
     )
 }
