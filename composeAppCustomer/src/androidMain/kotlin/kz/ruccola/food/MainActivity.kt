@@ -59,6 +59,9 @@ class MainActivity : ComponentActivity() {
                 ThemePreference.fromStorage(themePreferenceString)
             }
 
+            val token by AppPreferences.tokenFlow(context)
+                .collectAsState(initial = null)
+
             val isSystemDark = isSystemInDarkTheme()
             val colorScheme = when (themePreference) {
                 ThemePreference.LIGHT -> GreenLightColorScheme
@@ -70,7 +73,6 @@ class MainActivity : ComponentActivity() {
                 LocalLocale provides (language ?: AppLocaleManager.getCurrentLanguageTag(context)),
             ) {
                 MaterialTheme(colorScheme = colorScheme) {
-                    var token by rememberSaveable { mutableStateOf<String?>(null) }
                     var showRegister by rememberSaveable { mutableStateOf(false) }
 
                     val scope = rememberCoroutineScope()
@@ -78,14 +80,18 @@ class MainActivity : ComponentActivity() {
                         if (showRegister) {
                             RegisterScreen(
                                 onRegistered = { resp ->
-                                    token = resp.token
+                                    scope.launch {
+                                        AppPreferences.setToken(context, resp.token)
+                                    }
                                 },
                                 onBackToLogin = { showRegister = false },
                             )
                         } else {
                             LoginScreen(
                                 onLoggedIn = { resp ->
-                                    token = resp.token
+                                    scope.launch {
+                                        AppPreferences.setToken(context, resp.token)
+                                    }
                                 },
                                 onGoToRegister = { showRegister = true },
                             )
@@ -153,7 +159,11 @@ class MainActivity : ComponentActivity() {
                                         }
                                         ProfileScreen(
                                             token = token!!,
-                                            onLoggedOut = { token = null },
+                                            onLoggedOut = {
+                                                scope.launch {
+                                                    AppPreferences.setToken(context, null)
+                                                }
+                                            },
                                             currentLanguage = selectedTag,
                                             onLanguageChanged = { newLang ->
                                                 scope.launch {
