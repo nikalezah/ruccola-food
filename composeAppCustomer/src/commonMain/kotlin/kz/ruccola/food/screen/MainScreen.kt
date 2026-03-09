@@ -60,19 +60,13 @@ fun MainScreen(
                     selected = { selectedTab },
                     onSelect = { tab ->
                         selectedTab = tab
-                        if (tab != 1) {
-                            isChatOpen = false
-                        }
+                        if (tab != 1) isChatOpen = false
                     },
                 )
             }
         },
     ) { padding ->
-        Box(
-            Modifier.Companion
-                .padding(padding)
-                .fillMaxSize(),
-        ) {
+        Box(Modifier.padding(padding).fillMaxSize()) {
             when (selectedTab) {
                 0 -> {
                     ScheduleScreen(token)
