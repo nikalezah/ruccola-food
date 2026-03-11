@@ -42,7 +42,6 @@ import kz.ruccola.food.formatDateTime
 @Composable
 fun ChatUi(
     messages: List<MessageDto>,
-    currentUserId: Int?,
     messageBody: String,
     onMessageBodyChange: (String) -> Unit,
     onSendMessage: () -> Unit,
@@ -111,17 +110,16 @@ fun ChatUi(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(messages) { message ->
-                            val isMine = currentUserId == message.senderUserId
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = if (isMine) {
+                                horizontalArrangement = if (message.isMine) {
                                     Arrangement.End
                                 } else {
                                     Arrangement.Start
                                 },
                             ) {
                                 Column(
-                                    horizontalAlignment = if (isMine) {
+                                    horizontalAlignment = if (message.isMine) {
                                         Alignment.End
                                     } else {
                                         Alignment.Start
@@ -130,7 +128,7 @@ fun ChatUi(
                                     Card(
                                         shape = RoundedCornerShape(12.dp),
                                         colors = CardDefaults.cardColors(
-                                            containerColor = if (isMine) {
+                                            containerColor = if (message.isMine) {
                                                 MaterialTheme.colorScheme.primaryContainer
                                             } else {
                                                 MaterialTheme.colorScheme.secondaryContainer

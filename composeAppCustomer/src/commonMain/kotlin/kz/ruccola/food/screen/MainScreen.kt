@@ -23,7 +23,6 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MainScreen(
-    token: String,
     language: String,
     themePreference: ThemePreference,
     onLogout: () -> Unit,
@@ -69,12 +68,11 @@ fun MainScreen(
         Box(Modifier.padding(padding).fillMaxSize()) {
             when (selectedTab) {
                 0 -> {
-                    ScheduleScreen(token)
+                    ScheduleScreen()
                 }
 
                 1 -> {
                     ChatListScreen(
-                        token = token,
                         onChatOpenChanged = { isChatOpen = it },
                         onUnreadChanged = { hasUnreadChat = it },
                     )
@@ -87,7 +85,6 @@ fun MainScreen(
                         else -> "en"
                     }
                     ProfileScreen(
-                        token = token,
                         onLoggedOut = onLogout,
                         onLanguageChanged = onLanguageChanged,
                         currentLanguage = profileLanguage,

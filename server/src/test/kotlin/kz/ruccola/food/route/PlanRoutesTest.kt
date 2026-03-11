@@ -1,5 +1,6 @@
 package kz.ruccola.food.route
 
+import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -18,6 +19,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.CustomerPlanCreateDto
+import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.api.PlanCreateDto
 import kz.ruccola.food.api.PlanUpdateDto
 import kz.ruccola.food.api.Role
@@ -49,6 +51,24 @@ class PlanRoutesTest {
         initializeTestDatabase()
     }
 
+    private suspend fun getAdminToken(client: HttpClient): String {
+        val response = client.post("/api/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginRequestDto("admin@ruccola.food", "admin"))
+        }
+        val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+        return "Bearer ${json["token"]!!.jsonPrimitive.content}"
+    }
+
+    private suspend fun getCustomerToken(client: HttpClient): String {
+        val response = client.post("/api/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginRequestDto("customer@test.com", "password"))
+        }
+        val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+        return "Bearer ${json["token"]!!.jsonPrimitive.content}"
+    }
+
     @Test
     fun testCrud() =
         testApp { client ->
@@ -60,7 +80,9 @@ class PlanRoutesTest {
 
             // Create
             var id = 0
+            val adminToken = getAdminToken(client)
             client.post("/api/plans") {
+                header(HttpHeaders.Authorization, adminToken)
                 contentType(ContentType.Application.Json)
                 setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000, true))
             }.apply {
@@ -72,7 +94,9 @@ class PlanRoutesTest {
             }
 
             // List
-            client.get("/api/plans").apply {
+            client.get("/api/plans") {
+                header(HttpHeaders.Authorization, adminToken)
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
                 assertTrue(arr.isNotEmpty())
@@ -80,6 +104,7 @@ class PlanRoutesTest {
 
             // Update
             client.put("/api/plans/$id") {
+                header(HttpHeaders.Authorization, adminToken)
                 contentType(ContentType.Application.Json)
                 setBody(PlanUpdateDto(PlanCalories.C2000, allowVariantChoice = false))
             }.apply {
@@ -90,8 +115,12 @@ class PlanRoutesTest {
             }
 
             // Delete
-            client.delete("/api/plans/$id").apply { assertEquals(HttpStatusCode.OK, status) }
-            client.get("/api/plans/$id").apply { assertEquals(HttpStatusCode.NotFound, status) }
+            client.delete("/api/plans/$id") {
+                header(HttpHeaders.Authorization, adminToken)
+            }.apply { assertEquals(HttpStatusCode.OK, status) }
+            client.get("/api/plans/$id") {
+                header(HttpHeaders.Authorization, adminToken)
+            }.apply { assertEquals(HttpStatusCode.NotFound, status) }
         }
 
     @Test
@@ -153,19 +182,18 @@ class PlanRoutesTest {
                 }
             }
 
-            val bearerToken = "Bearer dummy-token-$customerId"
-
             // Test 1: Get a customer plan when none exists
             client.get("/api/customers/plan") {
-                header(HttpHeaders.Authorization, bearerToken)
+                header(HttpHeaders.Authorization, getCustomerToken(client))
             }.apply {
                 assertEquals(HttpStatusCode.NotFound, status)
             }
 
             // Test 2: Save customer plan
             val today = today()
+            val customerToken = getCustomerToken(client)
             client.post("/api/customers/plan") {
-                header(HttpHeaders.Authorization, bearerToken)
+                header(HttpHeaders.Authorization, customerToken)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId1800, today))
             }.apply {
@@ -178,7 +206,7 @@ class PlanRoutesTest {
 
             // Test 3: Get a customer plan after saving
             client.get("/api/customers/plan") {
-                header(HttpHeaders.Authorization, bearerToken)
+                header(HttpHeaders.Authorization, customerToken)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
@@ -188,7 +216,7 @@ class PlanRoutesTest {
 
             // Test 4: Update plan with the same date (should replace)
             client.post("/api/customers/plan") {
-                header(HttpHeaders.Authorization, bearerToken)
+                header(HttpHeaders.Authorization, customerToken)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId2000, today))
             }.apply {
@@ -204,7 +232,9 @@ class PlanRoutesTest {
             assertEquals(1, recordCount)
 
             // Test 5: Get available calories for with variants
-            client.get("/api/plans/calories?allowVariantChoice=true").apply {
+            client.get("/api/plans/calories?allowVariantChoice=true") {
+                header(HttpHeaders.Authorization, customerToken)
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
                 assertTrue(arr.isNotEmpty())
@@ -212,7 +242,9 @@ class PlanRoutesTest {
             }
 
             // Test 6: Get available calories for without variants
-            client.get("/api/plans/calories?allowVariantChoice=false").apply {
+            client.get("/api/plans/calories?allowVariantChoice=false") {
+                header(HttpHeaders.Authorization, customerToken)
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
                 assertTrue(arr.isNotEmpty())
@@ -220,7 +252,9 @@ class PlanRoutesTest {
             }
 
             // Test 7: Get available days for specific calories with variants
-            client.get("/api/plans/days?allowVariantChoice=true&calories=1800").apply {
+            client.get("/api/plans/days?allowVariantChoice=true&calories=1800") {
+                header(HttpHeaders.Authorization, customerToken)
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
                 assertTrue(arr.isNotEmpty())
@@ -229,7 +263,9 @@ class PlanRoutesTest {
             }
 
             // Test 8: Get available days without calories parameter (should fail)
-            client.get("/api/plans/days?allowVariantChoice=true").apply {
+            client.get("/api/plans/days?allowVariantChoice=true") {
+                header(HttpHeaders.Authorization, customerToken)
+            }.apply {
                 assertEquals(HttpStatusCode.BadRequest, status)
             }
         }

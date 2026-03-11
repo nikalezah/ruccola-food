@@ -30,7 +30,6 @@ data class DishEditorUiState(
 
 class DishEditorViewModel(
     initialDish: DishDto?,
-    private val token: String?,
 ) : ViewModel() {
     private val dishApi = DishApi()
     private val customerApi = CustomerApi()
@@ -50,10 +49,9 @@ class DishEditorViewModel(
     }
 
     private fun loadAllCustomers() {
-        if (token.isNullOrBlank()) return
         viewModelScope.launch {
             try {
-                val customers = customerApi.getAll(token)
+                val customers = customerApi.getAll()
                 _uiState.update { it.copy(allCustomers = customers) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }

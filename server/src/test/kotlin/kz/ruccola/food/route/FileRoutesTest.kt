@@ -3,6 +3,7 @@ package kz.ruccola.food.route
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -15,6 +16,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.testApp
 import java.io.File
 import kotlin.test.BeforeTest
@@ -40,12 +42,14 @@ class FileRoutesTest {
     @Test
     fun testUploadAndDeleteFileApi() =
         testApp { client ->
+            val token = client.loginAdmin()
 
             // Upload a file via multipart
             val filename = "test.txt"
             val contentBytes = "hello world".toByteArray()
 
             val response = client.post("/api/files") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -93,29 +97,37 @@ class FileRoutesTest {
             assertEquals(contentBytes.size.toLong(), diskFile.length())
 
             // Delete the file via API
-            val deleteResponse = client.delete("/api/files/$id")
+            val deleteResponse = client.delete("/api/files/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
             assertEquals(HttpStatusCode.OK, deleteResponse.status)
 
             // After deletion, the file should not exist
             assertTrue(!diskFile.exists(), "Uploaded file should be removed from disk after deletion")
 
             // The second delete should return 404
-            val deleteAgain = client.delete("/api/files/$id")
+            val deleteAgain = client.delete("/api/files/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
             assertEquals(HttpStatusCode.NotFound, deleteAgain.status)
         }
 
     @Test
     fun testFileApiBadRequests() =
         testApp { client ->
+            val token = client.loginAdmin()
 
             // POST without a file part returns 400
             val badPost = client.post("/api/files") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 setBody(MultiPartFormDataContent(formData { }))
             }
             assertEquals(HttpStatusCode.BadRequest, badPost.status)
 
             // DELETE with invalid id returns 400
-            val badDelete = client.delete("/api/files/abc")
+            val badDelete = client.delete("/api/files/abc") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
             assertEquals(HttpStatusCode.BadRequest, badDelete.status)
         }
 }

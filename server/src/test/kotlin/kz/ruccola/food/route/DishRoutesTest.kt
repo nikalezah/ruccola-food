@@ -1,11 +1,13 @@
 package kz.ruccola.food.route
 
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.singleOrNull
@@ -18,6 +20,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
 import kz.ruccola.food.now
@@ -43,6 +46,7 @@ class DishRoutesTest {
     @Test
     fun testGetDishesApi() =
         testApp { client ->
+            val token = client.loginAdmin()
             // Create test data
             suspendTransaction {
                 Dishes.deleteAll()
@@ -59,7 +63,9 @@ class DishRoutesTest {
             }
 
             // Test GET /api/dishes
-            client.get("/api/dishes").apply {
+            client.get("/api/dishes") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
 
                 val responseText = bodyAsText()
@@ -82,6 +88,7 @@ class DishRoutesTest {
     @Test
     fun testGetDishByIdApi() =
         testApp { client ->
+            val token = client.loginAdmin()
             var dishId = 0
 
             // Create test data
@@ -95,7 +102,9 @@ class DishRoutesTest {
             }
 
             // Test GET /api/dishes/{id}
-            client.get("/api/dishes/$dishId").apply {
+            client.get("/api/dishes/$dishId") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
 
                 val responseText = bodyAsText()
@@ -112,7 +121,9 @@ class DishRoutesTest {
             }
 
             // Test GET with non-existent ID
-            client.get("/api/dishes/9999").apply {
+            client.get("/api/dishes/9999") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }.apply {
                 assertEquals(HttpStatusCode.NotFound, status)
             }
         }
@@ -120,6 +131,7 @@ class DishRoutesTest {
     @Test
     fun testCreateDishApi() =
         testApp { client ->
+            val token = client.loginAdmin()
             suspendTransaction {
                 Dishes.deleteAll()
             }
@@ -130,6 +142,7 @@ class DishRoutesTest {
             )
 
             client.post("/api/dishes") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(newDish)
             }.apply {
@@ -150,6 +163,7 @@ class DishRoutesTest {
     @Test
     fun testUpdateDishApi() =
         testApp { client ->
+            val token = client.loginAdmin()
             var dishId = 0
 
             // Create test data
@@ -169,6 +183,7 @@ class DishRoutesTest {
             )
 
             client.put("/api/dishes/$dishId") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(updateDish)
             }.apply {
@@ -188,6 +203,7 @@ class DishRoutesTest {
 
             // Test PUT with non-existent ID
             client.put("/api/dishes/9999") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(updateDish)
             }.apply {
@@ -198,6 +214,7 @@ class DishRoutesTest {
     @Test
     fun testArchiveDishApi() =
         testApp { client ->
+            val token = client.loginAdmin()
             var dishId = 0
 
             // Create test data
@@ -211,7 +228,9 @@ class DishRoutesTest {
             }
 
             // Test POST /api/dishes/{id}/archive
-            client.post("/api/dishes/$dishId/archive").apply {
+            client.post("/api/dishes/$dishId/archive") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }.apply {
                 assertEquals(HttpStatusCode.OK, status)
             }
 
@@ -223,7 +242,9 @@ class DishRoutesTest {
             }
 
             // Test archive with non-existent ID
-            client.post("/api/dishes/9999/archive").apply {
+            client.post("/api/dishes/9999/archive") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }.apply {
                 assertEquals(HttpStatusCode.NotFound, status)
             }
         }
@@ -231,6 +252,7 @@ class DishRoutesTest {
     @Test
     fun testDishImagesCreateAndUpdate() =
         testApp { client ->
+            val token = client.loginAdmin()
             // Ensure a clean state
             suspendTransaction {
                 Dishes.deleteAll()
@@ -250,6 +272,7 @@ class DishRoutesTest {
 
             var dishId = 0
             client.post("/api/dishes") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(DishCreateDto("Image Dish", "Dish with images", listOf(1, 2)))
             }.apply {
@@ -263,6 +286,7 @@ class DishRoutesTest {
             }
 
             client.put("/api/dishes/$dishId") {
+                header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(DishUpdateDto("Image Dish Updated", imageFileIds = listOf(2, 1)))
             }.apply {

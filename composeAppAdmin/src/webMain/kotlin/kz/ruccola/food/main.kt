@@ -1,6 +1,7 @@
 package kz.ruccola.food
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -8,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import kotlinx.browser.window
+import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -23,6 +25,10 @@ fun AdminApp() {
     var token by remember { mutableStateOf(window.localStorage.getItem("admin.token")) }
     var themePreference by remember {
         mutableStateOf(ThemePreference.fromStorage(window.localStorage.getItem("admin.theme")))
+    }
+
+    LaunchedEffect(token) {
+        TokenProvider.token = token
     }
 
     App(

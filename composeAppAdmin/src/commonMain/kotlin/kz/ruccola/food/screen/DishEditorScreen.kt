@@ -52,7 +52,6 @@ import food.composeappadmin.generated.resources.save
 import food.composeappadmin.generated.resources.variants
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishVariantDto
-import kz.ruccola.food.provideAdminToken
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SquareImagesCarousel200
@@ -65,10 +64,8 @@ import org.jetbrains.compose.resources.stringResource
 fun DishEditorScreen(
     initialDish: DishDto?,
     onClose: () -> Unit,
-    token: String? = null,
 ) {
-    val effectiveToken = token ?: provideAdminToken()
-    val viewModel = remember(initialDish, effectiveToken) { DishEditorViewModel(initialDish, effectiveToken) }
+    val viewModel = remember(initialDish) { DishEditorViewModel(initialDish) }
     val uiState by viewModel.uiState.collectAsState()
 
     var variantEditorVisible by remember { mutableStateOf(false) }
@@ -299,11 +296,10 @@ fun DishEditorScreen(
         }
     }
 
-    if (variantEditorVisible && uiState.dish != null && effectiveToken != null) {
+    if (variantEditorVisible && uiState.dish != null) {
         DishVariantEditorScreen(
             dishId = uiState.dish!!.id,
             dishName = uiState.dish!!.name,
-            token = effectiveToken,
             existing = editingVariant,
             initialCustomerIds = editingVariant?.let { uiState.variantCustomers[it.id] },
             onClose = { variantEditorVisible = false },

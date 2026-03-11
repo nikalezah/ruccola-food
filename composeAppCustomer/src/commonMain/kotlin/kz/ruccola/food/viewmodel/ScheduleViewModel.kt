@@ -16,10 +16,7 @@ class ScheduleViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState: StateFlow<ScheduleUiState> = _uiState.asStateFlow()
 
-    fun loadSchedule(
-        token: String,
-        isRefreshing: Boolean = false,
-    ) {
+    fun loadSchedule(isRefreshing: Boolean = false) {
         viewModelScope.launch {
             if (isRefreshing) {
                 _uiState.update { it.copy(isRefreshing = true) }
@@ -27,7 +24,7 @@ class ScheduleViewModel : ViewModel() {
                 _uiState.update { it.copy(isLoading = true, error = null) }
             }
             try {
-                val week = api.getWeek(token)
+                val week = api.getWeek()
                 _uiState.update { it.copy(week = week, error = null) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: e.toString()) }

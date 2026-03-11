@@ -23,6 +23,13 @@ class UserService {
                 ?.let { it == Role.ADMIN }
         }
 
+    suspend fun findById(id: Int): UserDto? =
+        dbQuery {
+            Users.selectAll().where { Users.id eq id }
+                .singleOrNull()
+                ?.let { toDto(it) }
+        }
+
     suspend fun findByEmail(email: String): Pair<UserDto, String>? =
         dbQuery {
             Users.selectAll().where { Users.email eq email }

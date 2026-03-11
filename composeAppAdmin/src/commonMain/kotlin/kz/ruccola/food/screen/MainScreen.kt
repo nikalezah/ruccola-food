@@ -26,7 +26,6 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MainScreen(
-    token: String,
     onLoggedOut: () -> Unit,
     themePreference: ThemePreference,
     onThemePreferenceChange: (ThemePreference) -> Unit,
@@ -81,7 +80,7 @@ fun MainScreen(
                 }
 
                 1 -> {
-                    DishScreen(token)
+                    DishScreen()
                 }
 
                 2 -> {
@@ -95,7 +94,6 @@ fun MainScreen(
 
                 3 -> {
                     CustomerScreen(
-                        token = token,
                         onChatOpenChanged = { isChatOpen = it },
                         onUnreadChanged = { hasUnreadChats = it },
                     )

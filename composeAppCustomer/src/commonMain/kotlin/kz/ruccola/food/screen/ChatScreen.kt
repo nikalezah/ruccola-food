@@ -32,29 +32,19 @@ import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.viewmodel.ChatViewModel
 import org.jetbrains.compose.resources.stringResource
 
-private fun parseUserId(token: String): Int? {
-    if (!token.startsWith("dummy-token-")) return null
-    return token.split("-").lastOrNull()?.toIntOrNull()
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    token: String,
     onBack: (() -> Unit)? = null,
     viewModel: ChatViewModel = viewModel { ChatViewModel() },
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currentUserId = remember(token) { parseUserId(token) }
     var messageBody by remember { mutableStateOf("") }
     val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
-    LaunchedEffect(token) {
-        viewModel.loadChat(token)
-    }
-
-    LaunchedEffect(token) {
-        viewModel.startPolling(token)
+    LaunchedEffect(Unit) {
+        viewModel.loadChat()
+        viewModel.startPolling()
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -79,17 +69,16 @@ fun ChatScreen(
 
             PullToRefreshBox(
                 isRefreshing = uiState.isRefreshing,
-                onRefresh = { viewModel.loadChat(token, isRefreshing = true) },
+                onRefresh = { viewModel.loadChat(isRefreshing = true) },
                 state = pullToRefreshState,
                 modifier = Modifier.fillMaxSize().padding(padding),
             ) {
                 ChatUi(
                     messages = uiState.messages,
-                    currentUserId = currentUserId,
                     messageBody = messageBody,
                     onMessageBodyChange = { messageBody = it },
                     onSendMessage = {
-                        viewModel.sendMessage(token, messageBody)
+                        viewModel.sendMessage(messageBody)
                         messageBody = ""
                     },
                     placeholder = stringResource(Res.string.chat_placeholder),

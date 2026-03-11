@@ -27,13 +27,13 @@ class ProfileViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    fun loadProfile(token: String) {
+    fun loadProfile() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val customer = customerApi.get(token)
+                val customer = customerApi.get()
                 _uiState.update { it.copy(customer = customer) }
-                loadCustomerPlan(token)
+                loadCustomerPlan()
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: e.toString()) }
             } finally {
@@ -42,10 +42,10 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    private suspend fun loadCustomerPlan(token: String) {
+    private suspend fun loadCustomerPlan() {
         _uiState.update { it.copy(isLoadingPlan = true) }
         try {
-            val customerPlan = customerApi.getCustomerPlan(token)
+            val customerPlan = customerApi.getCustomerPlan()
             _uiState.update { it.copy(customerPlan = customerPlan) }
         } catch (e: Exception) {
             // Plan not found is ok
@@ -55,13 +55,10 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun logout(
-        token: String,
-        onLoggedOut: () -> Unit,
-    ) {
+    fun logout(onLoggedOut: () -> Unit) {
         viewModelScope.launch {
             try {
-                authApi.logout(token)
+                authApi.logout()
             } catch (e: Exception) {
                 // Ignore logout error
             }
@@ -70,7 +67,6 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun updateCustomer(
-        token: String,
         firstName: String,
         lastName: String,
         address: String,
@@ -79,7 +75,6 @@ class ProfileViewModel : ViewModel() {
             _uiState.update { it.copy(isSaving = true, saveError = null) }
             try {
                 val updated = customerApi.update(
-                    token,
                     CustomerUpdateDto(
                         firstName = firstName.trim(),
                         lastName = lastName.trim(),
@@ -177,7 +172,7 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun savePlan(token: String) {
+    fun savePlan() {
         val state = _uiState.value
         val calories = state.caloriesOptions.getOrNull(state.caloriesIndex)
         val days = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
@@ -193,7 +188,6 @@ class ProfileViewModel : ViewModel() {
                 try {
                     val today = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
                     val saved = customerApi.saveCustomerPlan(
-                        token,
                         CustomerPlanCreateDto(planId = matchingPlan.id, chosenDate = today),
                     )
                     _uiState.update { it.copy(customerPlan = saved, showPlanDialog = false) }

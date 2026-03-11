@@ -5,6 +5,9 @@ import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.cio.EngineMain
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.http.content.staticFiles
@@ -28,7 +31,9 @@ import kz.ruccola.food.route.configureMealPlanDayRoutes
 import kz.ruccola.food.route.configurePlanRoutes
 import kz.ruccola.food.service.DayService
 import kz.ruccola.food.service.FileService.Companion.FILES_URL_PREFIX
+import kz.ruccola.food.service.JwtService
 import kz.ruccola.food.service.MealPlanDayService
+import kz.ruccola.food.service.UserService
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import java.io.File
@@ -75,17 +80,37 @@ fun Application.module() {
 
     install(Resources)
 
+    val jwtService = JwtService(environment.config)
+    val userService = UserService()
+
+    install(Authentication) {
+        jwt {
+            realm = jwtService.getRealm()
+            verifier(jwtService.getVerifier())
+            validate { credential ->
+                val id = credential.payload.getClaim("id").asInt()
+                if (id != null) {
+                    userService.findById(id)
+                } else {
+                    null
+                }
+            }
+        }
+    }
+
     routing {
         staticFiles(FILES_URL_PREFIX, File(AppConfig.storagePath))
         route("/api/") {
-            configureAuthRoutes()
-            configurePlanRoutes()
-            configureDishRoutes()
-            configureFileRoutes()
-            configureDayRoutes()
-            configureMealPlanDayRoutes()
-            configureCustomerRoutes()
-            configureChatRoutes()
+            configureAuthRoutes(jwtService)
+            authenticate {
+                configurePlanRoutes()
+                configureDishRoutes()
+                configureFileRoutes()
+                configureDayRoutes()
+                configureMealPlanDayRoutes()
+                configureCustomerRoutes(userService)
+                configureChatRoutes(userService)
+            }
         }
     }
 }

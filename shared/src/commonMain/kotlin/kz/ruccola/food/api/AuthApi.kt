@@ -3,11 +3,9 @@ package kz.ruccola.food.api
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.resources.post
-import io.ktor.client.request.header
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -68,10 +66,8 @@ class AuthApi(
         return response.body()
     }
 
-    suspend fun logout(token: String) {
-        val response = client.post(Auth.Logout()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }
+    suspend fun logout() {
+        val response = client.post(Auth.Logout())
         if (!response.status.isSuccess()) {
             throw Exception("HTTP ${response.status.value}")
         }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,7 @@ class MainActivity : ComponentActivity() {
             val loginRolePref by AppPreferences.roleFlow(context).collectAsState(initial = null)
             val loginTokenPref by AppPreferences.tokenFlow(context).collectAsState(initial = null)
 
-            androidx.compose.runtime.LaunchedEffect(loginRolePref, loginTokenPref) {
+            LaunchedEffect(loginRolePref, loginTokenPref) {
                 if (loginRolePref != null && loginTokenPref != null) {
                     role = loginRolePref
                     token = loginTokenPref

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kz.ruccola.food.api.TokenProvider
 
 private const val APP_PREFS_NAME = "app_prefs"
 
@@ -74,7 +75,7 @@ object AppPreferences {
 
     fun tokenFlow(context: Context): Flow<String?> =
         context.appDataStore.data.map { prefs ->
-            prefs[KEY_TOKEN]
+            prefs[KEY_TOKEN].also { TokenProvider.token = it }
         }
 
     suspend fun setToken(
@@ -84,8 +85,10 @@ object AppPreferences {
         context.appDataStore.edit { prefs ->
             if (token.isNullOrBlank()) {
                 prefs.remove(KEY_TOKEN)
+                TokenProvider.token = null
             } else {
                 prefs[KEY_TOKEN] = token
+                TokenProvider.token = token
             }
         }
     }

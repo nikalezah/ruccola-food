@@ -5,11 +5,9 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.plugins.resources.put
-import io.ktor.client.request.header
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.resources.Resource
@@ -38,15 +36,10 @@ class Customers {
 class CustomerApi(
     private val client: HttpClient = httpClient,
 ) {
-    suspend fun getAll(token: String): List<CustomerDto> =
-        client.get(Customers()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.body()
+    suspend fun getAll(): List<CustomerDto> = client.get(Customers()).body()
 
-    suspend fun get(token: String): CustomerDto {
-        val response = client.get(Customers.Profile()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }
+    suspend fun get(): CustomerDto {
+        val response = client.get(Customers.Profile())
         if (!response.status.isSuccess()) {
             val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
                 ?: "HTTP ${response.status.value}"
@@ -55,12 +48,8 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun update(
-        token: String,
-        payload: CustomerUpdateDto,
-    ): CustomerDto {
+    suspend fun update(payload: CustomerUpdateDto): CustomerDto {
         val response = client.put(Customers.Profile()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
@@ -72,10 +61,8 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun getCustomerPlan(token: String): CustomerPlanDetailsDto? {
-        val response = client.get(Customers.Plan()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }
+    suspend fun getCustomerPlan(): CustomerPlanDetailsDto? {
+        val response = client.get(Customers.Plan())
         if (!response.status.isSuccess()) {
             val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
                 ?: "HTTP ${response.status.value}"
@@ -84,12 +71,8 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun saveCustomerPlan(
-        token: String,
-        newCustomerPlan: CustomerPlanCreateDto,
-    ): CustomerPlanDetailsDto {
+    suspend fun saveCustomerPlan(newCustomerPlan: CustomerPlanCreateDto): CustomerPlanDetailsDto {
         val response = client.post(Customers.Plan()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(newCustomerPlan)
         }
@@ -101,10 +84,7 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun getWeek(token: String): List<WeeklyPlanDayDto> =
-        client.get(Customers.Week()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.body()
+    suspend fun getWeek(): List<WeeklyPlanDayDto> = client.get(Customers.Week()).body()
 }
 
 @Serializable

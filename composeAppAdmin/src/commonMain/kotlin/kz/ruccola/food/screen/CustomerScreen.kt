@@ -52,7 +52,6 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomerScreen(
-    token: String,
     onChatOpenChanged: (Boolean) -> Unit = {},
     onUnreadChanged: (Boolean) -> Unit = {},
 ) {
@@ -63,8 +62,8 @@ fun CustomerScreen(
     var selectedChatId by remember { mutableStateOf<Int?>(null) }
     var selectedCustomerDetails by remember { mutableStateOf<CustomerDto?>(null) }
 
-    LaunchedEffect(token) {
-        viewModel.loadCustomers(token)
+    LaunchedEffect(Unit) {
+        viewModel.loadCustomers()
     }
 
     LaunchedEffect(selectedChatCustomer) {
@@ -105,7 +104,7 @@ fun CustomerScreen(
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { viewModel.loadCustomers(token) }) { Text(stringResource(Res.string.retry)) }
+                        Button(onClick = { viewModel.loadCustomers() }) { Text(stringResource(Res.string.retry)) }
                     }
                 }
 
@@ -185,13 +184,12 @@ fun CustomerScreen(
 
     if (selectedChatCustomer != null) {
         ChatScreen(
-            token = token,
             chatId = selectedChatId,
             customerName = "${selectedChatCustomer?.firstName} ${selectedChatCustomer?.lastName}",
             onBack = {
                 selectedChatCustomer = null
                 selectedChatId = null
-                viewModel.loadCustomers(token)
+                viewModel.loadCustomers()
             },
         )
     }

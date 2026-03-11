@@ -1,7 +1,7 @@
 package kz.ruccola.food.route
 
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.resources.get
 import io.ktor.server.resources.post
@@ -11,6 +11,7 @@ import kz.ruccola.food.MESSAGE_BODY_MAX_LENGTH
 import kz.ruccola.food.api.Chats
 import kz.ruccola.food.api.MarkReadDto
 import kz.ruccola.food.api.MessageSendDto
+import kz.ruccola.food.api.UserDto
 import kz.ruccola.food.service.ChatService
 import kz.ruccola.food.service.UserService
 
@@ -19,29 +20,20 @@ private data class AuthUser(
     val isAdmin: Boolean,
 )
 
-fun Route.configureChatRoutes() {
+fun Route.configureChatRoutes(userService: UserService) {
     val chatService = ChatService()
-    val userService = UserService()
 
     suspend fun requireAuth(call: io.ktor.server.application.ApplicationCall): AuthUser? {
-        val authHeader = call.request.headers[HttpHeaders.Authorization]
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
             return null
         }
-        val token = authHeader.removePrefix("Bearer ").trim()
-        val parts = token.split("-")
-        val userId = parts.lastOrNull()?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || userId == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
-            return null
-        }
-        val isAdmin = userService.isAdmin(userId)
+        val isAdmin = userService.isAdmin(userDto.id)
         if (isAdmin == null) {
             call.respond(HttpStatusCode.Unauthorized, "User not found")
             return null
         }
-        return AuthUser(id = userId, isAdmin = isAdmin)
+        return AuthUser(id = userDto.id, isAdmin = isAdmin)
     }
 
     suspend fun requireChatAccess(
@@ -99,7 +91,7 @@ fun Route.configureChatRoutes() {
         if (!requireChatAccess(call, params.parent.chatId, user)) return@get
 
         val limit = params.limit?.coerceIn(1, 100) ?: 50
-        call.respond(chatService.getMessages(params.parent.chatId, params.afterId, limit))
+        call.respond(chatService.getMessages(params.parent.chatId, params.afterId, limit, user.id))
     }
 
     post<Chats.ChatId.Messages> { params ->

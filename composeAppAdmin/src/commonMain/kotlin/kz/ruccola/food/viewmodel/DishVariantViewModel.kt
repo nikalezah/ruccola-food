@@ -27,7 +27,6 @@ class DishVariantViewModel(
     private val dishId: Int,
     private val existingVariant: DishVariantDto? = null,
     private val initialCustomerIds: Set<Int>? = null,
-    private val token: String,
 ) : ViewModel() {
     private val dishApi = DishApi()
     private val customerApi = CustomerApi()
@@ -47,7 +46,7 @@ class DishVariantViewModel(
     private fun loadCustomers() {
         viewModelScope.launch {
             try {
-                val customers = customerApi.getAll(token)
+                val customers = customerApi.getAll()
                 _uiState.update { it.copy(allCustomers = customers) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }

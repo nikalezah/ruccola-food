@@ -56,7 +56,6 @@ fun App(
 
                 role == "ADMIN" -> {
                     MainScreen(
-                        token = token,
                         onLoggedOut = onLoggedOut,
                         themePreference = themePreference,
                         onThemePreferenceChange = onThemePreferenceChange,

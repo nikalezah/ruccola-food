@@ -14,6 +14,7 @@ import kz.ruccola.food.model.MessageReads
 import kz.ruccola.food.model.Messages
 import kz.ruccola.food.model.Users
 import kz.ruccola.food.now
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -84,6 +85,7 @@ class ChatService {
         chatId: Int,
         afterId: Int?,
         limit: Int,
+        requesterId: Int,
     ): List<MessageDto> =
         dbQuery {
             val condition =
@@ -96,7 +98,7 @@ class ChatService {
                 .where { condition }
                 .orderBy(Messages.id to SortOrder.ASC)
                 .limit(limit)
-                .map(::toMessageDto)
+                .map { toMessageDto(it, requesterId) }
                 .toList()
         }
 
@@ -115,7 +117,7 @@ class ChatService {
             Chats.update({ Chats.id eq chatId }) {
                 it[lastMessageAt] = now()
             }
-            toMessageDto(message)
+            toMessageDto(message, senderId)
         }
 
     suspend fun markRead(
@@ -193,11 +195,14 @@ class ChatService {
         )
     }
 
-    private fun toMessageDto(row: org.jetbrains.exposed.v1.core.ResultRow): MessageDto =
+    private fun toMessageDto(
+        row: ResultRow,
+        ownerId: Int,
+    ): MessageDto =
         MessageDto(
             id = row[Messages.id].value,
             chatId = row[Messages.chatId].value,
-            senderUserId = row[Messages.senderUserId].value,
+            isMine = row[Messages.senderUserId].value == ownerId,
             body = row[Messages.body],
             createdAt = row[Messages.createdAt],
         )

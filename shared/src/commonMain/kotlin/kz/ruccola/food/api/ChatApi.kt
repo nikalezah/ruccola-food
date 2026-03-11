@@ -4,11 +4,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
-import io.ktor.client.request.header
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.resources.Resource
@@ -45,43 +43,26 @@ class Chats {
 class ChatApi(
     private val client: HttpClient = httpClient,
 ) {
-    suspend fun getChats(token: String): List<ChatListItemDto> =
-        client.get(Chats()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.body()
+    suspend fun getChats(): List<ChatListItemDto> = client.get(Chats()).body()
 
-    suspend fun getChat(
-        token: String,
-        chatId: Int,
-    ): ChatDto =
-        client.get(Chats.ChatId(chatId = chatId)) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.body()
+    suspend fun getChat(chatId: Int): ChatDto = client.get(Chats.ChatId(chatId = chatId)).body()
 
-    suspend fun getMyChat(token: String): ChatDto =
-        client.get(Chats.My()) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.body()
+    suspend fun getMyChat(): ChatDto = client.get(Chats.My()).body()
 
     suspend fun getMessages(
-        token: String,
         chatId: Int,
         afterId: Int? = null,
         limit: Int? = null,
     ): List<MessageDto> =
         client.get(
             Chats.ChatId.Messages(parent = Chats.ChatId(chatId = chatId), afterId = afterId, limit = limit),
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.body()
+        ).body()
 
     suspend fun sendMessage(
-        token: String,
         chatId: Int,
         body: MessageSendDto,
     ): MessageDto {
         val response = client.post(Chats.ChatId.Messages(parent = Chats.ChatId(chatId = chatId))) {
-            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(body)
         }
@@ -94,12 +75,10 @@ class ChatApi(
     }
 
     suspend fun markRead(
-        token: String,
         chatId: Int,
         body: MarkReadDto,
     ) {
         val response = client.post(Chats.ChatId.Read(parent = Chats.ChatId(chatId = chatId))) {
-            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(body)
         }
@@ -141,7 +120,7 @@ data class ChatDto(
 data class MessageDto(
     val id: Int,
     val chatId: Int,
-    val senderUserId: Int,
+    val isMine: Boolean,
     val body: String,
     @Serializable(with = LocalDateTimeIso8601Serializer::class)
     val createdAt: LocalDateTime,

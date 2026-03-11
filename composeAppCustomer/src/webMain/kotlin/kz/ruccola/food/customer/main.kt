@@ -1,5 +1,6 @@
 package kz.ruccola.food.customer
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -8,6 +9,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import kotlinx.browser.window
 import kz.ruccola.food.App
+import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -21,6 +23,10 @@ fun main() {
             mutableStateOf(ThemePreference.fromStorage(window.localStorage.getItem("customer.theme")))
         }
         val isSystemDark = remember { window.matchMedia("(prefers-color-scheme: dark)").matches }
+
+        LaunchedEffect(token) {
+            TokenProvider.token = token
+        }
 
         App(
             token = token,

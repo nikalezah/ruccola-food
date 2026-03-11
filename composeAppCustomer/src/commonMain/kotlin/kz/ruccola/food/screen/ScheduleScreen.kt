@@ -58,18 +58,15 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScheduleScreen(
-    token: String,
-    viewModel: ScheduleViewModel = viewModel { ScheduleViewModel() },
-) {
+fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel() }) {
     val uiState by viewModel.uiState.collectAsState()
     val currentLocale = LocalLocale.current
 
     // Local navigation to dish details
     var selectedDishId by remember { mutableStateOf<Int?>(null) }
 
-    LaunchedEffect(token) {
-        viewModel.loadSchedule(token)
+    LaunchedEffect(Unit) {
+        viewModel.loadSchedule()
     }
 
     // Dish details view
@@ -92,7 +89,7 @@ fun ScheduleScreen(
 
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.loadSchedule(token, isRefreshing = true) },
+            onRefresh = { viewModel.loadSchedule(isRefreshing = true) },
             state = pullToRefreshState,
             modifier = Modifier.fillMaxSize().padding(padding),
         ) {
@@ -107,7 +104,7 @@ fun ScheduleScreen(
                         text = stringResource(Res.string.error_prefix, uiState.error!!),
                         color = MaterialTheme.colorScheme.error,
                     )
-                    Button(onClick = { viewModel.loadSchedule(token) }) {
+                    Button(onClick = { viewModel.loadSchedule() }) {
                         Text(stringResource(Res.string.loading)) // Or a retry string if available
                     }
                 }

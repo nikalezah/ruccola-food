@@ -30,6 +30,8 @@ dependencies {
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.auth.jwt)
     implementation(libs.ktor.serialization.json)
     implementation(libs.kotlinx.serialization.json)
     runtimeOnly(libs.slf4j.klogging)

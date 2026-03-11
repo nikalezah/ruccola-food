@@ -22,10 +22,7 @@ class ChatViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
-    fun loadChat(
-        token: String,
-        isRefreshing: Boolean = false,
-    ) {
+    fun loadChat(isRefreshing: Boolean = false) {
         viewModelScope.launch {
             if (isRefreshing) {
                 _uiState.update { it.copy(isRefreshing = true) }
@@ -33,10 +30,10 @@ class ChatViewModel : ViewModel() {
                 _uiState.update { it.copy(isLoading = true, error = null) }
             }
             try {
-                val chat = api.getMyChat(token)
+                val chat = api.getMyChat()
                 _uiState.update { it.copy(chat = chat, error = null) }
-                loadMessages(token, chat.id)
-                loadLastMessage(token, chat)
+                loadMessages(chat.id)
+                loadLastMessage(chat)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: e.toString()) }
             } finally {
@@ -45,14 +42,10 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    private suspend fun loadLastMessage(
-        token: String,
-        chat: ChatDto,
-    ) {
+    private suspend fun loadLastMessage(chat: ChatDto) {
         try {
             val afterId = chat.lastMessageId?.minus(1)
             val lastMessage = api.getMessages(
-                token = token,
                 chatId = chat.id,
                 afterId = afterId,
                 limit = 1,
@@ -63,18 +56,15 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    private suspend fun loadMessages(
-        token: String,
-        chatId: Int,
-    ) {
+    private suspend fun loadMessages(chatId: Int) {
         try {
-            val messages = api.getMessages(token, chatId)
+            val messages = api.getMessages(chatId)
             _uiState.update { it.copy(messages = messages) }
 
             val lastId = messages.lastOrNull()?.id
             val currentChat = _uiState.value.chat
             if (lastId != null && currentChat != null && currentChat.lastReadMessageId != lastId) {
-                api.markRead(token, chatId, MarkReadDto(lastId))
+                api.markRead(chatId, MarkReadDto(lastId))
                 _uiState.update { it.copy(chat = currentChat.copy(lastReadMessageId = lastId)) }
             }
         } catch (e: Exception) {
@@ -82,30 +72,27 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun startPolling(token: String) {
+    fun startPolling() {
         viewModelScope.launch {
             while (isActive) {
                 val chatId = _uiState.value.chat?.id
                 if (chatId != null) {
-                    loadMessages(token, chatId)
+                    loadMessages(chatId)
                 }
                 delay(5_000)
             }
         }
     }
 
-    fun sendMessage(
-        token: String,
-        body: String,
-    ) {
+    fun sendMessage(body: String) {
         val chatId = _uiState.value.chat?.id ?: return
         val trimmedBody = body.trim()
         if (trimmedBody.isBlank() || trimmedBody.length > MESSAGE_BODY_MAX_LENGTH) return
 
         viewModelScope.launch {
             try {
-                api.sendMessage(token, chatId, MessageSendDto(trimmedBody))
-                loadMessages(token, chatId)
+                api.sendMessage(chatId, MessageSendDto(trimmedBody))
+                loadMessages(chatId)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: e.toString()) }
             }

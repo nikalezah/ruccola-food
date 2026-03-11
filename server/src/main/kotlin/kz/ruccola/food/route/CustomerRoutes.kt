@@ -1,7 +1,7 @@
 package kz.ruccola.food.route
 
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.resources.get
 import io.ktor.server.resources.post
@@ -13,32 +13,23 @@ import kotlinx.datetime.plus
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerUpdateDto
 import kz.ruccola.food.api.Customers
+import kz.ruccola.food.api.UserDto
 import kz.ruccola.food.api.WeeklyPlanDayDto
 import kz.ruccola.food.service.CustomerService
 import kz.ruccola.food.service.MealPlanDayService
 import kz.ruccola.food.service.UserService
 import kz.ruccola.food.today
 
-fun Route.configureCustomerRoutes() {
-    val userService = UserService()
+fun Route.configureCustomerRoutes(userService: UserService) {
     val customerService = CustomerService()
     val mpdService = MealPlanDayService()
 
     get<Customers> {
-        // Authorization header check similar to /api/profile
-        val authHeader = call.request.headers[HttpHeaders.Authorization]
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
             return@get
         }
-        val token = authHeader.removePrefix("Bearer ").trim()
-        val parts = token.split("-")
-        val userId = parts.lastOrNull()?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || userId == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
-            return@get
-        }
-        val isAdmin = userService.isAdmin(userId)
+        val isAdmin = userService.isAdmin(userDto.id)
         if (isAdmin == null) {
             call.respond(HttpStatusCode.Unauthorized, "User not found")
             return@get
@@ -51,21 +42,11 @@ fun Route.configureCustomerRoutes() {
     }
 
     get<Customers.Profile> {
-        val auth = call.request.headers[HttpHeaders.Authorization]
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
             return@get
         }
-        val token = auth.removePrefix("Bearer ").trim()
-        // Expecting format: dummy-token-<id>
-        val parts = token.split("-")
-        val idPart = parts.lastOrNull()
-        val id = idPart?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || id == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
-            return@get
-        }
-        val customer = customerService.findById(id)
+        val customer = customerService.findById(userDto.id)
         if (customer == null) {
             call.respond(HttpStatusCode.Unauthorized, "User not found")
             return@get
@@ -74,17 +55,8 @@ fun Route.configureCustomerRoutes() {
     }
 
     put<Customers.Profile> {
-        val auth = call.request.headers[HttpHeaders.Authorization]
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
-            return@put
-        }
-        val token = auth.removePrefix("Bearer ").trim()
-        val parts = token.split("-")
-        val idPart = parts.lastOrNull()
-        val id = idPart?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || id == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
             return@put
         }
 
@@ -94,7 +66,7 @@ fun Route.configureCustomerRoutes() {
         val cleanedLast = req.lastName?.trim()?.takeIf { it.isNotEmpty() }
         val cleanedAddr = req.address?.trim()?.takeIf { it.isNotEmpty() }
 
-        val customer = customerService.update(id, cleanedFirst, cleanedLast, cleanedAddr)
+        val customer = customerService.update(userDto.id, cleanedFirst, cleanedLast, cleanedAddr)
         if (customer == null) {
             call.respond(HttpStatusCode.NotFound, "User not found")
             return@put
@@ -103,21 +75,11 @@ fun Route.configureCustomerRoutes() {
     }
 
     get<Customers.Plan> {
-        val auth = call.request.headers[HttpHeaders.Authorization]
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
             return@get
         }
-        val token = auth.removePrefix("Bearer ").trim()
-        // Expecting format: dummy-token-<id>
-        val parts = token.split("-")
-        val idPart = parts.lastOrNull()
-        val id = idPart?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || id == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
-            return@get
-        }
-        val customerPlan = customerService.getCustomerPlan(id)
+        val customerPlan = customerService.getCustomerPlan(userDto.id)
         if (customerPlan == null) {
             call.respond(HttpStatusCode.NotFound, "No plan found for customer")
         } else {
@@ -126,23 +88,13 @@ fun Route.configureCustomerRoutes() {
     }
 
     post<Customers.Plan> {
-        val auth = call.request.headers[HttpHeaders.Authorization]
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
-            return@post
-        }
-        val token = auth.removePrefix("Bearer ").trim()
-        // Expecting format: dummy-token-<id>
-        val parts = token.split("-")
-        val idPart = parts.lastOrNull()
-        val id = idPart?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || id == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
             return@post
         }
         val body = call.receive<CustomerPlanCreateDto>()
         try {
-            val saved = customerService.saveCustomerPlan(id, body)
+            val saved = customerService.saveCustomerPlan(userDto.id, body)
             call.respond(HttpStatusCode.Created, saved)
         } catch (e: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, e.message ?: "Invalid request")
@@ -150,19 +102,10 @@ fun Route.configureCustomerRoutes() {
     }
 
     get<Customers.Week> {
-        val auth = call.request.headers[HttpHeaders.Authorization]
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        val userDto = call.principal<UserDto>() ?: run {
             call.respond(HttpStatusCode.Unauthorized, "Missing or invalid Authorization header")
             return@get
         }
-        val token = auth.removePrefix("Bearer ").trim()
-        val parts = token.split("-")
-        val userId = parts.lastOrNull()?.toIntOrNull()
-        if (!token.startsWith("dummy-token-") || userId == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
-            return@get
-        }
-
         val all = mpdService.getAll()
         // Determine starting MPD: current or first by serial
         val start = mpdService.getCurrent() ?: all.firstOrNull()

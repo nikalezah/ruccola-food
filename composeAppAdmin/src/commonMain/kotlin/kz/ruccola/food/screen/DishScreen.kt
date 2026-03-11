@@ -57,7 +57,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun DishScreen(token: String? = null) {
+fun DishScreen() {
     val viewModel: DishViewModel = viewModel(factory = DishViewModel.Factory)
     val uiState by viewModel.uiState.collectAsState()
 
@@ -182,7 +182,6 @@ fun DishScreen(token: String? = null) {
                     editingDish = null
                     viewModel.loadDishes()
                 },
-                token,
             )
         }
     }

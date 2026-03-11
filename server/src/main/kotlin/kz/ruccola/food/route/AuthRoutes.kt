@@ -9,9 +9,10 @@ import kz.ruccola.food.api.Auth
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.api.RegisterRequestDto
+import kz.ruccola.food.service.JwtService
 import kz.ruccola.food.service.UserService
 
-fun Route.configureAuthRoutes() {
+fun Route.configureAuthRoutes(jwtService: JwtService) {
     val userService = UserService()
 
     post<Auth.Register> {
@@ -35,7 +36,7 @@ fun Route.configureAuthRoutes() {
             lastName = req.lastName,
             address = req.address,
         )
-        val token = "dummy-token-${created.id}"
+        val token = jwtService.generateToken(created.id)
         call.respond(HttpStatusCode.Created, AuthResponseDto(token = token, user = created))
     }
 
@@ -46,7 +47,7 @@ fun Route.configureAuthRoutes() {
             call.respond(HttpStatusCode.Unauthorized, "Invalid email or password")
             return@post
         }
-        val token = "dummy-token-${user.first.id}"
+        val token = jwtService.generateToken(user.first.id)
         call.respond(AuthResponseDto(token = token, user = user.first))
     }
 

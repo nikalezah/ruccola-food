@@ -55,7 +55,6 @@ fun App(
                     }
                 } else {
                     MainScreen(
-                        token = token,
                         language = language,
                         themePreference = themePreference,
                         onLogout = onLogout,

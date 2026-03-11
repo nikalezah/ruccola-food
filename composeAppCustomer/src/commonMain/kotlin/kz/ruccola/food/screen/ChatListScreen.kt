@@ -40,7 +40,6 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
-    token: String,
     onChatOpenChanged: (Boolean) -> Unit = {},
     onUnreadChanged: (Boolean) -> Unit = {},
     viewModel: ChatViewModel = viewModel { ChatViewModel() },
@@ -49,8 +48,8 @@ fun ChatListScreen(
     var isChatOpen by remember { mutableStateOf(false) }
     val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
-    LaunchedEffect(token) {
-        viewModel.loadChat(token)
+    LaunchedEffect(Unit) {
+        viewModel.loadChat()
     }
     LaunchedEffect(isChatOpen) {
         onChatOpenChanged(isChatOpen)
@@ -117,10 +116,7 @@ fun ChatListScreen(
         }
 
         if (isChatOpen) {
-            ChatScreen(
-                token = token,
-                onBack = { isChatOpen = false },
-            )
+            ChatScreen(onBack = { isChatOpen = false })
         }
     }
 }

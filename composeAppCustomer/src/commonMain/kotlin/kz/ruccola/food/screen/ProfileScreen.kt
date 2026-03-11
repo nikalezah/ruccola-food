@@ -83,7 +83,6 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    token: String,
     onLoggedOut: () -> Unit,
     onLanguageChanged: (String) -> Unit = {},
     currentLanguage: String,
@@ -93,15 +92,15 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(token) {
-        viewModel.loadProfile(token)
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
     }
 
     @Composable
     fun LogoutButton() {
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { viewModel.logout(token, onLoggedOut) },
+            onClick = { viewModel.logout(onLoggedOut) },
         ) {
             Icon(Icons.Filled.Logout, contentDescription = "Logout")
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
@@ -206,14 +205,12 @@ fun ProfileScreen(
 
                     if (uiState.showPlanDialog) {
                         PlanSelectionDialog(
-                            token = token,
                             viewModel = viewModel,
                         )
                     }
 
                     if (uiState.isEditing) {
                         PersonalInfoEditDialog(
-                            token = token,
                             viewModel = viewModel,
                             initialFirstName = customer.firstName,
                             initialLastName = customer.lastName,
@@ -281,7 +278,6 @@ fun ProfileScreen(
 
 @Composable
 private fun PersonalInfoEditDialog(
-    token: String,
     viewModel: ProfileViewModel,
     initialFirstName: String,
     initialLastName: String,
@@ -335,7 +331,7 @@ private fun PersonalInfoEditDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    viewModel.updateCustomer(token, firstName, lastName, address)
+                    viewModel.updateCustomer(firstName, lastName, address)
                 },
                 enabled = !uiState.isSaving,
             ) {
@@ -354,10 +350,7 @@ private fun PersonalInfoEditDialog(
 }
 
 @Composable
-private fun PlanSelectionDialog(
-    token: String,
-    viewModel: ProfileViewModel,
-) {
+private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     AlertDialog(
@@ -438,7 +431,7 @@ private fun PlanSelectionDialog(
             }
 
             Button(
-                onClick = { viewModel.savePlan(token) },
+                onClick = { viewModel.savePlan() },
                 enabled = matchingPlan != null && !uiState.isSavingPlan,
             ) {
                 Text(if (uiState.isSavingPlan) stringResource(Res.string.saving) else stringResource(Res.string.save))

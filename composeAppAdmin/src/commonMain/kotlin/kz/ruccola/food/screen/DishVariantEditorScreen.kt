@@ -47,14 +47,13 @@ import org.jetbrains.compose.resources.stringResource
 fun DishVariantEditorScreen(
     dishId: Int,
     dishName: String,
-    token: String,
     existing: DishVariantDto? = null,
     initialCustomerIds: Set<Int>? = null,
     onClose: () -> Unit,
     onSaved: (DishVariantDto, Set<Int>) -> Unit,
 ) {
-    val viewModel = remember(dishId, existing, token) {
-        DishVariantViewModel(dishId, existing, initialCustomerIds, token)
+    val viewModel = remember(dishId, existing) {
+        DishVariantViewModel(dishId, existing, initialCustomerIds)
     }
     val uiState by viewModel.uiState.collectAsState()
     val savedVariant = uiState.savedVariant

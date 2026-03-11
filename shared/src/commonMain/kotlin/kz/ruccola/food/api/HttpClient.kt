@@ -2,6 +2,9 @@ package kz.ruccola.food.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.serialization.kotlinx.json.json
@@ -22,4 +25,15 @@ val httpClient = HttpClient {
     install(DefaultRequest) {
         url("$BASE_URL/api/")
     }
+    install(Auth) {
+        bearer {
+            loadTokens {
+                TokenProvider.token?.let { BearerTokens(it, "") }
+            }
+        }
+    }
+}
+
+object TokenProvider {
+    var token: String? = null
 }

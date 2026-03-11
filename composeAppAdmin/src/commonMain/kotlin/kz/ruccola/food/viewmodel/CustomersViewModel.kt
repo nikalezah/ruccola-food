@@ -19,12 +19,12 @@ class CustomersViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CustomersUiState())
     val uiState: StateFlow<CustomersUiState> = _uiState.asStateFlow()
 
-    fun loadCustomers(token: String) {
+    fun loadCustomers() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val loadedCustomers = api.getAll(token)
-                val chatItems = chatApi.getChats(token)
+                val loadedCustomers = api.getAll()
+                val chatItems = chatApi.getChats()
                 _uiState.update {
                     it.copy(
                         customers = loadedCustomers,
