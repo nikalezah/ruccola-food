@@ -13,8 +13,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
-import kz.ruccola.food.localization.AppLocaleManager
-import kz.ruccola.food.localization.AppPreferences
 import kz.ruccola.food.theme.ThemePreference
 
 class MainActivity : ComponentActivity() {

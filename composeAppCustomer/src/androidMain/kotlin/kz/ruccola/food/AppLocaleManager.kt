@@ -1,4 +1,4 @@
-package kz.ruccola.food.localization
+package kz.ruccola.food
 
 import android.app.LocaleManager
 import android.content.Context

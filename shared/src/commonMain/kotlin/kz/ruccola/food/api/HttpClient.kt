@@ -30,6 +30,9 @@ val httpClient = HttpClient {
             loadTokens {
                 TokenProvider.token?.let { BearerTokens(it, "") }
             }
+            sendWithoutRequest {
+                TokenProvider.token != null
+            }
         }
     }
 }

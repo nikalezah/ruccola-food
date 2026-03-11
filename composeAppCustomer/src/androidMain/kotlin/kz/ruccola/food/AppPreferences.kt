@@ -1,4 +1,4 @@
-package kz.ruccola.food.localization
+package kz.ruccola.food
 
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
@@ -15,13 +15,22 @@ val Context.appDataStore by preferencesDataStore(name = APP_PREFS_NAME)
 
 object AppPreferences {
     private val KEY_LANGUAGE_TAG: Preferences.Key<String> = stringPreferencesKey("app_language_tag")
-    private val KEY_THEME: Preferences.Key<String> = stringPreferencesKey("app_theme")
-    private val KEY_ROLE: Preferences.Key<String> = stringPreferencesKey("app_role")
+    private val KEY_THEME_PREFERENCE: Preferences.Key<String> = stringPreferencesKey("app_theme_preference")
     private val KEY_TOKEN: Preferences.Key<String> = stringPreferencesKey("app_token")
 
     fun languageTagFlow(context: Context): Flow<String?> =
         context.appDataStore.data.map { prefs ->
             prefs[KEY_LANGUAGE_TAG]
+        }
+
+    fun themePreferenceFlow(context: Context): Flow<String?> =
+        context.appDataStore.data.map { prefs ->
+            prefs[KEY_THEME_PREFERENCE]
+        }
+
+    fun tokenFlow(context: Context): Flow<String?> =
+        context.appDataStore.data.map { prefs ->
+            prefs[KEY_TOKEN].also { TokenProvider.token = it }
         }
 
     suspend fun setLanguageTag(
@@ -37,46 +46,18 @@ object AppPreferences {
         }
     }
 
-    fun themeFlow(context: Context): Flow<String?> =
-        context.appDataStore.data.map { prefs ->
-            prefs[KEY_THEME]
-        }
-
-    suspend fun setTheme(
+    suspend fun setThemePreference(
         context: Context,
-        theme: String?,
+        preference: String?,
     ) {
         context.appDataStore.edit { prefs ->
-            if (theme.isNullOrBlank()) {
-                prefs.remove(KEY_THEME)
+            if (preference.isNullOrBlank()) {
+                prefs.remove(KEY_THEME_PREFERENCE)
             } else {
-                prefs[KEY_THEME] = theme
+                prefs[KEY_THEME_PREFERENCE] = preference
             }
         }
     }
-
-    fun roleFlow(context: Context): Flow<String?> =
-        context.appDataStore.data.map { prefs ->
-            prefs[KEY_ROLE]
-        }
-
-    suspend fun setRole(
-        context: Context,
-        role: String?,
-    ) {
-        context.appDataStore.edit { prefs ->
-            if (role.isNullOrBlank()) {
-                prefs.remove(KEY_ROLE)
-            } else {
-                prefs[KEY_ROLE] = role
-            }
-        }
-    }
-
-    fun tokenFlow(context: Context): Flow<String?> =
-        context.appDataStore.data.map { prefs ->
-            prefs[KEY_TOKEN].also { TokenProvider.token = it }
-        }
 
     suspend fun setToken(
         context: Context,
