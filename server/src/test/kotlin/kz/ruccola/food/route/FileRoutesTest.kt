@@ -12,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.config.ApplicationConfig
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -26,12 +27,14 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class FileRoutesTest {
+    private val storagePath = ApplicationConfig("application-test.conf").property("ktor.storage.path").getString()
+
     @BeforeTest
     fun cleanUploadsDir() {
         // Initialize a test database to ensure routes have DB access
         initializeTestDatabase()
         // Ensure the files directory is clean before each test run to avoid filename collisions
-        val dir = File("files")
+        val dir = File(storagePath)
         if (dir.exists()) {
             dir.listFiles()?.forEach { it.delete() }
         } else {
@@ -92,7 +95,7 @@ class FileRoutesTest {
             assertEquals("text/plain", mime)
 
             // Verify file exists on disk
-            val diskFile = File("files", returnedFilename)
+            val diskFile = File(storagePath, returnedFilename)
             assertTrue(diskFile.exists(), "Uploaded file should exist on disk")
             assertEquals(contentBytes.size.toLong(), diskFile.length())
 
