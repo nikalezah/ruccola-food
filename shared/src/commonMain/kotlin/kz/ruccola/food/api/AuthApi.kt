@@ -80,6 +80,7 @@ enum class Role {
     ;
 
     val isAdmin: Boolean get() = this == ADMIN
+    val isCustomer: Boolean get() = this == CUSTOMER
 }
 
 @Serializable

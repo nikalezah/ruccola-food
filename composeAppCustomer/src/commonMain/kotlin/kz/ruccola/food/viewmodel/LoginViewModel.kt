@@ -33,8 +33,11 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val resp = api.login(state.email.trim(), state.password)
-                onLoggedIn(resp)
+                val response = api.login(state.email.trim(), state.password)
+                if (!response.user.role.isCustomer) {
+                    throw IllegalStateException("Login failed")
+                }
+                onLoggedIn(response)
             } catch (t: Throwable) {
                 _uiState.update { it.copy(error = t.message ?: loginFailedText) }
             } finally {

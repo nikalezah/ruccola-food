@@ -2,18 +2,14 @@ package kz.ruccola.food
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import kz.ruccola.food.api.Role
 import kz.ruccola.food.screen.LoginScreen
 import kz.ruccola.food.screen.MainScreen
 import kz.ruccola.food.theme.GreenDarkColorScheme
@@ -54,31 +50,12 @@ fun App(
                     )
                 }
 
-                role == "ADMIN" -> {
+                role == Role.ADMIN.name -> {
                     MainScreen(
                         onLoggedOut = onLoggedOut,
                         themePreference = themePreference,
                         onThemePreferenceChange = onThemePreferenceChange,
                     )
-                }
-
-                else -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                    ) {
-                        Text(
-                            text = "Admin access only. Please log in with an admin account.",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Button(
-                            onClick = onLoggedOut,
-                            modifier = Modifier.padding(top = 12.dp),
-                        ) {
-                            Text("Log out")
-                        }
-                    }
                 }
             }
         }

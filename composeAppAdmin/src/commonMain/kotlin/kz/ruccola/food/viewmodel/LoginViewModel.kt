@@ -38,8 +38,11 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoggingIn = true, loginError = null) }
             try {
-                val resp = authApi.login(email, password)
-                onLoggedIn(resp)
+                val response = authApi.login(email, password)
+                if (!response.user.role.isAdmin) {
+                    throw IllegalStateException("Login failed")
+                }
+                onLoggedIn(response)
             } catch (t: Throwable) {
                 _uiState.update { it.copy(loginError = t.message ?: "Login failed") }
             } finally {
