@@ -2,13 +2,11 @@ package kz.ruccola.food.route
 
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
@@ -20,13 +18,11 @@ import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.MealPlanDaySaveDto
 import kz.ruccola.food.api.MealPlanDaysReorderDto
+import kz.ruccola.food.authHeader
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.Meal
-import kz.ruccola.food.model.MealPlanDays
 import kz.ruccola.food.testApp
-import org.jetbrains.exposed.v1.r2dbc.deleteAll
-import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -37,36 +33,28 @@ class MealPlanDayRoutesTest {
         initializeTestDatabase()
     }
 
-    private suspend fun clear() {
-        suspendTransaction {
-            MealPlanDays.deleteAll()
-        }
-    }
-
     @Test
     fun testListSaveDelete() =
         testApp { client ->
             val token = client.loginAdmin()
-            clear()
 
-            client.get("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                assertEquals(0, arr.size)
-            }
+            client.get("/api/meal-plan-days") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
+                    assertEquals(0, arr.size)
+                }
 
             val dishId1 = Json.parseToJsonElement(
                 client.post("/api/dishes") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(DishCreateDto(name = "Test Dish", description = "Desc"))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
             val mealPlanDayId = client.put("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaySaveDto(null, mapOf(dishId1 to Meal.BREAKFAST)))
             }.let {
@@ -81,24 +69,23 @@ class MealPlanDayRoutesTest {
                 obj["id"]!!.jsonPrimitive.int
             }
 
-            client.get("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                assertEquals(1, arr.size)
-            }
+            client.get("/api/meal-plan-days") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
+                    assertEquals(1, arr.size)
+                }
 
             val dishId2 = Json.parseToJsonElement(
                 client.post("/api/dishes") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(DishCreateDto(name = "Test Dish 2", description = "Desc 2"))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
             client.put("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaySaveDto(mealPlanDayId, mapOf(dishId1 to Meal.BREAKFAST, dishId2 to Meal.BRUNCH)))
             }.apply {
@@ -115,26 +102,22 @@ class MealPlanDayRoutesTest {
                 assertEquals(Meal.BRUNCH.name, dish2.jsonObject["meal"]!!.jsonPrimitive.content)
             }
 
-            client.delete("/api/meal-plan-days/$mealPlanDayId") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply { assertEquals(HttpStatusCode.OK, status) }
-            client.delete("/api/meal-plan-days/$mealPlanDayId") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply { assertEquals(HttpStatusCode.OK, status) }
-            client.delete("/api/meal-plan-days/abc") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply { assertEquals(HttpStatusCode.BadRequest, status) }
+            client.delete("/api/meal-plan-days/$mealPlanDayId") { authHeader(token) }
+                .apply { assertEquals(HttpStatusCode.OK, status) }
+            client.delete("/api/meal-plan-days/$mealPlanDayId") { authHeader(token) }
+                .apply { assertEquals(HttpStatusCode.OK, status) }
+            client.delete("/api/meal-plan-days/abc") { authHeader(token) }
+                .apply { assertEquals(HttpStatusCode.BadRequest, status) }
         }
 
     @Test
     fun testSetCurrentSwitching() =
         testApp { client ->
             val token = client.loginAdmin()
-            clear()
 
             val id1 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
@@ -142,59 +125,54 @@ class MealPlanDayRoutesTest {
 
             val id2 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
             // set first current
-            client.post("/api/meal-plan-days/$id1/current") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply { assertEquals(HttpStatusCode.OK, status) }
+            client.post("/api/meal-plan-days/$id1/current") { authHeader(token) }
+                .apply { assertEquals(HttpStatusCode.OK, status) }
             // verify only one current
-            client.get("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                val currentCount = arr.count { it.jsonObject["current"]?.jsonPrimitive?.boolean == true }
-                assertEquals(1, currentCount)
-                val currentId =
-                    arr.first {
-                        it.jsonObject["current"]?.jsonPrimitive?.boolean == true
-                    }.jsonObject["id"]!!.jsonPrimitive.int
-                assertEquals(id1, currentId)
-            }
+            client.get("/api/meal-plan-days") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
+                    val currentCount = arr.count { it.jsonObject["current"]?.jsonPrimitive?.boolean == true }
+                    assertEquals(1, currentCount)
+                    val currentId =
+                        arr.first {
+                            it.jsonObject["current"]?.jsonPrimitive?.boolean == true
+                        }.jsonObject["id"]!!.jsonPrimitive.int
+                    assertEquals(id1, currentId)
+                }
 
             // set the second current; the first should be unset
-            client.post("/api/meal-plan-days/$id2/current") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply { assertEquals(HttpStatusCode.OK, status) }
-            client.get("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                val currentCount = arr.count { it.jsonObject["current"]?.jsonPrimitive?.boolean == true }
-                assertEquals(1, currentCount)
-                val currentId =
-                    arr.first {
-                        it.jsonObject["current"]?.jsonPrimitive?.boolean == true
-                    }.jsonObject["id"]!!.jsonPrimitive.int
-                assertEquals(id2, currentId)
-            }
+            client.post("/api/meal-plan-days/$id2/current") { authHeader(token) }
+                .apply { assertEquals(HttpStatusCode.OK, status) }
+            client.get("/api/meal-plan-days") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
+                    val currentCount = arr.count { it.jsonObject["current"]?.jsonPrimitive?.boolean == true }
+                    assertEquals(1, currentCount)
+                    val currentId =
+                        arr.first {
+                            it.jsonObject["current"]?.jsonPrimitive?.boolean == true
+                        }.jsonObject["id"]!!.jsonPrimitive.int
+                    assertEquals(id2, currentId)
+                }
         }
 
     @Test
     fun testBulkReorderSuccess() =
         testApp { client ->
             val token = client.loginAdmin()
-            clear()
 
             val id1 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
@@ -202,7 +180,7 @@ class MealPlanDayRoutesTest {
 
             val id2 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
@@ -210,7 +188,7 @@ class MealPlanDayRoutesTest {
 
             val id3 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
@@ -218,39 +196,37 @@ class MealPlanDayRoutesTest {
 
             // reorder: [id3, id1, id2]
             client.post("/api/meal-plan-days/reorder") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaysReorderDto(listOf(id3, id1, id2)))
             }.apply { assertEquals(HttpStatusCode.OK, status) }
 
             // verify order is id3(1), id1(2), id2(3)
-            client.get("/api/meal-plan-days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                assertEquals(3, arr.size)
-                val first = arr[0].jsonObject
-                val second = arr[1].jsonObject
-                val third = arr[2].jsonObject
-                assertEquals(id3, first["id"]!!.jsonPrimitive.int)
-                assertEquals(1, first["serial"]!!.jsonPrimitive.int)
-                assertEquals(id1, second["id"]!!.jsonPrimitive.int)
-                assertEquals(2, second["serial"]!!.jsonPrimitive.int)
-                assertEquals(id2, third["id"]!!.jsonPrimitive.int)
-                assertEquals(3, third["serial"]!!.jsonPrimitive.int)
-            }
+            client.get("/api/meal-plan-days") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
+                    assertEquals(3, arr.size)
+                    val first = arr[0].jsonObject
+                    val second = arr[1].jsonObject
+                    val third = arr[2].jsonObject
+                    assertEquals(id3, first["id"]!!.jsonPrimitive.int)
+                    assertEquals(1, first["serial"]!!.jsonPrimitive.int)
+                    assertEquals(id1, second["id"]!!.jsonPrimitive.int)
+                    assertEquals(2, second["serial"]!!.jsonPrimitive.int)
+                    assertEquals(id2, third["id"]!!.jsonPrimitive.int)
+                    assertEquals(3, third["serial"]!!.jsonPrimitive.int)
+                }
         }
 
     @Test
     fun testBulkReorderValidation() =
         testApp { client ->
             val token = client.loginAdmin()
-            clear()
 
             val id1 = Json.parseToJsonElement(
                 client.put("/api/meal-plan-days") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
+                    authHeader(token)
                     contentType(ContentType.Application.Json)
                     setBody(MealPlanDaySaveDto(null, mapOf()))
                 }.bodyAsText(),
@@ -258,21 +234,21 @@ class MealPlanDayRoutesTest {
 
             // duplicate id -> not a permutation => 400
             client.post("/api/meal-plan-days/reorder") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaysReorderDto(listOf(id1, id1)))
             }.apply { assertEquals(HttpStatusCode.BadRequest, status) }
 
             // missing one id -> not a permutation => 400
             client.post("/api/meal-plan-days/reorder") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaysReorderDto(listOf(id1)))
             }.apply { assertEquals(HttpStatusCode.BadRequest, status) }
 
             // includes non-existent id -> 404
             client.post("/api/meal-plan-days/reorder") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaysReorderDto(listOf(id1, 999999)))
             }.apply { assertEquals(HttpStatusCode.NotFound, status) }

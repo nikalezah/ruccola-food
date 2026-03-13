@@ -1,14 +1,13 @@
 package kz.ruccola.food.route
 
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.authHeader
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
@@ -33,7 +32,7 @@ class CustomerWeekRoutesTest {
     @Test
     fun testCustomerWeekPlanWrapsAndHasSevenItems() =
         testApp { client ->
-            val token = client.registerCustomer()
+            val token = client.registerCustomer().token
 
             // Prepare 3 meal plan days with serials 1,2,3 and attach dishes
             suspendTransaction {
@@ -80,9 +79,7 @@ class CustomerWeekRoutesTest {
                 }
             }
 
-            val resp = client.get("/api/customers/week") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }
+            val resp = client.get("/api/customers/week") { authHeader(token) }
             assertEquals(HttpStatusCode.OK, resp.status)
             val arr = Json.parseToJsonElement(resp.bodyAsText()).jsonArray
             assertEquals(7, arr.size)

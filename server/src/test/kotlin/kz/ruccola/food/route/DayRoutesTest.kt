@@ -1,15 +1,14 @@
 package kz.ruccola.food.route
 
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kz.ruccola.food.api.MealPlanDaysReorderDto
+import kz.ruccola.food.authHeader
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.testApp
@@ -27,9 +26,7 @@ class DayRoutesTest {
     fun testListDaysOnly() =
         testApp { client ->
             val token = client.loginAdmin()
-            val response = client.get("/api/days") {
-                header(HttpHeaders.Authorization, "Bearer $token")
-            }
+            val response = client.get("/api/days") { authHeader(token) }
             assertEquals(HttpStatusCode.OK, response.status)
             // just ensure it's a JSON array
             val body = response.bodyAsText()
@@ -43,7 +40,7 @@ class DayRoutesTest {
             val token = client.loginAdmin()
             // With no MealPlanDays in DB, the service returns success and the route should respond 200
             val response = client.post("/api/meal-plan-days/reorder") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+                authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaysReorderDto(emptyList()))
             }

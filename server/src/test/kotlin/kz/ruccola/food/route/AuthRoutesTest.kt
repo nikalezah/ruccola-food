@@ -36,7 +36,7 @@ class AuthRoutesTest {
             val json = Json.parseToJsonElement(body).jsonObject
             val token = json["token"]!!.jsonPrimitive.content
             assertTrue(token.isNotEmpty())
-            assertTrue(token.split(".").size == 3, "Token should be a JWT (3 parts)")
+            assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
             val user = json["user"]!!.jsonObject
             assertEquals("admin@ruccola.food", user["email"]!!.jsonPrimitive.content)
             assertEquals("ADMIN", user["role"]!!.jsonPrimitive.content)
@@ -69,7 +69,7 @@ class AuthRoutesTest {
             val json = Json.parseToJsonElement(body).jsonObject
             val token = json["token"]!!.jsonPrimitive.content
             assertTrue(token.isNotEmpty())
-            assertTrue(token.split(".").size == 3, "Token should be a JWT (3 parts)")
+            assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
             val user = json["user"]!!.jsonObject
             assertEquals("CUSTOMER", user["role"]!!.jsonPrimitive.content)
         }
