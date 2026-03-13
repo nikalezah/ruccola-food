@@ -49,7 +49,7 @@ fun App(
                 role == null || token == null -> {
                     LoginScreen(
                         onLoggedIn = { resp ->
-                            onLoggedIn(resp.user.role, resp.token)
+                            onLoggedIn(resp.user.role.name, resp.token)
                         },
                     )
                 }

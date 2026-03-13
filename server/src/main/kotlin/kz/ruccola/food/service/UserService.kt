@@ -11,18 +11,9 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertReturning
-import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 class UserService {
-    suspend fun isAdmin(id: Int): Boolean? =
-        dbQuery {
-            Users.select(Users.role).where { Users.id eq id }
-                .singleOrNull()
-                ?.get(Users.role)
-                ?.let { it == Role.ADMIN }
-        }
-
     suspend fun findById(id: Int): UserDto? =
         dbQuery {
             Users.selectAll().where { Users.id eq id }
@@ -66,5 +57,5 @@ class UserService {
         }
 
     fun toDto(row: ResultRow): UserDto =
-        UserDto(row[Users.id].value, row[Users.email], row[Users.firstName], row[Users.lastName], row[Users.role].name)
+        UserDto(row[Users.id].value, row[Users.email], row[Users.firstName], row[Users.lastName], row[Users.role])
 }

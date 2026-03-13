@@ -2,23 +2,19 @@ package kz.ruccola.food.route
 
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.model.MealPlanDayDishes
 import kz.ruccola.food.model.MealPlanDays
+import kz.ruccola.food.registerCustomer
 import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
@@ -37,13 +33,7 @@ class CustomerWeekRoutesTest {
     @Test
     fun testCustomerWeekPlanWrapsAndHasSevenItems() =
         testApp { client ->
-            // Login as admin (any authenticated user is enough for this endpoint)
-            val loginResp = client.post("/api/auth/login") {
-                contentType(ContentType.Application.Json)
-                setBody(LoginRequestDto("admin@ruccola.food", "admin"))
-            }
-            assertEquals(HttpStatusCode.OK, loginResp.status)
-            val token = Json.parseToJsonElement(loginResp.bodyAsText()).jsonObject["token"]!!.jsonPrimitive.content
+            val token = client.registerCustomer()
 
             // Prepare 3 meal plan days with serials 1,2,3 and attach dishes
             suspendTransaction {

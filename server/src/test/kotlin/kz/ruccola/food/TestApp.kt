@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.LoginRequestDto
+import kz.ruccola.food.api.RegisterRequestDto
 
 fun testApp(block: suspend ApplicationTestBuilder.(HttpClient) -> Unit) =
     testApplication {
@@ -36,6 +37,19 @@ suspend fun HttpClient.loginAdmin(): String {
     }
     if (response.status != HttpStatusCode.OK) {
         throw IllegalStateException("Failed to login as admin: ${response.status}")
+    }
+    val body = response.bodyAsText()
+    val json = Json.parseToJsonElement(body).jsonObject
+    return json["token"]!!.jsonPrimitive.content
+}
+
+suspend fun HttpClient.registerCustomer(email: String = "jonh@doe.com"): String {
+    val response = post("/api/auth/register") {
+        contentType(ContentType.Application.Json)
+        setBody(RegisterRequestDto(email, "password", "password", "John", "Doe", "123 Main St"))
+    }
+    if (response.status != HttpStatusCode.Created) {
+        throw IllegalStateException("Failed to create customer: ${response.status}")
     }
     val body = response.bodyAsText()
     val json = Json.parseToJsonElement(body).jsonObject

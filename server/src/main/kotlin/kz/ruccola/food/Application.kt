@@ -108,8 +108,8 @@ fun Application.module() {
                 configureFileRoutes()
                 configureDayRoutes()
                 configureMealPlanDayRoutes()
-                configureCustomerRoutes(userService)
-                configureChatRoutes(userService)
+                configureCustomerRoutes()
+                configureChatRoutes()
             }
         }
     }

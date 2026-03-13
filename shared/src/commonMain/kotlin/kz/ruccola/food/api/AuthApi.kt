@@ -74,7 +74,13 @@ class AuthApi(
     }
 }
 
-enum class Role { ADMIN, CUSTOMER }
+enum class Role {
+    ADMIN,
+    CUSTOMER,
+    ;
+
+    val isAdmin: Boolean get() = this == ADMIN
+}
 
 @Serializable
 data class AuthResponseDto(
@@ -88,7 +94,7 @@ data class UserDto(
     val email: String,
     val firstName: String,
     val lastName: String,
-    val role: String,
+    val role: Role,
 )
 
 @Serializable
