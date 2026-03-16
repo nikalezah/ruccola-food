@@ -3,6 +3,8 @@ package kz.ruccola.food.api
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.authProviders
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -39,4 +41,11 @@ val httpClient = HttpClient {
 
 object TokenProvider {
     var token: String? = null
+        set(value) {
+            field = value
+            // Clear the Ktor Auth cache so it calls loadTokens again on the next request
+            httpClient.authProviders
+                .filterIsInstance<BearerAuthProvider>()
+                .forEach { it.clearToken() }
+        }
 }
