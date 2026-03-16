@@ -58,9 +58,6 @@ class MealPlanDayApi(
 
     suspend fun delete(id: Int): Boolean = client.delete(MealPlanDays.Id(id = id)).status.isSuccess()
 
-    suspend fun getDishes(id: Int): List<DishWithMealDto> =
-        client.get(MealPlanDays.Id.Dishes(parent = MealPlanDays.Id(id = id))).body()
-
     suspend fun setCurrent(id: Int): MealPlanDayDto {
         val response = client.post(MealPlanDays.Id.Current(parent = MealPlanDays.Id(id = id)))
         if (!response.status.isSuccess()) {

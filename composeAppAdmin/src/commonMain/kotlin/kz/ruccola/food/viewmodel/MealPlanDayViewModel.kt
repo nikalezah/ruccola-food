@@ -46,8 +46,6 @@ class MealPlanDayViewModel : ViewModel() {
         }
     }
 
-    fun getAll() = loadAll()
-
     fun save(
         id: Int?,
         dishIdToMeal: Map<Int, Meal>,
@@ -88,24 +86,6 @@ class MealPlanDayViewModel : ViewModel() {
                 _uiState.update { it.copy(error = e.message, isSaving = false) }
             }
         }
-    }
-
-    fun getDishes(id: Int) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(isLoadingDishes = true, error = null, selectedDishes = emptyList(), selectedDishesForId = null)
-            }
-            try {
-                val dishes = api.getDishes(id)
-                _uiState.update { it.copy(selectedDishes = dishes, selectedDishesForId = id, isLoadingDishes = false) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoadingDishes = false) }
-            }
-        }
-    }
-
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
     }
 
     fun setCurrent(id: Int) {

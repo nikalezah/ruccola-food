@@ -55,7 +55,6 @@ import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.screen_history_title
 import food.composeappadmin.generated.resources.tab_schedule
-import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
@@ -236,7 +235,7 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
 
     if (showEditor) {
         MealPlanDayEditorScreen(
-            initialItem = editingDay,
+            mealPlanDay = editingDay,
             nextSerial = nextSerial,
             onClose = {
                 showEditor = false
@@ -259,22 +258,11 @@ fun MealPlanDayItem(
     onDelete: () -> Unit,
     onMakeCurrent: () -> Unit,
 ) {
-    val vm: MealPlanDayViewModel = viewModel(factory = MealPlanDayViewModel.Factory)
-    val state by vm.uiState.collectAsState()
-
-    var dishes by remember { mutableStateOf<List<DishWithMealDto>>(emptyList()) }
+    var dishes by remember { mutableStateOf(item.dishes) }
     var isLoading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(item.id, state.selectedDishes) {
-        if (state.selectedDishesForId == item.id) {
-            dishes = state.selectedDishes
-            isLoading = false
-        }
-    }
-
-    LaunchedEffect(item.id) {
-        isLoading = true
-        vm.getDishes(item.id)
+    LaunchedEffect(item.dishes) {
+        dishes = item.dishes
     }
 
     SwipeToRemove(

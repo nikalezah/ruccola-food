@@ -76,7 +76,7 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MealPlanDayEditorScreen(
-    initialItem: MealPlanDayDto?,
+    mealPlanDay: MealPlanDayDto?,
     nextSerial: Int,
     onClose: () -> Unit,
 ) {
@@ -91,19 +91,25 @@ fun MealPlanDayEditorScreen(
     var initialized by remember { mutableStateOf(false) }
 
     // Initialize from a server for editing or empty for creating
-    LaunchedEffect(initialItem?.id) {
+    LaunchedEffect(mealPlanDay) {
         initialized = false
         localDishIdToMeal.clear()
         localDishes.clear()
-        if (initialItem != null) {
-            vm.getDishes(initialItem.id)
+        if (mealPlanDay != null) {
+            if (mealPlanDay.dishes.isNotEmpty()) {
+                mealPlanDay.dishes.forEach { d ->
+                    localDishIdToMeal[d.dish.id] = d.meal
+                    localDishes.add(d)
+                }
+                initialized = true
+            }
         } else {
             initialized = true
         }
     }
 
     LaunchedEffect(state.selectedDishes) {
-        if (!initialized && initialItem != null && state.selectedDishesForId == initialItem.id) {
+        if (!initialized && mealPlanDay != null && state.selectedDishesForId == mealPlanDay.id) {
             localDishIdToMeal.clear()
             localDishes.clear()
             state.selectedDishes.forEach { d ->
@@ -115,7 +121,7 @@ fun MealPlanDayEditorScreen(
     }
 
     fun save() {
-        vm.save(initialItem?.id, localDishIdToMeal.toMap())
+        vm.save(mealPlanDay?.id, localDishIdToMeal.toMap())
         onClose()
     }
 
@@ -123,8 +129,8 @@ fun MealPlanDayEditorScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val serial = initialItem?.serial ?: nextSerial
-                    val titleRes = if (initialItem == null) Res.string.new_day else Res.string.edit_day
+                    val serial = mealPlanDay?.serial ?: nextSerial
+                    val titleRes = if (mealPlanDay == null) Res.string.new_day else Res.string.edit_day
                     Text(stringResource(titleRes, serial.toString()))
                 },
                 subtitle = { Text(stringResource(Res.string.mpd_subtitle)) },

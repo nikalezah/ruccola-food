@@ -61,6 +61,7 @@ fun Application.module() {
             Json {
                 prettyPrint = true
                 isLenient = true
+                encodeDefaults = true
             },
         )
     }

@@ -46,22 +46,6 @@ fun Route.configureMealPlanDayRoutes() {
             call.respond(HttpStatusCode.OK)
         }
 
-        get<MealPlanDays.Id.Dishes> { dish ->
-            val result = service.getDishes(dish.parent.id)
-            result.fold(
-                onSuccess = { call.respond(it) },
-                onFailure = {
-                    val status =
-                        if (it is NoSuchElementException) {
-                            HttpStatusCode.NotFound
-                        } else {
-                            HttpStatusCode.InternalServerError
-                        }
-                    call.respond(status, it.message ?: "Error listing dishes")
-                },
-            )
-        }
-
         post<MealPlanDays.Id.Current> { current ->
             val result = service.setCurrent(current.parent.id)
             result.fold(

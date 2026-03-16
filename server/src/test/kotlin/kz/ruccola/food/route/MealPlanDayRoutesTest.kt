@@ -74,6 +74,12 @@ class MealPlanDayRoutesTest {
                     assertEquals(HttpStatusCode.OK, status)
                     val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
                     assertEquals(1, arr.size)
+
+                    val mdp = arr[0].jsonObject
+                    val dishes = mdp["dishes"]!!.jsonArray
+                    assertEquals(1, dishes.size)
+                    assertEquals(dishId1, dishes[0].jsonObject["dish"]!!.jsonObject["id"]!!.jsonPrimitive.int)
+                    assertEquals(Meal.BREAKFAST.name, dishes[0].jsonObject["meal"]!!.jsonPrimitive.content)
                 }
 
             val dishId2 = Json.parseToJsonElement(

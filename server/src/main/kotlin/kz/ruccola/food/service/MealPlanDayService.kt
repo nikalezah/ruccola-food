@@ -53,10 +53,37 @@ class MealPlanDayService {
 
     suspend fun getAll(): List<MealPlanDayDto> =
         dbQuery {
-            MealPlanDays.selectAll()
+            val allDays = MealPlanDays.selectAll()
                 .orderBy(MealPlanDays.serial to SortOrder.ASC)
                 .toList()
-                .map(::toDto)
+
+            val dayIds = allDays.map { it[MealPlanDays.id].value }
+
+            val dishesByDayId = if (dayIds.isNotEmpty()) {
+                (MealPlanDayDishes innerJoin Dishes)
+                    .selectAll()
+                    .where { MealPlanDayDishes.mealPlanDayId inList dayIds }
+                    .toList()
+                    .groupBy { it[MealPlanDayDishes.mealPlanDayId].value }
+            } else {
+                emptyMap()
+            }
+
+            allDays.map { dayRow ->
+                val dayId = dayRow[MealPlanDays.id].value
+                val dayDishes = dishesByDayId[dayId]?.map { dishRow ->
+                    DishWithMealDto(
+                        dishService.toDto(dishRow),
+                        Meal.valueOf(dishRow[MealPlanDayDishes.meal]),
+                    )
+                }?.sortedBy { it.meal.ordinal } ?: emptyList()
+                MealPlanDayDto(
+                    id = dayId,
+                    serial = dayRow[MealPlanDays.serial],
+                    current = dayRow[MealPlanDays.current],
+                    dishes = dayDishes,
+                )
+            }
         }
 
     suspend fun save(
