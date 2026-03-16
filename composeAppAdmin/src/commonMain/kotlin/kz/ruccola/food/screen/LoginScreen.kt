@@ -28,6 +28,7 @@ import food.composeappadmin.generated.resources.Res
 import food.composeappadmin.generated.resources.email
 import food.composeappadmin.generated.resources.logging_in
 import food.composeappadmin.generated.resources.login
+import food.composeappadmin.generated.resources.login_failed
 import food.composeappadmin.generated.resources.password
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.viewmodel.LoginViewModel
@@ -40,6 +41,7 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+    val loginFailedMsg = stringResource(Res.string.login_failed)
 
     fun Modifier.handleTabAndEnter(): Modifier =
         this.onPreviewKeyEvent { event ->
@@ -51,7 +53,7 @@ fun LoginScreen(
                 }
 
                 Key.Enter -> {
-                    viewModel.login(onLoggedIn)
+                    viewModel.login(onLoggedIn, loginFailedMsg)
                     true
                 }
 
@@ -85,17 +87,17 @@ fun LoginScreen(
                 .handleTabAndEnter(),
         )
 
-        if (uiState.loginError != null) {
-            Text(text = uiState.loginError!!, color = MaterialTheme.colorScheme.error)
+        if (uiState.error != null) {
+            Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
         }
 
         Button(
-            onClick = { viewModel.login(onLoggedIn) },
-            enabled = !uiState.isLoggingIn,
+            onClick = { viewModel.login(onLoggedIn, loginFailedMsg) },
+            enabled = !uiState.isLoading,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             modifier = Modifier.handleTabAndEnter(),
         ) {
-            Text(if (uiState.isLoggingIn) stringResource(Res.string.logging_in) else stringResource(Res.string.login))
+            Text(if (uiState.isLoading) stringResource(Res.string.logging_in) else stringResource(Res.string.login))
         }
     }
 }

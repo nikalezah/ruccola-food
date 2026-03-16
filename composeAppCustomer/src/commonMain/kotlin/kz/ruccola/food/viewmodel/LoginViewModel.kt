@@ -11,17 +11,17 @@ import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
 
 class LoginViewModel : ViewModel() {
-    private val api = AuthApi()
+    private val authApi = AuthApi()
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     fun updateEmail(email: String) {
-        _uiState.update { it.copy(email = email) }
+        _uiState.update { it.copy(email = email, error = null) }
     }
 
     fun updatePassword(password: String) {
-        _uiState.update { it.copy(password = password) }
+        _uiState.update { it.copy(password = password, error = null) }
     }
 
     fun login(
@@ -33,10 +33,11 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val response = api.login(state.email.trim(), state.password)
+                val response = authApi.login(state.email.trim(), state.password)
                 if (!response.user.role.isCustomer) {
                     throw IllegalStateException("Login failed")
                 }
+                reset()
                 onLoggedIn(response)
             } catch (t: Throwable) {
                 _uiState.update { it.copy(error = t.message ?: loginFailedText) }
@@ -46,8 +47,8 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
+    fun reset() {
+        _uiState.value = LoginUiState()
     }
 }
 

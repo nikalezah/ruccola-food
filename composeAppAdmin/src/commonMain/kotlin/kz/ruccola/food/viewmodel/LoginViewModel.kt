@@ -17,44 +17,44 @@ class LoginViewModel : ViewModel() {
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     fun updateEmail(email: String) {
-        _uiState.update { it.copy(email = email, loginError = null) }
+        _uiState.update { it.copy(email = email, error = null) }
     }
 
     fun updatePassword(password: String) {
-        _uiState.update { it.copy(password = password, loginError = null) }
+        _uiState.update { it.copy(password = password, error = null) }
     }
 
-    fun login(onLoggedIn: (AuthResponseDto) -> Unit) {
-        val email = _uiState.value.email.trim()
-        val password = _uiState.value.password
-        performLogin(email, password, onLoggedIn)
-    }
-
-    private fun performLogin(
-        email: String,
-        password: String,
+    fun login(
         onLoggedIn: (AuthResponseDto) -> Unit,
+        loginFailedText: String,
     ) {
+        val state = _uiState.value
+        if (state.isLoading) return
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoggingIn = true, loginError = null) }
+            _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val response = authApi.login(email, password)
+                val response = authApi.login(state.email.trim(), state.password)
                 if (!response.user.role.isAdmin) {
                     throw IllegalStateException("Login failed")
                 }
+                reset()
                 onLoggedIn(response)
             } catch (t: Throwable) {
-                _uiState.update { it.copy(loginError = t.message ?: "Login failed") }
+                _uiState.update { it.copy(error = t.message ?: loginFailedText) }
             } finally {
-                _uiState.update { it.copy(isLoggingIn = false) }
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    fun reset() {
+        _uiState.value = LoginUiState()
     }
 }
 
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
-    val isLoggingIn: Boolean = false,
-    val loginError: String? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null,
 )
