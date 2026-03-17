@@ -44,6 +44,7 @@ class RegisterViewModel : ViewModel() {
                         address = state.address.trim(),
                     ),
                 )
+                reset()
                 onRegistered(resp)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: "Registration failed") }
@@ -53,8 +54,8 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
+    fun reset() {
+        _uiState.value = RegisterUiState()
     }
 }
 
