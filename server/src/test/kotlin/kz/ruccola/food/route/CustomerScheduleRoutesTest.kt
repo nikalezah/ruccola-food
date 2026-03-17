@@ -23,7 +23,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class CustomerWeekRoutesTest {
+class CustomerScheduleRoutesTest {
     @BeforeTest
     fun setup() {
         initializeTestDatabase()
@@ -79,7 +79,7 @@ class CustomerWeekRoutesTest {
                 }
             }
 
-            val resp = client.get("/api/customers/week") { authHeader(token) }
+            val resp = client.get("/api/customers/schedule") { authHeader(token) }
             assertEquals(HttpStatusCode.OK, resp.status)
             val arr = Json.parseToJsonElement(resp.bodyAsText()).jsonArray
             assertEquals(7, arr.size)

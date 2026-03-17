@@ -1,6 +1,5 @@
 package kz.ruccola.food.route
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.resources.get
 import io.ktor.server.resources.post
 import io.ktor.server.response.respond
@@ -22,15 +21,6 @@ fun Route.configureDayRoutes() {
         get<Days> {
             val days = dayService.getAllDays()
             call.respond(days)
-        }
-
-        get<Days.Id.Dishes> { dish ->
-            val result = dayService.getDishesForDay(dish.parent.id)
-            result.onSuccess {
-                call.respond(it)
-            }.onFailure {
-                call.respond(HttpStatusCode.NotFound, "Day not found")
-            }
         }
 
         post<Days.Midnight> {

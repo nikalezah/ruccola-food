@@ -71,34 +71,32 @@ class DayService {
 
     suspend fun getAllDays(): List<DayDto> =
         dbQuery {
-            Days.selectAll()
+            val days = Days.selectAll()
                 .orderBy(Days.date to SortOrder.ASC)
                 .map(::toDto)
                 .toList()
-        }
 
-    suspend fun getDishesForDay(dayId: Int): Result<List<DishWithMealDto>> =
-        dbQuery {
-            val dayExists = Days.selectAll().where { Days.id eq dayId }.empty().not()
-            if (!dayExists) return@dbQuery Result.failure(NoSuchElementException("Day not found"))
+            val dayIds = days.map { it.id }
 
-            val rows = DayDishes.selectAll().where { DayDishes.dayId eq dayId }.toList()
-
-            val ids = rows.map { it[DayDishes.dishId].value }.distinct()
-
-            val dishMap = Dishes.selectAll().where { Dishes.id inList ids }
+            val dishRows = (DayDishes innerJoin Dishes).selectAll()
+                .where { DayDishes.dayId inList dayIds }
                 .toList()
-                .map { dishService.toDto(it) }
-                .associateBy { it.id }
 
-            val list = rows.mapNotNull { row ->
-                val dishIdVal = row[DayDishes.dishId].value
-                val dish = dishMap[dishIdVal]
+            val dishesByDayId = mutableMapOf<Int, MutableList<DishWithMealDto>>()
+
+            for (row in dishRows) {
+                val dayId = row[DayDishes.dayId].value
+                val dish = dishService.toDto(row)
                 val mealStr = row[DayDishes.meal]
-                val meal = runCatching { Meal.valueOf(mealStr) }.getOrElse { null }
-                if (dish != null && meal != null) DishWithMealDto(dish, meal) else null
+                val meal = runCatching { Meal.valueOf(mealStr) }.getOrNull()
+                if (meal != null) {
+                    dishesByDayId.getOrPut(dayId) { mutableListOf() }.add(DishWithMealDto(dish, meal))
+                }
             }
-            Result.success(list)
+
+            days.map { day ->
+                day.copy(dishes = dishesByDayId[day.id] ?: emptyList())
+            }
         }
 
     suspend fun getLatestDate(): LocalDate? =

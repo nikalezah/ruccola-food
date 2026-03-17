@@ -13,7 +13,7 @@ import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerUpdateDto
 import kz.ruccola.food.api.Customers
 import kz.ruccola.food.api.Role
-import kz.ruccola.food.api.WeeklyPlanDayDto
+import kz.ruccola.food.api.ScheduledDayDto
 import kz.ruccola.food.service.CustomerService
 import kz.ruccola.food.service.MealPlanDayService
 import kz.ruccola.food.today
@@ -69,17 +69,17 @@ fun Route.configureCustomerRoutes() {
             }
         }
 
-        get<Customers.Week> {
+        get<Customers.Schedule> {
             val all = mpdService.getAll()
             // Determine starting MPD: current or first by serial
             val start = mpdService.getCurrent() ?: all.firstOrNull()
 
             val today = today()
-            val result = mutableListOf<WeeklyPlanDayDto>()
+            val result = mutableListOf<ScheduledDayDto>()
             if (all.isEmpty()) {
                 // Return 7 dates with empty dishes if there are no meal plan days
                 repeat(7) { i ->
-                    result.add(WeeklyPlanDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = emptyList()))
+                    result.add(ScheduledDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = emptyList()))
                 }
                 call.respond(result)
                 return@get
@@ -94,7 +94,7 @@ fun Route.configureCustomerRoutes() {
             repeat(7) { i ->
                 val mpd = ordered[idx]
                 val dishes = mpdService.getDishes(mpd.id).getOrElse { emptyList() }
-                result.add(WeeklyPlanDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = dishes))
+                result.add(ScheduledDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = dishes))
                 idx = (idx + 1) % ordered.size
             }
             call.respond(result)

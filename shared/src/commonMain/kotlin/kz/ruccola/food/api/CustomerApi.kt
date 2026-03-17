@@ -27,8 +27,8 @@ class Customers {
         val parent: Customers = Customers(),
     )
 
-    @Resource("week")
-    class Week(
+    @Resource("schedule")
+    class Schedule(
         val parent: Customers = Customers(),
     )
 }
@@ -84,7 +84,7 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun getWeek(): List<WeeklyPlanDayDto> = client.get(Customers.Week()).body()
+    suspend fun getSchedule(): List<ScheduledDayDto> = client.get(Customers.Schedule()).body()
 }
 
 @Serializable
@@ -123,7 +123,7 @@ data class CustomerPlanCreateDto(
 )
 
 @Serializable
-data class WeeklyPlanDayDto(
+data class ScheduledDayDto(
     val date: LocalDate,
     val dishes: List<DishWithMealDto>,
 )

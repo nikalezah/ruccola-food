@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.CustomerApi
-import kz.ruccola.food.api.WeeklyPlanDayDto
+import kz.ruccola.food.api.ScheduledDayDto
 
 class ScheduleViewModel : ViewModel() {
     private val api = CustomerApi()
@@ -24,7 +24,7 @@ class ScheduleViewModel : ViewModel() {
                 _uiState.update { it.copy(isLoading = true, error = null) }
             }
             try {
-                val week = api.getWeek()
+                val week = api.getSchedule()
                 _uiState.update { it.copy(week = week, error = null) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: e.toString()) }
@@ -36,7 +36,7 @@ class ScheduleViewModel : ViewModel() {
 }
 
 data class ScheduleUiState(
-    val week: List<WeeklyPlanDayDto>? = null,
+    val week: List<ScheduledDayDto>? = null,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val error: String? = null,

@@ -11,18 +11,6 @@ import kotlinx.serialization.Serializable
 
 @Resource("days")
 class Days {
-    @Resource("id")
-    class Id(
-        val parent: Days = Days(),
-        val id: Int,
-    ) {
-        @Resource("dishes")
-        class Dishes(
-            val parent: Id,
-        )
-    }
-
-    // todo: remove
     // Dev/testing endpoint that triggers midnight functions
     @Resource("midnight")
     class Midnight(
@@ -35,9 +23,6 @@ class DayApi(
 ) {
     suspend fun getAllDays(): List<DayDto> = client.get(Days()).body()
 
-    suspend fun getDishes(dayId: Int): List<DishWithMealDto> =
-        client.get(Days.Id.Dishes(parent = Days.Id(id = dayId))).body()
-
     suspend fun triggerMidnight(): String {
         // Ignore the provided currentDate; server computes the next date internally
         return client.post(Days.Midnight()).body()
@@ -49,4 +34,5 @@ data class DayDto(
     val id: Int,
     @Serializable(with = LocalDateIso8601Serializer::class)
     val date: LocalDate,
+    val dishes: List<DishWithMealDto> = emptyList(),
 )
