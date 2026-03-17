@@ -38,7 +38,7 @@ fun testApp(block: suspend ApplicationTestBuilder.(HttpClient) -> Unit) =
 suspend fun HttpClient.loginAdmin(): String {
     val response = post("/api/auth/login") {
         contentType(ContentType.Application.Json)
-        setBody(LoginRequestDto("admin@ruccola.food", "admin"))
+        setBody(LoginRequestDto("admin@gmail.com", "123qwe"))
     }
     if (response.status != HttpStatusCode.OK) {
         throw IllegalStateException("Failed to login as admin: ${response.status}")
