@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -216,35 +217,39 @@ fun MealPlanDayEditorScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             } else {
                 localDishes.forEach { d ->
-                    val onDelete: () -> Unit = {
-                        localDishIdToMeal.remove(d.dish.id)
-                        localDishes.removeAll { it.dish.id == d.dish.id }
-                    }
-                    SwipeToRemove(Icons.Filled.Delete, stringResource(Res.string.delete), onDelete) {
-                        ListItem(
-                            leadingContent = {
-                                val imageUrl = d.dish.images.firstOrNull()?.url
-                                if (imageUrl != null) {
-                                    AsyncImage(
-                                        model = dishImageUrl(imageUrl),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                    key(d.dish.id) {
+                        val onDelete: () -> Unit = {
+                            localDishIdToMeal.remove(d.dish.id)
+                            localDishes.removeAll { it.dish.id == d.dish.id }
+                        }
+                        SwipeToRemove(Icons.Filled.Delete, stringResource(Res.string.delete), onDelete) {
+                            ListItem(
+                                leadingContent = {
+                                    val imageUrl = d.dish.images.firstOrNull()?.url
+                                    if (imageUrl != null) {
+                                        AsyncImage(
+                                            model = dishImageUrl(imageUrl),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                                        )
+                                    }
+                                },
+                                headlineContent = { SingleLineText(d.dish.name) },
+                                supportingContent = { SingleLineText(d.dish.description) },
+                                trailingContent = {
+                                    val timeText = d.meal.time.let {
+                                        "${it.hour.toString().padStart(2, '0')}:${
+                                            it.minute.toString().padStart(2, '0')
+                                        }"
+                                    }
+                                    Text(
+                                        "${timeText}\n${d.meal.toLocalizedString().replaceFirst(' ', '\n')}",
+                                        textAlign = TextAlign.End,
+                                        style = MaterialTheme.typography.labelMedium,
                                     )
-                                }
-                            },
-                            headlineContent = { SingleLineText(d.dish.name) },
-                            supportingContent = { SingleLineText(d.dish.description) },
-                            trailingContent = {
-                                val timeText = d.meal.time.let {
-                                    "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}"
-                                }
-                                Text(
-                                    "${timeText}\n${d.meal.toLocalizedString().replaceFirst(' ', '\n')}",
-                                    textAlign = TextAlign.End,
-                                    style = MaterialTheme.typography.labelMedium,
-                                )
-                            },
-                        )
+                                },
+                            )
+                        }
                     }
                 }
             }
