@@ -165,9 +165,7 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
                                     supportingContent = { SingleLineText(d.dish.description) },
                                     trailingContent = {
                                         Text(
-                                            "${d.meal.time}\n${
-                                                stringResource(d.meal.toResource()).replaceFirst(' ', '\n')
-                                            }",
+                                            "${d.meal.time}\n${d.meal.toLocalizedString().replaceFirst(' ', '\n')}",
                                             textAlign = TextAlign.End,
                                         )
                                     },
@@ -183,11 +181,12 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
     }
 }
 
-private fun Meal.toResource() =
+@Composable
+private fun Meal.toLocalizedString() =
     when (this) {
-        Meal.BREAKFAST -> Res.string.meal_breakfast
-        Meal.BRUNCH -> Res.string.meal_brunch
-        Meal.LAUNCH -> Res.string.meal_lunch
-        Meal.AFTERNOON_SNACK -> Res.string.meal_afternoon_snack
-        Meal.DINNER -> Res.string.meal_dinner
+        Meal.BREAKFAST -> stringResource(Res.string.meal_breakfast)
+        Meal.BRUNCH -> stringResource(Res.string.meal_brunch)
+        Meal.LAUNCH -> stringResource(Res.string.meal_lunch)
+        Meal.AFTERNOON_SNACK -> stringResource(Res.string.meal_afternoon_snack)
+        Meal.DINNER -> stringResource(Res.string.meal_dinner)
     }
