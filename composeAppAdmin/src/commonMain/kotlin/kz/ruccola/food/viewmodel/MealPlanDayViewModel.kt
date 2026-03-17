@@ -80,10 +80,12 @@ class MealPlanDayViewModel : ViewModel() {
                 if (success) {
                     loadAll()
                 } else {
-                    _uiState.update { it.copy(error = "Failed to delete", isSaving = false) }
+                    _uiState.update { it.copy(error = "Failed to delete") }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isSaving = false) }
+                _uiState.update { it.copy(error = e.message) }
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
             }
         }
     }
@@ -95,7 +97,9 @@ class MealPlanDayViewModel : ViewModel() {
                 api.setCurrent(id)
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isSaving = false) }
+                _uiState.update { it.copy(error = e.message) }
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
             }
         }
     }
@@ -112,7 +116,9 @@ class MealPlanDayViewModel : ViewModel() {
                 api.reorder(newOrderIds)
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Failed to apply new order", isSaving = false) }
+                _uiState.update { it.copy(error = e.message ?: "Failed to apply new order") }
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
             }
         }
     }

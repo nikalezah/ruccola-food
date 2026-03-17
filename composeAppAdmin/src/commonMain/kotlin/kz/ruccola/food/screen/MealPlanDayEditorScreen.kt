@@ -90,34 +90,14 @@ fun MealPlanDayEditorScreen(
     val localDishes = remember { mutableStateListOf<DishWithMealDto>() }
     var initialized by remember { mutableStateOf(false) }
 
-    // Initialize from a server for editing or empty for creating
-    LaunchedEffect(mealPlanDay) {
-        initialized = false
+    LaunchedEffect(mealPlanDay?.id) {
         localDishIdToMeal.clear()
         localDishes.clear()
-        if (mealPlanDay != null) {
-            if (mealPlanDay.dishes.isNotEmpty()) {
-                mealPlanDay.dishes.forEach { d ->
-                    localDishIdToMeal[d.dish.id] = d.meal
-                    localDishes.add(d)
-                }
-                initialized = true
-            }
-        } else {
-            initialized = true
+        mealPlanDay?.dishes?.forEach { d ->
+            localDishIdToMeal[d.dish.id] = d.meal
+            localDishes.add(d)
         }
-    }
-
-    LaunchedEffect(state.selectedDishes) {
-        if (!initialized && mealPlanDay != null && state.selectedDishesForId == mealPlanDay.id) {
-            localDishIdToMeal.clear()
-            localDishes.clear()
-            state.selectedDishes.forEach { d ->
-                localDishIdToMeal[d.dish.id] = d.meal
-                localDishes.add(d)
-            }
-            initialized = true
-        }
+        initialized = true
     }
 
     fun save() {
