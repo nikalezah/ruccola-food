@@ -21,8 +21,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,7 +40,6 @@ import food.composeappadmin.generated.resources.add
 import food.composeappadmin.generated.resources.archive
 import food.composeappadmin.generated.resources.error
 import food.composeappadmin.generated.resources.error_prefix
-import food.composeappadmin.generated.resources.loading
 import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_dishes
@@ -50,6 +47,7 @@ import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.PullToRefresh
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishViewModel
@@ -65,8 +63,7 @@ fun DishScreen() {
     var editingDish by remember { mutableStateOf<DishDto?>(null) }
 
     val ptrState = rememberPullToRefreshState()
-    val threshold = 100.dp
-    val thresholdPx = with(LocalDensity.current) { threshold.toPx() }
+    val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
     Scaffold(
         topBar = {
@@ -89,31 +86,13 @@ fun DishScreen() {
             }
         },
     ) { paddingValues ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = uiState.isLoading,
             onRefresh = { viewModel.loadDishes() },
             modifier = Modifier.fillMaxSize().padding(paddingValues),
             state = ptrState,
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    state = ptrState,
-                    isRefreshing = uiState.isLoading,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            },
         ) {
             when {
-                uiState.isLoading -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(stringResource(Res.string.loading))
-                    }
-                }
-
                 uiState.error != null -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center),

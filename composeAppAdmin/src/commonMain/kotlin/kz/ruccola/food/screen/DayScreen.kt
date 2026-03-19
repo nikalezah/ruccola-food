@@ -22,12 +22,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
@@ -41,6 +43,7 @@ import food.composeappadmin.generated.resources.screen_history_title
 import food.composeappadmin.generated.resources.triggering_midnight
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.PullToRefresh
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.DayViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -50,6 +53,9 @@ import org.jetbrains.compose.resources.stringResource
 fun DayScreen(onClose: () -> Unit) {
     val vm: DayViewModel = viewModel(factory = DayViewModel.Factory)
     val state by vm.uiState.collectAsState()
+
+    val ptrState = rememberPullToRefreshState()
+    val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
     Scaffold(
         topBar = {
@@ -71,16 +77,13 @@ fun DayScreen(onClose: () -> Unit) {
             )
         },
     ) { padding ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = state.isLoading,
             onRefresh = { vm.loadDays() },
             modifier = Modifier.fillMaxSize().padding(padding),
+            state = ptrState,
         ) {
             when {
-                state.isLoading && state.days.isEmpty() -> {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                }
-
                 state.error != null -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
@@ -95,7 +98,7 @@ fun DayScreen(onClose: () -> Unit) {
                     }
                 }
 
-                state.days.isEmpty() -> {
+                !state.isLoading && state.days.isEmpty() -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -111,7 +114,9 @@ fun DayScreen(onClose: () -> Unit) {
 
                 else -> {
                     LazyColumn(
-                        Modifier.fillMaxSize().padding(16.dp),
+                        Modifier.fillMaxSize().padding(16.dp).graphicsLayer {
+                            translationY = ptrState.distanceFraction * thresholdPx
+                        },
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(state.days) { day ->

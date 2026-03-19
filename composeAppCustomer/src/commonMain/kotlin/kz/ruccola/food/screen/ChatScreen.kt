@@ -10,8 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,33 +62,24 @@ fun ChatScreen(
                     },
                 )
             },
-        ) { padding ->
-            val pullToRefreshState = rememberPullToRefreshState()
-
-            PullToRefreshBox(
-                isRefreshing = uiState.isRefreshing,
-                onRefresh = { viewModel.loadChat(isRefreshing = true) },
-                state = pullToRefreshState,
-                modifier = Modifier.fillMaxSize().padding(padding),
-            ) {
-                ChatUi(
-                    messages = uiState.messages,
-                    messageBody = messageBody,
-                    onMessageBodyChange = { messageBody = it },
-                    onSendMessage = {
-                        viewModel.sendMessage(messageBody)
-                        messageBody = ""
-                    },
-                    placeholder = stringResource(Res.string.chat_placeholder),
-                    emptyText = stringResource(Res.string.chat_empty),
-                    errorText = errorText,
-                    isLoading = uiState.isLoading,
-                    inputEnabled = true,
-                    sendEnabled = true,
-                    locale = "ru-RU", // Default locale as used in RuStrings, ideally this should also be a resource or dynamic
-                    modifier = Modifier.fillMaxSize().padding(12.dp),
-                )
-            }
+        ) {
+            ChatUi(
+                messages = uiState.messages,
+                messageBody = messageBody,
+                onMessageBodyChange = { messageBody = it },
+                onSendMessage = {
+                    viewModel.sendMessage(messageBody)
+                    messageBody = ""
+                },
+                placeholder = stringResource(Res.string.chat_placeholder),
+                emptyText = stringResource(Res.string.chat_empty),
+                errorText = errorText,
+                isLoading = uiState.isLoading,
+                inputEnabled = true,
+                sendEnabled = true,
+                locale = "ru-RU", // Default locale as used in RuStrings, ideally this should also be a resource or dynamic
+                modifier = Modifier.fillMaxSize().padding(12.dp),
+            )
         }
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
@@ -65,6 +66,7 @@ import kz.ruccola.food.api.PlanDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 import kz.ruccola.food.ui.FabMenu
+import kz.ruccola.food.ui.PullToRefresh
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.PlanViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -86,6 +88,9 @@ fun PlanScreen() {
 
     val noVariants = remember(state.items) { state.items.filter { !it.allowVariantChoice } }
     val withVariants = remember(state.items) { state.items.filter { it.allowVariantChoice } }
+
+    val ptrState = rememberPullToRefreshState()
+    val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
     Scaffold(
         topBar = {
@@ -114,12 +119,17 @@ fun PlanScreen() {
             )
         },
     ) { padding ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = state.isLoading,
             onRefresh = { vm.loadAll() },
             modifier = Modifier.fillMaxSize().padding(padding),
+            state = ptrState,
         ) {
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).graphicsLayer {
+                    translationY = ptrState.distanceFraction * thresholdPx
+                },
+            ) {
                 PrimaryTabRow(selectedTabIndex = selectedTab) {
                     Tab(
                         selected = selectedTab == 0,
@@ -134,9 +144,7 @@ fun PlanScreen() {
                 }
 
                 Box(Modifier.fillMaxSize()) {
-                    if (state.isLoading && state.items.isEmpty()) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    } else if (state.error != null && state.items.isEmpty()) {
+                    if (state.error != null && state.items.isEmpty()) {
                         Column(
                             Modifier.align(Alignment.Center).padding(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -252,10 +260,7 @@ fun PlansTable(
                                 modifier = Modifier.clickable { onEmptyCellClick(cal, d) },
                             ) {
                                 Box(Modifier.fillMaxWidth().padding(10.dp)) {
-                                    Text(
-                                        "—",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
+                                    Text("—", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         } else {

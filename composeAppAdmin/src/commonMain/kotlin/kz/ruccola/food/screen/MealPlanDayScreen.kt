@@ -32,7 +32,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,10 +44,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
-import food.composeappadmin.generated.resources.add
 import food.composeappadmin.generated.resources.delete
 import food.composeappadmin.generated.resources.error_prefix
 import food.composeappadmin.generated.resources.no_data
@@ -57,6 +58,7 @@ import food.composeappadmin.generated.resources.screen_history_title
 import food.composeappadmin.generated.resources.tab_schedule
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.PullToRefresh
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.MealPlanDayViewModel
@@ -72,6 +74,9 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
     var editingDay by remember { mutableStateOf<MealPlanDayDto?>(null) }
     var nextSerial by remember { mutableIntStateOf(1) }
     var reorderMode by remember { mutableStateOf(false) }
+
+    val ptrState = rememberPullToRefreshState()
+    val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
     // Local working copy for reordering
     val workingList = remember { mutableStateListOf<MealPlanDayDto>() }
@@ -136,16 +141,13 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
             }
         },
     ) { padding ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = state.isLoading,
             onRefresh = { vm.loadAll() },
             modifier = Modifier.fillMaxSize().padding(padding),
+            state = ptrState,
         ) {
             when {
-                state.isLoading && state.items.isEmpty() -> {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                }
-
                 state.error != null -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
@@ -160,17 +162,12 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                     }
                 }
 
-                state.items.isEmpty() -> {
+                !state.isLoading && state.items.isEmpty() -> {
                     Column(
                         Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(stringResource(Res.string.no_items))
-                        Spacer(Modifier.height(16.dp))
-                        Button(onClick = {
-                            editingDay = null
-                            showEditor = true
-                        }) { Text(stringResource(Res.string.add)) }
                     }
                 }
 
@@ -179,7 +176,9 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                         state.items.mapIndexed { index, day -> day.id to (index + 1) }.toMap()
                     }
                     LazyColumn(
-                        Modifier.fillMaxSize().padding(16.dp),
+                        Modifier.fillMaxSize().padding(16.dp).graphicsLayer {
+                            translationY = ptrState.distanceFraction * thresholdPx
+                        },
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         itemsIndexed(workingList, key = { _, it -> it.id }) { index, day ->
