@@ -1,6 +1,7 @@
 package kz.ruccola.food
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,18 @@ fun AdminApp() {
 
     LaunchedEffect(token) {
         TokenProvider.token = token
+    }
+
+    DisposableEffect(Unit) {
+        TokenProvider.onUnauthorized = {
+            role = null
+            token = null
+            window.localStorage.removeItem("admin.role")
+            window.localStorage.removeItem("admin.token")
+        }
+        onDispose {
+            TokenProvider.onUnauthorized = null
+        }
     }
 
     App(

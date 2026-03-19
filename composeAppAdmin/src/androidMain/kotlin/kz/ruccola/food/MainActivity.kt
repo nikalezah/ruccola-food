@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
+import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +41,20 @@ class MainActivity : ComponentActivity() {
                     token = loginTokenPref
                 }
                 loginLoading = false
+            }
+
+            DisposableEffect(Unit) {
+                TokenProvider.onUnauthorized = {
+                    scope.launch {
+                        role = null
+                        token = null
+                        AppPreferences.setRole(context, null)
+                        AppPreferences.setToken(context, null)
+                    }
+                }
+                onDispose {
+                    TokenProvider.onUnauthorized = null
+                }
             }
 
             App(

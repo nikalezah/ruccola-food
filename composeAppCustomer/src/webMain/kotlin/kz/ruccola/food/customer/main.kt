@@ -1,5 +1,6 @@
 package kz.ruccola.food.customer
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,16 @@ fun main() {
 
         LaunchedEffect(token) {
             TokenProvider.token = token
+        }
+
+        DisposableEffect(Unit) {
+            TokenProvider.onUnauthorized = {
+                token = null
+                window.localStorage.removeItem("customer.token")
+            }
+            onDispose {
+                TokenProvider.onUnauthorized = null
+            }
         }
 
         App(

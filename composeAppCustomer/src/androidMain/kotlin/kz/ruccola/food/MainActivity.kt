@@ -5,12 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
+import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
 class MainActivity : ComponentActivity() {
@@ -34,6 +36,17 @@ class MainActivity : ComponentActivity() {
 
             val token by AppPreferences.tokenFlow(context)
                 .collectAsState(initial = null)
+
+            DisposableEffect(Unit) {
+                TokenProvider.onUnauthorized = {
+                    scope.launch {
+                        AppPreferences.setToken(context, null)
+                    }
+                }
+                onDispose {
+                    TokenProvider.onUnauthorized = null
+                }
+            }
 
             App(
                 token = token,
