@@ -67,10 +67,14 @@ class DishRoutesTest {
                     assertEquals(HttpStatusCode.OK, status)
 
                     val responseText = bodyAsText()
-                    val jsonArray = Json.parseToJsonElement(responseText).jsonArray
+                    val jsonObject = Json.parseToJsonElement(responseText).jsonObject
+                    val jsonArray = jsonObject["items"]!!.jsonArray
 
                     // Verify we have 2 dishes
                     assertEquals(2, jsonArray.size)
+                    assertEquals(2, jsonObject["totalCount"]!!.jsonPrimitive.int)
+                    assertEquals(0, jsonObject["page"]!!.jsonPrimitive.int)
+                    assertEquals(20, jsonObject["size"]!!.jsonPrimitive.int)
 
                     // Verify the first dish has the expected properties
                     val firstDish = jsonArray[0].jsonObject

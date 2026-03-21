@@ -17,6 +17,13 @@ import kotlinx.serialization.Serializable
 
 @Resource("dishes")
 class Dishes {
+    @Resource("")
+    class List(
+        val parent: Dishes = Dishes(),
+        val page: Int = 0,
+        val size: Int = 20,
+    )
+
     @Resource("{id}")
     class Id(
         val parent: Dishes = Dishes(),
@@ -48,7 +55,10 @@ class Dishes {
 class DishApi(
     private val client: HttpClient = httpClient,
 ) {
-    suspend fun getAllDishes(): List<DishDto> = client.get(Dishes()).body()
+    suspend fun getAllDishes(
+        page: Int = 0,
+        size: Int = 20,
+    ): PagingResponse<DishDto> = client.get(Dishes.List(page = page, size = size)).body()
 
     suspend fun getDishById(id: Int): DishDto = client.get(Dishes.Id(id = id)).body()
 

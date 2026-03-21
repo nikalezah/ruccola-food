@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.toList
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishImageDto
 import kz.ruccola.food.api.DishVariantDto
+import kz.ruccola.food.api.PagingResponse
 import kz.ruccola.food.dbQuery
 import kz.ruccola.food.model.DishImages
 import kz.ruccola.food.model.DishVariantCustomers
@@ -16,6 +17,7 @@ import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
 import kz.ruccola.food.now
 import kz.ruccola.food.service.FileService.Companion.FILES_URL_PREFIX
+import kz.ruccola.food.toPagingResponse
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -142,12 +144,15 @@ class DishService {
             true
         }
 
-    suspend fun getAll(): List<DishDto> =
+    suspend fun getAll(
+        page: Int = 0,
+        size: Int = 20,
+    ): PagingResponse<DishDto> =
         dbQuery {
-            Dishes.selectAll().where { Dishes.archived eq false }
+            Dishes.selectAll()
+                .where { Dishes.archived eq false }
                 .orderBy(Dishes.id to SortOrder.ASC)
-                .toList()
-                .map { toDto(it) }
+                .toPagingResponse(page, size) { toDto(it) }
         }
 
     suspend fun findById(id: Int): DishDto? =

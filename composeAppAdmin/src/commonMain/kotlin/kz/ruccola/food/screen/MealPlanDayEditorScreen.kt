@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -46,6 +45,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import food.composeappadmin.generated.resources.Res
 import food.composeappadmin.generated.resources.cancel
 import food.composeappadmin.generated.resources.close
@@ -84,7 +86,7 @@ fun MealPlanDayEditorScreen(
     val vm: MealPlanDayViewModel = viewModel(factory = MealPlanDayViewModel.Factory)
     val dishVm: DishViewModel = viewModel(factory = DishViewModel.Factory)
     val state by vm.uiState.collectAsState()
-    val dishState by dishVm.uiState.collectAsState()
+    val pagedDishes = dishVm.dishes.collectAsLazyPagingItems()
 
     // Local staged state
     val localDishIdToMeal = remember { mutableStateMapOf<Int, Meal>() }
@@ -141,22 +143,21 @@ fun MealPlanDayEditorScreen(
 
                 if (showPickerForMeal != null) {
                     val mealToPick = showPickerForMeal!!
-                    LaunchedEffect(Unit) {
-                        dishVm.loadDishes()
-                    }
 
                     AlertDialog(
                         onDismissRequest = { showPickerForMeal = null },
                         title = { Text(stringResource(Res.string.pick_dish_for, mealToPick.toLocalizedString())) },
                         text = {
                             Box(modifier = Modifier.sizeIn(minWidth = 300.dp, maxWidth = 500.dp, maxHeight = 400.dp)) {
-                                if (dishState.isLoading) {
+                                if (pagedDishes.loadState.refresh is LoadState.Loading) {
                                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                                } else if (dishState.error != null) {
-                                    Text(dishState.error!!, color = MaterialTheme.colorScheme.error)
                                 } else {
                                     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        items(dishState.dishes) { dish ->
+                                        items(
+                                            count = pagedDishes.itemCount,
+                                            key = pagedDishes.itemKey { it.id },
+                                        ) { index ->
+                                            val dish = pagedDishes[index] ?: return@items
                                             OutlinedCard(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 onClick = {

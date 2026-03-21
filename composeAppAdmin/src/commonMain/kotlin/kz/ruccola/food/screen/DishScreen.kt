@@ -1,18 +1,20 @@
 package kz.ruccola.food.screen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
@@ -23,7 +25,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import food.composeappadmin.generated.resources.Res
 import food.composeappadmin.generated.resources.add
 import food.composeappadmin.generated.resources.archive
@@ -57,7 +61,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun DishScreen() {
     val viewModel: DishViewModel = viewModel(factory = DishViewModel.Factory)
-    val uiState by viewModel.uiState.collectAsState()
+    val dishes = viewModel.dishes.collectAsLazyPagingItems()
 
     var editorVisible by remember { mutableStateOf(false) }
     var editingDish by remember { mutableStateOf<DishDto?>(null) }
@@ -87,27 +91,27 @@ fun DishScreen() {
         },
     ) { paddingValues ->
         PullToRefresh(
-            isRefreshing = uiState.isLoading,
-            onRefresh = { viewModel.loadDishes() },
+            isRefreshing = dishes.loadState.refresh is LoadState.Loading,
+            onRefresh = { dishes.refresh() },
             modifier = Modifier.fillMaxSize().padding(paddingValues),
             state = ptrState,
         ) {
             when {
-                uiState.error != null -> {
+                dishes.loadState.refresh is LoadState.Error -> {
+                    val error = (dishes.loadState.refresh as LoadState.Error).error
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            stringResource(Res.string.error_prefix, uiState.error ?: stringResource(Res.string.error)),
+                            stringResource(Res.string.error_prefix, error.message ?: stringResource(Res.string.error)),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.error,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
                             onClick = {
-                                viewModel.clearError()
-                                viewModel.loadDishes()
+                                dishes.refresh()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
@@ -123,7 +127,7 @@ fun DishScreen() {
                     }
                 }
 
-                uiState.dishes.isEmpty() -> {
+                dishes.itemCount == 0 && dishes.loadState.refresh !is LoadState.Loading -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -138,15 +142,35 @@ fun DishScreen() {
                             translationY = ptrState.distanceFraction * thresholdPx
                         },
                     ) {
-                        items(uiState.dishes, key = { it.id }) { dish ->
-                            DishListItem(
-                                dish = dish,
-                                onEdit = {
-                                    editingDish = dish
-                                    editorVisible = true
-                                },
-                                onArchive = { viewModel.archiveDish(dish.id) },
-                            )
+                        items(
+                            count = dishes.itemCount,
+                            key = dishes.itemKey { it.id },
+                        ) { index ->
+                            val dish = dishes[index]
+                            if (dish != null) {
+                                DishListItem(
+                                    dish = dish,
+                                    onEdit = {
+                                        editingDish = dish
+                                        editorVisible = true
+                                    },
+                                    onArchive = {
+                                        viewModel.archiveDish(dish.id)
+                                        dishes.refresh()
+                                    },
+                                )
+                            }
+                        }
+
+                        if (dishes.loadState.append is LoadState.Loading) {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 }
@@ -159,7 +183,7 @@ fun DishScreen() {
                 onClose = {
                     editorVisible = false
                     editingDish = null
-                    viewModel.loadDishes()
+                    dishes.refresh()
                 },
             )
         }

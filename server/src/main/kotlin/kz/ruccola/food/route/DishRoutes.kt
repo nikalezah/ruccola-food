@@ -29,8 +29,8 @@ fun Route.configureDishRoutes() {
     }
 
     withRole(Role.ADMIN) {
-        get<Dishes> {
-            call.respond(dishService.getAll())
+        get<Dishes.List> { dishes ->
+            call.respond(dishService.getAll(dishes.page, dishes.size))
         }
 
         post<Dishes> {

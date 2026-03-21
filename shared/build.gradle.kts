@@ -59,6 +59,7 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.androidx.paging.common)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

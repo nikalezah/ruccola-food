@@ -9,15 +9,16 @@ androidx-appcompat = "1.7.1"
 androidx-core = "1.18.0"
 androidx-datastore = "1.2.1"
 androidx-lifecycle = "2.9.6"
+androidx-paging = "3.5.0-alpha01"
 desugar-jdk = "2.1.5"
 coil-compose = "2.7.0"
 compose-multiplatform = "1.10.2"
 compose-material3 = "1.10.0-alpha05"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 kotlinx-browser = "0.5.0"
 kotlinx-datetime = "0.7.1"
 kotlinx-serialization = "1.10.0"
-ktlint = "14.1.0"
+ktlint = "14.2.0"
 ktlint-engine = "1.8.0"
 ktor = "3.4.1"
 klogging = "0.11.7"
@@ -35,6 +36,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidx-paging" }
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "androidx-paging" }
 desugar-jdk = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk" }
 compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
