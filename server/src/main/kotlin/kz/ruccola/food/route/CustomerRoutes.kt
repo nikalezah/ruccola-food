@@ -12,6 +12,7 @@ import kotlinx.datetime.plus
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerUpdateDto
 import kz.ruccola.food.api.Customers
+import kz.ruccola.food.api.PagingResponse
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.api.ScheduledDayDto
 import kz.ruccola.food.service.CustomerService
@@ -69,7 +70,7 @@ fun Route.configureCustomerRoutes() {
             }
         }
 
-        get<Customers.Schedule> {
+        get<Customers.Schedule> { schedule ->
             val all = mpdService.getAll()
             // Determine starting MPD: current or first by serial
             val start = mpdService.getCurrent() ?: all.firstOrNull()
@@ -77,11 +78,18 @@ fun Route.configureCustomerRoutes() {
             val today = today()
             val result = mutableListOf<ScheduledDayDto>()
             if (all.isEmpty()) {
-                // Return 7 dates with empty dishes if there are no meal plan days
-                repeat(7) { i ->
+                // Return dates with empty dishes if there are no meal plan days
+                repeat(schedule.size) { i ->
                     result.add(ScheduledDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = emptyList()))
                 }
-                call.respond(result)
+                call.respond(
+                    PagingResponse(
+                        items = result,
+                        totalCount = schedule.size.toLong(),
+                        page = schedule.page,
+                        size = schedule.size,
+                    ),
+                )
                 return@get
             }
             val ordered = all.sortedBy { it.serial }
@@ -91,13 +99,20 @@ fun Route.configureCustomerRoutes() {
                 ?: 0
 
             var idx = startIndex
-            repeat(7) { i ->
+            repeat(schedule.size) { i ->
                 val mpd = ordered[idx]
                 val dishes = mpdService.getDishes(mpd.id).getOrElse { emptyList() }
                 result.add(ScheduledDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = dishes))
                 idx = (idx + 1) % ordered.size
             }
-            call.respond(result)
+            call.respond(
+                PagingResponse(
+                    items = result,
+                    totalCount = schedule.size.toLong(),
+                    page = schedule.page,
+                    size = schedule.size,
+                ),
+            )
         }
     }
 }

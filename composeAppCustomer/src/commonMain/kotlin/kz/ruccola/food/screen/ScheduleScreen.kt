@@ -82,9 +82,9 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
                 title = { Text(stringResource(Res.string.tab_schedule)) },
             )
         },
-    ) {
+    ) { padding ->
         when {
-            uiState.error != null && uiState.week == null -> Column(
+            uiState.error != null && uiState.scheduledDays == null -> Column(
                 modifier = Modifier.fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -99,14 +99,14 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
                 }
             }
 
-            uiState.isLoading && uiState.week == null -> Box(
+            uiState.isLoading && uiState.scheduledDays == null -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
 
-            uiState.week.isNullOrEmpty() -> Box(
+            uiState.scheduledDays.isNullOrEmpty() -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
@@ -114,10 +114,10 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
             }
 
             else -> LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(8.dp),
             ) {
-                items(uiState.week!!) { day ->
+                items(uiState.scheduledDays!!) { day ->
                     HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
                     // Header: Day of week + DD.MM.YYYY

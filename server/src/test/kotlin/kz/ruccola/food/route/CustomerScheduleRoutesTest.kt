@@ -1,6 +1,7 @@
 package kz.ruccola.food.route
 
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
@@ -79,10 +80,19 @@ class CustomerScheduleRoutesTest {
                 }
             }
 
-            val resp = client.get("/api/customers/schedule") { authHeader(token) }
+            val pageSize = 7
+            val resp = client.get("/api/customers/schedule") {
+                authHeader(token)
+                parameter("page", 0)
+                parameter("size", pageSize)
+            }
             assertEquals(HttpStatusCode.OK, resp.status)
-            val arr = Json.parseToJsonElement(resp.bodyAsText()).jsonArray
-            assertEquals(7, arr.size)
+            val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject
+            val arr = json["items"]!!.jsonArray
+            assertEquals(pageSize, arr.size)
+            assertEquals(pageSize, json["totalCount"]!!.jsonPrimitive.content.toInt())
+            assertEquals(0, json["page"]!!.jsonPrimitive.content.toInt())
+            assertEquals(pageSize, json["size"]!!.jsonPrimitive.content.toInt())
             // Day 0 should correspond to current (serial=2) and include dish B
             val day0Dishes = arr[0].jsonObject["dishes"]!!.jsonArray
             val names0 = day0Dishes.map { it.jsonObject["dish"]!!.jsonObject["name"]!!.jsonPrimitive.content }

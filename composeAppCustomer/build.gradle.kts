@@ -83,6 +83,8 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.androidx.paging.compose)
+            implementation(libs.androidx.paging.common)
             implementation(libs.kotlinx.datetime)
             implementation(projects.shared)
         }

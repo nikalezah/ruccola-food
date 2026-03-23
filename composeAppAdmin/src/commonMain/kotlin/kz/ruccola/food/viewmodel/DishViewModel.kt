@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.DishApi
 import kz.ruccola.food.api.DishDto
-import kz.ruccola.food.paging.DishPagingSource
+import kz.ruccola.food.paging.ApiPagingSource
 
 class DishViewModel : ViewModel() {
     private val dishApi = DishApi()
@@ -26,8 +26,9 @@ class DishViewModel : ViewModel() {
     val uiState: StateFlow<DishUiState> = _uiState.asStateFlow()
 
     val dishes: Flow<PagingData<DishDto>> =
-        Pager(PagingConfig(pageSize = 20, initialLoadSize = 20)) { DishPagingSource(dishApi) }
-            .flow.cachedIn(viewModelScope)
+        Pager(PagingConfig(pageSize = 20, initialLoadSize = 20)) {
+            ApiPagingSource { page, size -> dishApi.getAllDishes(page, size) }
+        }.flow.cachedIn(viewModelScope)
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

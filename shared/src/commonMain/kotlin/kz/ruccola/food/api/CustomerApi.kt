@@ -30,6 +30,8 @@ class Customers {
     @Resource("schedule")
     class Schedule(
         val parent: Customers = Customers(),
+        val page: Int = 0,
+        val size: Int = 20,
     )
 }
 
@@ -84,7 +86,10 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun getSchedule(): List<ScheduledDayDto> = client.get(Customers.Schedule()).body()
+    suspend fun getSchedule(
+        page: Int = 0,
+        size: Int = 20,
+    ): PagingResponse<ScheduledDayDto> = client.get(Customers.Schedule(page = page, size = size)).body()
 }
 
 @Serializable
