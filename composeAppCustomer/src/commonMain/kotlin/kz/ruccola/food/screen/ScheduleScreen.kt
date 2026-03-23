@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,8 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +32,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.error_prefix
 import food.composeappcustomer.generated.resources.loading
@@ -57,15 +57,11 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel() }) {
-    val uiState by viewModel.uiState.collectAsState()
+    val scheduledDays = viewModel.schedule.collectAsLazyPagingItems()
     val currentLocale = LocalLocale.current
 
     // Local navigation to dish details
     var selectedDishId by remember { mutableStateOf<Int?>(null) }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadSchedule()
-    }
 
     // Dish details view
     selectedDishId?.let { dishId ->
@@ -84,29 +80,33 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
         },
     ) { padding ->
         when {
-            uiState.error != null && uiState.scheduledDays == null -> Column(
+            scheduledDays.loadState.refresh is LoadState.Error -> Column(
                 modifier = Modifier.fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = stringResource(Res.string.error_prefix, uiState.error!!),
+                    text = stringResource(
+                        Res.string.error_prefix,
+                        (scheduledDays.loadState.refresh as LoadState.Error).error.message
+                            ?: stringResource(Res.string.loading),
+                    ),
                     color = MaterialTheme.colorScheme.error,
                 )
-                Button(onClick = { viewModel.loadSchedule() }) {
-                    Text(stringResource(Res.string.loading)) // Or a retry string if available
+                Button(onClick = { scheduledDays.refresh() }) {
+                    Text(stringResource(Res.string.loading)) // Retry
                 }
             }
 
-            uiState.isLoading && uiState.scheduledDays == null -> Box(
+            scheduledDays.loadState.refresh is LoadState.Loading && scheduledDays.itemCount == 0 -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
 
-            uiState.scheduledDays.isNullOrEmpty() -> Box(
+            scheduledDays.itemCount == 0 -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
@@ -117,7 +117,11 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(8.dp),
             ) {
-                items(uiState.scheduledDays!!) { day ->
+                items(
+                    count = scheduledDays.itemCount,
+                    key = scheduledDays.itemKey { it.date },
+                ) { index ->
+                    val day = scheduledDays[index] ?: return@items
                     HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
                     // Header: Day of week + DD.MM.YYYY
