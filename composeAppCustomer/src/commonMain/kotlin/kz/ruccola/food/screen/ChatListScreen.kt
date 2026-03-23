@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,8 +32,6 @@ import food.composeappcustomer.generated.resources.chat_empty
 import food.composeappcustomer.generated.resources.chat_support_title
 import food.composeappcustomer.generated.resources.error_prefix
 import food.composeappcustomer.generated.resources.screen_chat_list_title
-import kz.ruccola.food.ui.Badge
-import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.ChatViewModel

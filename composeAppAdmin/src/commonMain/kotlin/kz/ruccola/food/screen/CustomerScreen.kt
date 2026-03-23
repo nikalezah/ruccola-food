@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
@@ -42,8 +43,6 @@ import food.composeappadmin.generated.resources.no_customers_found
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_customers
 import kz.ruccola.food.api.CustomerDto
-import kz.ruccola.food.ui.Badge
-import kz.ruccola.food.ui.BadgedBox
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.CustomersViewModel
@@ -149,16 +148,7 @@ fun CustomerScreen(
                                         }
                                     }
                                     if (isUnread) {
-                                        BadgedBox(
-                                            badge = {
-                                                Badge {
-                                                    Text("1")
-                                                }
-                                            },
-                                            badgeOffset = DpOffset((-6).dp, 6.dp),
-                                        ) {
-                                            chatButton()
-                                        }
+                                        BadgedBox(badge = { Badge { Text("1") } }) { chatButton() }
                                     } else {
                                         chatButton()
                                     }
