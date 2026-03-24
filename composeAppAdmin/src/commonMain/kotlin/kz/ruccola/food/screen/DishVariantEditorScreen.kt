@@ -78,7 +78,7 @@ fun DishVariantEditorScreen(
                 actions = {
                     ApplyIconButton(
                         onClick = { viewModel.save() },
-                        enabled = uiState.description.isNotBlank() && !uiState.isBusy,
+                        enabled = uiState.hasChanges && uiState.description.isNotBlank() && !uiState.isBusy,
                         contentDescription = stringResource(Res.string.save),
                     )
                 },

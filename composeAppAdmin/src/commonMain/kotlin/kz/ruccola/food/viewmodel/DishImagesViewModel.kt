@@ -20,10 +20,14 @@ data class DishImageItem(
 data class DishImagesUiState(
     val dish: DishDto,
     val workingList: List<DishImageItem> = emptyList(),
+    val initialWorkingList: List<DishImageItem> = emptyList(),
     val isBusy: Boolean = false,
     val error: String? = null,
     val isSaved: Boolean = false,
-)
+) {
+    val hasChanges: Boolean
+        get() = workingList.map { it.fileId } != initialWorkingList.map { it.fileId }
+}
 
 class DishImagesViewModel(
     initialDish: DishDto,
@@ -31,10 +35,13 @@ class DishImagesViewModel(
     private val dishApi = DishApi()
     private val fileApi = FileApi()
 
+    private val initialWorkingList = initialDish.images.map { DishImageItem(it.fileId, it.url) }
+
     private val _uiState = MutableStateFlow(
         DishImagesUiState(
             dish = initialDish,
-            workingList = initialDish.images.map { DishImageItem(it.fileId, it.url) },
+            workingList = initialWorkingList,
+            initialWorkingList = initialWorkingList,
         ),
     )
     val uiState: StateFlow<DishImagesUiState> = _uiState.asStateFlow()
@@ -106,9 +113,5 @@ class DishImagesViewModel(
                 _uiState.update { it.copy(isBusy = false, error = e.message ?: "Failed to save") }
             }
         }
-    }
-
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
     }
 }

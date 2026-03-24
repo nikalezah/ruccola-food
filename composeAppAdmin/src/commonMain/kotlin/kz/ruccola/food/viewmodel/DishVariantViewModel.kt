@@ -15,13 +15,18 @@ import kz.ruccola.food.api.DishVariantSaveDto
 
 data class DishVariantUiState(
     val description: String = "",
+    val initialDescription: String = "",
+    val initialCustomerIds: Set<Int> = emptySet(),
     val isBusy: Boolean = false,
     val error: String? = null,
     val searchQuery: String = "",
     val allCustomers: List<CustomerDto>? = null,
     val selectedCustomerIds: Set<Int> = emptySet(),
     val savedVariant: DishVariantDto? = null,
-)
+) {
+    val hasChanges: Boolean
+        get() = description != initialDescription || selectedCustomerIds != initialCustomerIds
+}
 
 class DishVariantViewModel(
     private val dishId: Int,
@@ -34,7 +39,9 @@ class DishVariantViewModel(
     private val _uiState = MutableStateFlow(
         DishVariantUiState(
             description = existingVariant?.description ?: "",
+            initialDescription = existingVariant?.description ?: "",
             selectedCustomerIds = initialCustomerIds ?: existingVariant?.customerIds?.toSet() ?: emptySet(),
+            initialCustomerIds = initialCustomerIds ?: existingVariant?.customerIds?.toSet() ?: emptySet(),
         ),
     )
     val uiState: StateFlow<DishVariantUiState> = _uiState.asStateFlow()
@@ -98,9 +105,5 @@ class DishVariantViewModel(
                 _uiState.update { it.copy(isBusy = false) }
             }
         }
-    }
-
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
     }
 }

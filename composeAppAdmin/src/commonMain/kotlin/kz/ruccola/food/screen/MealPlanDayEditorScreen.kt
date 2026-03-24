@@ -103,6 +103,15 @@ fun MealPlanDayEditorScreen(
         initialized = true
     }
 
+    val initialDishIdToMeal = remember(mealPlanDay?.id) {
+        mealPlanDay?.dishes?.associate { it.dish.id to it.meal } ?: emptyMap()
+    }
+    val initialDishIds = remember(mealPlanDay?.id) {
+        mealPlanDay?.dishes?.map { it.dish.id }?.toSet() ?: emptySet()
+    }
+    val hasChanges = localDishIdToMeal.toMap() != initialDishIdToMeal ||
+        localDishes.map { it.dish.id }.toSet() != initialDishIds
+
     fun save() {
         vm.save(mealPlanDay?.id, localDishIdToMeal.toMap())
         onClose()
@@ -125,7 +134,7 @@ fun MealPlanDayEditorScreen(
                 actions = {
                     ApplyIconButton(
                         onClick = { save() },
-                        enabled = initialized && !state.isSaving,
+                        enabled = initialized && !state.isSaving && hasChanges,
                         contentDescription = stringResource(Res.string.save),
                     )
                 },

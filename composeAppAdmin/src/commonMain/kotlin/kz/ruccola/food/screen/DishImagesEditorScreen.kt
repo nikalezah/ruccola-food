@@ -83,7 +83,7 @@ fun DishImagesEditorScreen(
                 actions = {
                     ApplyIconButton(
                         onClick = { viewModel.save() },
-                        enabled = !uiState.isBusy,
+                        enabled = uiState.hasChanges && !uiState.isBusy,
                         contentDescription = stringResource(Res.string.save),
                     )
                 },
