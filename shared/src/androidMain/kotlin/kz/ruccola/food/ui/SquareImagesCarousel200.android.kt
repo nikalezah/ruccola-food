@@ -9,7 +9,6 @@ import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import kz.ruccola.food.dishImageUrl
 
 @OptIn(ExperimentalMaterial3Api::class)

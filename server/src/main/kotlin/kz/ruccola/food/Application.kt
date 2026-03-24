@@ -100,7 +100,9 @@ fun Application.module() {
     }
 
     routing {
-        staticFiles(FILES_URL_PREFIX, File(AppConfig.storagePath))
+        authenticate {
+            staticFiles(FILES_URL_PREFIX, File(AppConfig.storagePath))
+        }
         route("/api/") {
             configureAuthRoutes(jwtService)
             authenticate {
