@@ -1,7 +1,6 @@
 package kz.ruccola.food.service
 
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
@@ -19,6 +18,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insertReturning
 import org.jetbrains.exposed.v1.r2dbc.select
@@ -38,22 +38,29 @@ class CustomerService {
 
     suspend fun findAllWithDetails(): List<CustomerDto> =
         dbQuery {
-            // todo: implement with a single query
-            Customers.innerJoin(Users).selectAll()
-                .map {
-                    val latestCustomerPlanCalories = CustomerPlans.innerJoin(Plans).selectAll()
-                        .where { CustomerPlans.customer eq it[Customers.id].value }
-                        .orderBy(CustomerPlans.chosenDate to SortOrder.DESC)
-                        .firstOrNull()
-                        ?.get(Plans.calories)
-                    val lastMessage = Messages.innerJoin(Chats).select(Messages.body)
-                        .where { Chats.customerId eq it[Customers.id].value }
-                        .orderBy(Messages.id to SortOrder.DESC)
-                        .limit(1)
-                        .singleOrNull()
-                        ?.get(Messages.body)
-                    toDto(it, latestCustomerPlanCalories, lastMessage)
-                }.toList()
+            val customers = Customers.innerJoin(Users).selectAll().toList()
+            val customerIds = customers.map { it[Customers.id].value }
+
+            if (customerIds.isEmpty()) return@dbQuery emptyList()
+
+            val latestPlanCalories = CustomerPlans.innerJoin(Plans).selectAll()
+                .where { CustomerPlans.customer inList customerIds }
+                .orderBy(CustomerPlans.customer to SortOrder.ASC, CustomerPlans.chosenDate to SortOrder.DESC)
+                .toList()
+                .groupBy { it[CustomerPlans.customer].value }
+                .mapValues { (_, rows) -> rows.first()[Plans.calories] }
+
+            val lastMessages = Messages.innerJoin(Chats).select(Messages.body, Chats.customerId)
+                .where { Chats.customerId inList customerIds }
+                .orderBy(Chats.customerId to SortOrder.ASC, Messages.id to SortOrder.DESC)
+                .toList()
+                .groupBy { it[Chats.customerId].value }
+                .mapValues { (_, rows) -> rows.first()[Messages.body] }
+
+            customers.map { row ->
+                val id = row[Customers.id].value
+                toDto(row, latestPlanCalories[id], lastMessages[id])
+            }
         }
 
     suspend fun update(
