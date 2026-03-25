@@ -1,69 +1,74 @@
-# Android Dish Management Implementation
+# Customer Application
 
-This document describes the Android-specific implementation for dish management functionality in the Food application.
+This document describes the multiplatform Customer app for the food service.
 
 ## Overview
 
-The Android implementation provides a complete solution for managing dishes with the following features:
-- View a list of all dishes
-- View details of a specific dish
-- Create a new dish
-- Update an existing dish
-- Archive a dish (soft delete)
+The Customer app is a Kotlin Multiplatform application targeting Android and Web. It allows customers to view meal
+schedules, view dish details, chat with administrators, and manage their profiles.
+
+## Screens
+
+| Screen              | Description                  |
+|---------------------|------------------------------|
+| `LoginScreen`       | User authentication          |
+| `RegisterScreen`    | New user registration        |
+| `MainScreen`        | Main navigation hub          |
+| `ScheduleScreen`    | View daily meal schedule     |
+| `DishDetailsScreen` | View dish details and images |
+| `ChatListScreen`    | List of chat conversations   |
+| `ChatScreen`        | Chat with administrators     |
+| `ProfileScreen`     | User profile and preferences |
+
+## ViewModels
+
+All ViewModels follow the MVVM pattern and communicate with shared APIs from the `shared` module.
+
+- `LoginViewModel` - Handles authentication state
+- `RegisterViewModel` - Handles registration flow
+- `ScheduleViewModel` - Manages meal schedule display
+- `DishViewModel` - Manages dish details loading
+- `ChatViewModel` - Manages chat state and messages
+- `ProfileViewModel` - Manages user profile
 
 ## Architecture
 
-The implementation follows the MVVM (Model-View-ViewModel) architecture pattern:
+The implementation follows a shared MVVM pattern in `commonMain`:
 
-1. **Model**: The data layer is provided by the shared `DishApi` class
-2. **View**: Android-specific UI components in `AndroidDishScreen.kt`
-3. **ViewModel**: Android-specific `DishViewModel` that manages UI state and business logic
-4. **Repository**: Android-specific `DishRepository` that handles API calls and error handling
+1. **Model**: Data layer uses shared API classes (`AuthApi`, `DayApi`, `ChatApi`, etc.)
+2. **View**: Shared Composable screens in `commonMain`
+3. **ViewModel**: Shared ViewModels managing UI state via `StateFlow`
 
-## Components
+Platform-specific code:
 
-### DishRepository
+- Android: `androidMain` contains `MainActivity`, `AppLocaleManager`, and `AppPreferences`
+- Web: `webMain` contains web-specific entry points
 
-Located in `repository/DishRepository.kt`, this class:
-- Wraps the shared `DishApi` with Android-specific error handling
-- Uses Kotlin's `Result` type for better error handling
-- Performs network operations on the IO dispatcher
-- Provides Android logging for debugging
+## Key Features
 
-### DishViewModel
+- User authentication and registration
+- Daily meal schedule viewing
+- Dish details with image carousel
+- Real-time chat with administrators
+- User profile management
+- Localization support
 
-Located in `viewmodel/DishViewModel.kt`, this class:
-- Manages UI state using `StateFlow`
-- Handles all dish operations through the repository
-- Provides methods for UI interactions like showing/hiding dialogs
-- Implements proper error handling and loading states
+## Build and Run
 
-### AndroidDishScreen
+### Android
 
-Located in `screens/AndroidDishScreen.kt`, this composable:
-- Displays the list of dishes with Material Design components
-- Shows loading, error, and empty states
-- Provides UI for adding, editing, and archiving dishes
-- Uses Material icons for better visual cues
-- Implements Toast messages for user feedback
+```shell
+./gradlew :composeAppCustomer:assembleDebug
+```
 
-## Usage
+### Web (Wasm)
 
-The Android implementation is automatically used when the app runs on Android devices. The `MainActivity` sets `AndroidDishScreen` as the main content.
+```shell
+./gradlew :composeAppCustomer:wasmJsBrowserDevelopmentRun
+```
 
-## Error Handling
+### Web (JS)
 
-The implementation includes comprehensive error handling:
-- Network errors are caught and displayed to the user
-- Input validation for required fields
-- Visual feedback for loading states
-- Toast messages for operation results
-
-## UI Enhancements
-
-Android-specific UI enhancements include:
-- Material Design components and icons
-- Toast messages for user feedback
-- Improved input validation
-- Better visual hierarchy with cards and typography
-- Floating action buttons for primary actions
+```shell
+./gradlew :composeAppCustomer:jsBrowserDevelopmentRun
+```
