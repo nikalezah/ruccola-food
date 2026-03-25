@@ -24,6 +24,8 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.r2dbc.batchInsert
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
@@ -37,6 +39,23 @@ import org.jetbrains.exposed.v1.r2dbc.update
 import org.jetbrains.exposed.v1.r2dbc.updateReturning
 
 class DishService {
+    suspend fun exists(id: Int): Boolean =
+        dbQuery {
+            Dishes.selectAll().where { Dishes.id eq id }.count() > 0
+        }
+
+    suspend fun nameExists(
+        name: String,
+        excludeId: Int?,
+    ): Boolean =
+        dbQuery {
+            val condition = (Dishes.archived eq false) and (Dishes.name.lowerCase() eq name.lowercase())
+            val query = Dishes.selectAll().where {
+                if (excludeId != null) condition and (Dishes.id neq excludeId) else condition
+            }
+            query.count() > 0
+        }
+
     suspend fun getVariantCustomerIds(
         dishId: Int,
         variantId: Int,

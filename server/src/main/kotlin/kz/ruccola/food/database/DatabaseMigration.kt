@@ -40,20 +40,29 @@ object DatabaseMigration {
             // Apply each migration if not already applied
             for (migration in migrations) {
                 if (migration.version in appliedVersions) {
+                    println("Migration ${migration.version} already applied, skipping")
                     continue
                 }
 
                 println("Applying migration ${migration.version}: ${migration.description}")
-                migration.up()
+                try {
+                    migration.up()
 
-                // Record migration in history
-                MigrationHistory.insert {
-                    it[version] = migration.version
-                    it[description] = migration.description
-                    it[appliedAt] = now().toString()
+                    // Record migration in history only if successful
+                    MigrationHistory.insert {
+                        it[version] = migration.version
+                        it[description] = migration.description
+                        it[appliedAt] = now().toString()
+                    }
+
+                    println("Migration ${migration.version} applied successfully")
+                } catch (e: Exception) {
+                    // Log the actual error and stop
+                    println("ERROR: Migration ${migration.version} failed: ${e.message}")
+                    e.printStackTrace()
+                    // Re-throw to stop the application startup
+                    throw e
                 }
-
-                println("Migration ${migration.version} applied successfully")
             }
         }
     }

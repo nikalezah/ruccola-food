@@ -86,7 +86,7 @@ class MealPlanDayRoutesTest {
                 client.post("/api/dishes") {
                     authHeader(token)
                     contentType(ContentType.Application.Json)
-                    setBody(DishCreateDto(name = "Test Dish 2", description = "Desc 2"))
+                    setBody(DishCreateDto(name = "Test Dish Two", description = "Desc 2"))
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 

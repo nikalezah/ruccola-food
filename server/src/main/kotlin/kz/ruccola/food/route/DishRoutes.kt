@@ -8,6 +8,7 @@ import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import kz.ruccola.food.DISH_NAME_PATTERN
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.DishVariantSaveDto
@@ -35,15 +36,29 @@ fun Route.configureDishRoutes() {
 
         post<Dishes> {
             val payload = call.receive<DishCreateDto>()
-            if (payload.name.isBlank()) {
+            val name = payload.name.trim()
+            if (name.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest, "Name cannot be empty")
                 return@post
             }
-            val dish = dishService.createDish(payload.name, payload.description, payload.imageFileIds)
+            if (!Regex(DISH_NAME_PATTERN).matches(name)) {
+                call.respond(HttpStatusCode.BadRequest, "Name can only contain letters and spaces")
+                return@post
+            }
+            if (dishService.nameExists(name, excludeId = null)) {
+                call.respond(HttpStatusCode.Conflict, "A dish with this name already exists")
+                return@post
+            }
+            val dish = dishService.createDish(name, payload.description, payload.imageFileIds)
             call.respond(HttpStatusCode.Created, dish)
         }
 
         put<Dishes.Id> { dish ->
+            if (!dishService.exists(dish.id)) {
+                // todo: remove duplication ↓
+                call.respond(HttpStatusCode.NotFound, "Dish not found")
+                return@put
+            }
             val payload = call.receive<DishUpdateDto>()
             if (payload.name.isNullOrBlank() && payload.description.isNullOrBlank() && payload.imageFileIds == null) {
                 call.respond(
@@ -52,8 +67,24 @@ fun Route.configureDishRoutes() {
                 )
                 return@put
             }
-            val updated = dishService.updateDish(dish.id, payload.name, payload.description, payload.imageFileIds)
+            val trimmedName = payload.name?.trim()
+            if (trimmedName != null) {
+                if (trimmedName.isEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, "Name cannot be empty")
+                    return@put
+                }
+                if (!Regex(DISH_NAME_PATTERN).matches(trimmedName)) {
+                    call.respond(HttpStatusCode.BadRequest, "Name can only contain letters and spaces")
+                    return@put
+                }
+                if (dishService.nameExists(trimmedName, excludeId = dish.id)) {
+                    call.respond(HttpStatusCode.Conflict, "A dish with this name already exists")
+                    return@put
+                }
+            }
+            val updated = dishService.updateDish(dish.id, trimmedName, payload.description, payload.imageFileIds)
                 ?: run {
+                    // todo: remove duplication ↑
                     call.respond(HttpStatusCode.NotFound, "Dish not found")
                     return@put
                 }
