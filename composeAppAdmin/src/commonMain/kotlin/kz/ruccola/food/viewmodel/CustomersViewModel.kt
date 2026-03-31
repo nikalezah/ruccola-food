@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.ChatApi
@@ -16,16 +15,16 @@ class CustomersViewModel : ViewModel() {
     private val api = CustomerApi()
     private val chatApi = ChatApi()
 
-    private val _uiState = MutableStateFlow(CustomersUiState())
-    val uiState: StateFlow<CustomersUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<CustomersUiState>
+        field = MutableStateFlow(CustomersUiState())
 
     fun loadCustomers() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val loadedCustomers = api.getAll()
                 val chatItems = chatApi.getChats()
-                _uiState.update {
+                uiState.update {
                     it.copy(
                         customers = loadedCustomers,
                         chats = chatItems.associateBy { chat -> chat.customerId },
@@ -33,7 +32,7 @@ class CustomersViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Error", isLoading = false) }
+                uiState.update { it.copy(error = e.message ?: "Error", isLoading = false) }
             }
         }
     }

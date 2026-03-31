@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -24,34 +23,34 @@ class ProfileViewModel : ViewModel() {
     private val authApi = AuthApi()
     private val planApi = PlanApi()
 
-    private val _uiState = MutableStateFlow(ProfileUiState())
-    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ProfileUiState>
+        field = MutableStateFlow(ProfileUiState())
 
     fun loadProfile() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val customer = customerApi.get()
-                _uiState.update { it.copy(customer = customer) }
+                uiState.update { it.copy(customer = customer) }
                 loadCustomerPlan()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: e.toString()) }
+                uiState.update { it.copy(error = e.message ?: e.toString()) }
             } finally {
-                _uiState.update { it.copy(isLoading = false) }
+                uiState.update { it.copy(isLoading = false) }
             }
         }
     }
 
     private suspend fun loadCustomerPlan() {
-        _uiState.update { it.copy(isLoadingPlan = true) }
+        uiState.update { it.copy(isLoadingPlan = true) }
         try {
             val customerPlan = customerApi.getCustomerPlan()
-            _uiState.update { it.copy(customerPlan = customerPlan) }
+            uiState.update { it.copy(customerPlan = customerPlan) }
         } catch (e: Exception) {
             // Plan not found is ok
-            _uiState.update { it.copy(customerPlan = null) }
+            uiState.update { it.copy(customerPlan = null) }
         } finally {
-            _uiState.update { it.copy(isLoadingPlan = false) }
+            uiState.update { it.copy(isLoadingPlan = false) }
         }
     }
 
@@ -72,7 +71,7 @@ class ProfileViewModel : ViewModel() {
         address: String,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, saveError = null) }
+            uiState.update { it.copy(isSaving = true, saveError = null) }
             try {
                 val updated = customerApi.update(
                     CustomerUpdateDto(
@@ -81,21 +80,21 @@ class ProfileViewModel : ViewModel() {
                         address = address.trim(),
                     ),
                 )
-                _uiState.update { it.copy(customer = updated, isEditing = false) }
+                uiState.update { it.copy(customer = updated, isEditing = false) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(saveError = e.message ?: e.toString()) }
+                uiState.update { it.copy(saveError = e.message ?: e.toString()) }
             } finally {
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
             }
         }
     }
 
     fun setEditing(editing: Boolean) {
-        _uiState.update { it.copy(isEditing = editing, saveError = null) }
+        uiState.update { it.copy(isEditing = editing, saveError = null) }
     }
 
     fun setShowPlanDialog(show: Boolean) {
-        _uiState.update { it.copy(showPlanDialog = show) }
+        uiState.update { it.copy(showPlanDialog = show) }
         if (show) {
             loadPlansForDialog()
         }
@@ -103,56 +102,56 @@ class ProfileViewModel : ViewModel() {
 
     private fun loadPlansForDialog() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingPlansForDialog = true, dialogError = null) }
+            uiState.update { it.copy(isLoadingPlansForDialog = true, dialogError = null) }
             try {
                 val allPlans = planApi.getAll()
-                _uiState.update { it.copy(allPlans = allPlans) }
+                uiState.update { it.copy(allPlans = allPlans) }
                 updateDialogOptions(preserveDay = true)
             } catch (e: Exception) {
-                _uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
+                uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
             } finally {
-                _uiState.update { it.copy(isLoadingPlansForDialog = false) }
+                uiState.update { it.copy(isLoadingPlansForDialog = false) }
             }
         }
     }
 
     fun setAllowVariants(allow: Boolean) {
-        if (_uiState.value.allowVariants == allow) return
-        _uiState.update { it.copy(allowVariants = allow) }
+        if (uiState.value.allowVariants == allow) return
+        uiState.update { it.copy(allowVariants = allow) }
         viewModelScope.launch {
             updateDialogOptions(preserveDay = true)
         }
     }
 
     fun setCaloriesIndex(index: Int) {
-        if (_uiState.value.caloriesIndex == index) return
-        _uiState.update { it.copy(caloriesIndex = index) }
+        if (uiState.value.caloriesIndex == index) return
+        uiState.update { it.copy(caloriesIndex = index) }
         viewModelScope.launch {
             updateDialogOptions(preserveDay = false)
         }
     }
 
     fun setSelectedDayIndex(index: Int?) {
-        _uiState.update { it.copy(selectedDayIndex = index) }
+        uiState.update { it.copy(selectedDayIndex = index) }
     }
 
     private suspend fun updateDialogOptions(preserveDay: Boolean) {
-        val state = _uiState.value
+        val state = uiState.value
         try {
             val caloriesOptions = planApi.getAvailableCalories(state.allowVariants)
-            _uiState.update { it.copy(caloriesOptions = caloriesOptions) }
+            uiState.update { it.copy(caloriesOptions = caloriesOptions) }
 
             // Try to keep current calories if possible, or use initial if it's first load
             val currentCalories = caloriesOptions.getOrNull(state.caloriesIndex)
             val targetCalories =
                 currentCalories ?: state.customerPlan?.plan?.calories?.amount ?: caloriesOptions.firstOrNull()
             val newCaloriesIndex = targetCalories?.let { caloriesOptions.indexOf(it) }?.takeIf { it >= 0 } ?: 0
-            _uiState.update { it.copy(caloriesIndex = newCaloriesIndex) }
+            uiState.update { it.copy(caloriesIndex = newCaloriesIndex) }
 
             val selectedCalories = caloriesOptions.getOrNull(newCaloriesIndex)
             if (selectedCalories != null) {
                 val daysOptions = planApi.getAvailableDays(state.allowVariants, selectedCalories)
-                _uiState.update { it.copy(daysOptions = daysOptions) }
+                uiState.update { it.copy(daysOptions = daysOptions) }
 
                 val oldDay = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
                 val targetDay = if (preserveDay) {
@@ -162,18 +161,18 @@ class ProfileViewModel : ViewModel() {
                 }
                 val newDayIndex = targetDay?.let { daysOptions.indexOf(it) }?.takeIf { it >= 0 }
                     ?: if (daysOptions.isNotEmpty()) 0 else null
-                _uiState.update { it.copy(selectedDayIndex = newDayIndex) }
+                uiState.update { it.copy(selectedDayIndex = newDayIndex) }
             } else {
-                _uiState.update { it.copy(daysOptions = emptyList(), selectedDayIndex = null) }
+                uiState.update { it.copy(daysOptions = emptyList(), selectedDayIndex = null) }
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            _uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
+            uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
         }
     }
 
     fun savePlan() {
-        val state = _uiState.value
+        val state = uiState.value
         val calories = state.caloriesOptions.getOrNull(state.caloriesIndex)
         val days = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
         val matchingPlan = state.allPlans.firstOrNull { p ->
@@ -184,24 +183,20 @@ class ProfileViewModel : ViewModel() {
 
         if (matchingPlan != null) {
             viewModelScope.launch {
-                _uiState.update { it.copy(isSavingPlan = true, dialogError = null) }
+                uiState.update { it.copy(isSavingPlan = true, dialogError = null) }
                 try {
                     val today = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
                     val saved = customerApi.saveCustomerPlan(
                         CustomerPlanCreateDto(planId = matchingPlan.id, chosenDate = today),
                     )
-                    _uiState.update { it.copy(customerPlan = saved, showPlanDialog = false) }
+                    uiState.update { it.copy(customerPlan = saved, showPlanDialog = false) }
                 } catch (e: Exception) {
-                    _uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
+                    uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
                 } finally {
-                    _uiState.update { it.copy(isSavingPlan = false) }
+                    uiState.update { it.copy(isSavingPlan = false) }
                 }
             }
         }
-    }
-
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
     }
 }
 

@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
@@ -28,6 +29,16 @@ subprojects {
         }
     }
 
+    // todo: remove when explicit-backing-fields becomes a standard feature
+    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-Xexplicit-backing-fields",
+                // "-Xreturn-value-checker=full",
+                // "-XXLanguage:+NameBasedDestructuring",
+            )
+        }
+    }
     tasks.withType<KotlinCompile>().configureEach {
         dependsOn("ktlintFormat")
     }

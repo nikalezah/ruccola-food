@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.CustomerApi
@@ -34,14 +33,14 @@ class DishEditorViewModel(
     private val dishApi = DishApi()
     private val customerApi = CustomerApi()
 
-    private val _uiState = MutableStateFlow(
-        DishEditorUiState(
-            dish = initialDish,
-            name = initialDish?.name ?: "",
-            description = initialDish?.description ?: "",
-        ),
-    )
-    val uiState: StateFlow<DishEditorUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<DishEditorUiState>
+        field = MutableStateFlow(
+            DishEditorUiState(
+                dish = initialDish,
+                name = initialDish?.name ?: "",
+                description = initialDish?.description ?: "",
+            ),
+        )
 
     init {
         loadVariants()
@@ -52,22 +51,22 @@ class DishEditorViewModel(
         viewModelScope.launch {
             try {
                 val customers = customerApi.getAll()
-                _uiState.update { it.copy(allCustomers = customers) }
+                uiState.update { it.copy(allCustomers = customers) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             }
         }
     }
 
     fun loadVariants() {
-        val id = _uiState.value.dish?.id ?: return
+        val id = uiState.value.dish?.id ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(variantsLoaded = false) }
+            uiState.update { it.copy(variantsLoaded = false) }
             try {
                 val list = dishApi.getVariants(id)
-                _uiState.update { it.copy(variants = list, variantsLoaded = true) }
+                uiState.update { it.copy(variants = list, variantsLoaded = true) }
 
-                _uiState.update { it.copy(customersLoading = true) }
+                uiState.update { it.copy(customersLoading = true) }
                 try {
                     val map = mutableMapOf<Int, Set<Int>>()
                     for (v in list) {
@@ -78,102 +77,98 @@ class DishEditorViewModel(
                             // ignore for single variant
                         }
                     }
-                    _uiState.update { it.copy(variantCustomers = map) }
+                    uiState.update { it.copy(variantCustomers = map) }
                 } finally {
-                    _uiState.update { it.copy(customersLoading = false) }
+                    uiState.update { it.copy(customersLoading = false) }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, variantsLoaded = true) }
+                uiState.update { it.copy(error = e.message, variantsLoaded = true) }
             }
         }
     }
 
     fun deleteVariant(v: DishVariantDto) {
-        val id = _uiState.value.dish?.id ?: return
+        val id = uiState.value.dish?.id ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isBusy = true, error = null) }
+            uiState.update { it.copy(isBusy = true, error = null) }
             try {
                 dishApi.deleteVariant(id, v.id)
                 loadVariants()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             } finally {
-                _uiState.update { it.copy(isBusy = false) }
+                uiState.update { it.copy(isBusy = false) }
             }
         }
     }
 
     fun saveDish() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isBusy = true, error = null) }
+            uiState.update { it.copy(isBusy = true, error = null) }
             try {
-                val currentDish = _uiState.value.dish
-                val currentName = _uiState.value.name.trim()
-                val currentDescription = _uiState.value.description.trim()
+                val currentDish = uiState.value.dish
+                val currentName = uiState.value.name.trim()
+                val currentDescription = uiState.value.description.trim()
 
                 if (currentDish == null) {
                     val created = dishApi.createDish(
                         DishCreateDto(name = currentName, description = currentDescription),
                     )
-                    _uiState.update { it.copy(dish = created, name = created.name, description = created.description) }
+                    uiState.update { it.copy(dish = created, name = created.name, description = created.description) }
                 } else {
                     val updated = dishApi.updateDish(
                         currentDish.id,
                         DishUpdateDto(name = currentName, description = currentDescription),
                     )
-                    _uiState.update { it.copy(dish = updated, name = updated.name, description = updated.description) }
+                    uiState.update { it.copy(dish = updated, name = updated.name, description = updated.description) }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Ошибка сохранения") }
+                uiState.update { it.copy(error = e.message ?: "Ошибка сохранения") }
             } finally {
-                _uiState.update { it.copy(isBusy = false) }
+                uiState.update { it.copy(isBusy = false) }
             }
         }
     }
 
     fun onNameChange(newName: String) {
-        _uiState.update { it.copy(name = newName) }
+        uiState.update { it.copy(name = newName) }
     }
 
     fun onDescriptionChange(newDescription: String) {
-        _uiState.update { it.copy(description = newDescription) }
+        uiState.update { it.copy(description = newDescription) }
     }
 
     fun updateDishName(newName: String) {
-        val id = _uiState.value.dish?.id ?: return
+        val id = uiState.value.dish?.id ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isBusy = true, error = null) }
+            uiState.update { it.copy(isBusy = true, error = null) }
             try {
                 val updated = dishApi.updateDish(id, DishUpdateDto(name = newName.trim()))
-                _uiState.update { it.copy(dish = updated, name = updated.name) }
+                uiState.update { it.copy(dish = updated, name = updated.name) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             } finally {
-                _uiState.update { it.copy(isBusy = false) }
+                uiState.update { it.copy(isBusy = false) }
             }
         }
     }
 
     fun updateDishDescription(newDescription: String) {
-        val id = _uiState.value.dish?.id ?: return
+        val id = uiState.value.dish?.id ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isBusy = true, error = null) }
+            uiState.update { it.copy(isBusy = true, error = null) }
             try {
                 val updated = dishApi.updateDish(id, DishUpdateDto(description = newDescription.trim()))
-                _uiState.update { it.copy(dish = updated, description = updated.description) }
+                uiState.update { it.copy(dish = updated, description = updated.description) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             } finally {
-                _uiState.update { it.copy(isBusy = false) }
+                uiState.update { it.copy(isBusy = false) }
             }
         }
     }
 
     fun onDishUpdated(updated: DishDto) {
-        _uiState.update { it.copy(dish = updated) }
-    }
-
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
+        uiState.update { it.copy(dish = updated) }
     }
 }

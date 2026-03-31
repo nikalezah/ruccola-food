@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.DishWithMealDto
@@ -19,8 +18,8 @@ import kz.ruccola.food.model.Meal
 class MealPlanDayViewModel : ViewModel() {
     private val api = MealPlanDayApi()
 
-    private val _uiState = MutableStateFlow(MealPlanDayUiState())
-    val uiState: StateFlow<MealPlanDayUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<MealPlanDayUiState>
+        field = MutableStateFlow(MealPlanDayUiState())
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -36,12 +35,12 @@ class MealPlanDayViewModel : ViewModel() {
 
     fun loadAll() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val items = api.getAll()
-                _uiState.update { it.copy(items = items, isLoading = false) }
+                uiState.update { it.copy(items = items, isLoading = false) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
+                uiState.update { it.copy(error = e.message, isLoading = false) }
             }
         }
     }
@@ -51,10 +50,10 @@ class MealPlanDayViewModel : ViewModel() {
         dishIdToMeal: Map<Int, Meal>,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 val saved = api.save(MealPlanDaySaveDto(id = id, dishIdToMeal = dishIdToMeal))
-                _uiState.update { current ->
+                uiState.update { current ->
                     val updated = current.items.toMutableList()
                     val idx = updated.indexOfFirst { it.id == saved.id }
                     if (idx >= 0) updated[idx] = saved else updated.add(saved)
@@ -67,39 +66,39 @@ class MealPlanDayViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isSaving = false) }
+                uiState.update { it.copy(error = e.message, isSaving = false) }
             }
         }
     }
 
     fun delete(id: Int) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 val success = api.delete(id)
                 if (success) {
                     loadAll()
                 } else {
-                    _uiState.update { it.copy(error = "Failed to delete") }
+                    uiState.update { it.copy(error = "Failed to delete") }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             } finally {
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
             }
         }
     }
 
     fun setCurrent(id: Int) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 api.setCurrent(id)
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             } finally {
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
             }
         }
     }
@@ -111,14 +110,14 @@ class MealPlanDayViewModel : ViewModel() {
             val currentOrder = current.sortedBy { it.serial }.map { it.id }
             if (currentOrder == newOrderIds) return@launch
 
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 api.reorder(newOrderIds)
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Failed to apply new order") }
+                uiState.update { it.copy(error = e.message ?: "Failed to apply new order") }
             } finally {
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
             }
         }
     }

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.CustomerApi
@@ -36,15 +35,15 @@ class DishVariantViewModel(
     private val dishApi = DishApi()
     private val customerApi = CustomerApi()
 
-    private val _uiState = MutableStateFlow(
-        DishVariantUiState(
-            description = existingVariant?.description ?: "",
-            initialDescription = existingVariant?.description ?: "",
-            selectedCustomerIds = initialCustomerIds ?: existingVariant?.customerIds?.toSet() ?: emptySet(),
-            initialCustomerIds = initialCustomerIds ?: existingVariant?.customerIds?.toSet() ?: emptySet(),
-        ),
-    )
-    val uiState: StateFlow<DishVariantUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<DishVariantUiState>
+        field = MutableStateFlow(
+            DishVariantUiState(
+                description = existingVariant?.description ?: "",
+                initialDescription = existingVariant?.description ?: "",
+                selectedCustomerIds = initialCustomerIds ?: existingVariant?.customerIds?.toSet() ?: emptySet(),
+                initialCustomerIds = initialCustomerIds ?: existingVariant?.customerIds?.toSet() ?: emptySet(),
+            ),
+        )
 
     init {
         loadCustomers()
@@ -54,23 +53,23 @@ class DishVariantViewModel(
         viewModelScope.launch {
             try {
                 val customers = customerApi.getAll()
-                _uiState.update { it.copy(allCustomers = customers) }
+                uiState.update { it.copy(allCustomers = customers) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                uiState.update { it.copy(error = e.message) }
             }
         }
     }
 
     fun onDescriptionChange(newDescription: String) {
-        _uiState.update { it.copy(description = newDescription) }
+        uiState.update { it.copy(description = newDescription) }
     }
 
     fun onQueryChange(newQuery: String) {
-        _uiState.update { it.copy(searchQuery = newQuery) }
+        uiState.update { it.copy(searchQuery = newQuery) }
     }
 
     fun toggleCustomerSelection(customerId: Int) {
-        _uiState.update { state ->
+        uiState.update { state ->
             val newSelected = if (state.selectedCustomerIds.contains(customerId)) {
                 state.selectedCustomerIds - customerId
             } else {
@@ -81,11 +80,11 @@ class DishVariantViewModel(
     }
 
     fun save() {
-        val currentState = _uiState.value
+        val currentState = uiState.value
         if (currentState.description.isBlank() || currentState.isBusy) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isBusy = true, error = null) }
+            uiState.update { it.copy(isBusy = true, error = null) }
             try {
                 val variant = if (existingVariant == null) {
                     dishApi.createVariant(dishId, DishVariantSaveDto(description = currentState.description.trim()))
@@ -98,11 +97,11 @@ class DishVariantViewModel(
                 }
 
                 dishApi.setVariantCustomers(dishId, variant.id, currentState.selectedCustomerIds.toList())
-                _uiState.update { it.copy(savedVariant = variant) }
+                uiState.update { it.copy(savedVariant = variant) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Failed to save") }
+                uiState.update { it.copy(error = e.message ?: "Failed to save") }
             } finally {
-                _uiState.update { it.copy(isBusy = false) }
+                uiState.update { it.copy(isBusy = false) }
             }
         }
     }

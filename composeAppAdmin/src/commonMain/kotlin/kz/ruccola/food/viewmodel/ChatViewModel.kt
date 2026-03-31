@@ -6,7 +6,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -16,20 +15,21 @@ import kz.ruccola.food.api.ChatDto
 import kz.ruccola.food.api.MarkReadDto
 import kz.ruccola.food.api.MessageDto
 import kz.ruccola.food.api.MessageSendDto
+import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel : ViewModel() {
     private val api = ChatApi()
 
-    private val _uiState = MutableStateFlow(ChatUiState())
-    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ChatUiState>
+        field = MutableStateFlow(ChatUiState())
 
     private var pollingJob: Job? = null
 
     fun setChatId(chatId: Int?) {
-        if (_uiState.value.chatId == chatId) return
+        if (uiState.value.chatId == chatId) return
 
         pollingJob?.cancel()
-        _uiState.update {
+        uiState.update {
             it.copy(
                 chatId = chatId,
                 chat = null,
@@ -47,14 +47,14 @@ class ChatViewModel : ViewModel() {
 
     private fun loadChat(chatId: Int) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            uiState.update { it.copy(isLoading = true) }
             try {
                 val chat = api.getChat(chatId)
-                _uiState.update { it.copy(chat = chat) }
+                uiState.update { it.copy(chat = chat) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Error") }
+                uiState.update { it.copy(error = e.message ?: "Error") }
             } finally {
-                _uiState.update { it.copy(isLoading = false) }
+                uiState.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -63,47 +63,47 @@ class ChatViewModel : ViewModel() {
         pollingJob = viewModelScope.launch {
             while (isActive) {
                 loadMessages(chatId)
-                delay(5_000)
+                delay(5.seconds)
             }
         }
     }
 
     private suspend fun loadMessages(chatId: Int) {
-        _uiState.update { it.copy(isLoading = true) }
+        uiState.update { it.copy(isLoading = true) }
         try {
             val messages = api.getMessages(chatId)
             val lastId = messages.lastOrNull()?.id
-            val currentChat = _uiState.value.chat
+            val currentChat = uiState.value.chat
             if (lastId != null && currentChat?.lastReadMessageId != lastId) {
                 api.markRead(chatId, MarkReadDto(lastId))
-                _uiState.update { it.copy(chat = currentChat?.copy(lastReadMessageId = lastId)) }
+                uiState.update { it.copy(chat = currentChat?.copy(lastReadMessageId = lastId)) }
             }
-            _uiState.update { it.copy(messages = messages) }
+            uiState.update { it.copy(messages = messages) }
         } catch (e: Exception) {
-            _uiState.update { it.copy(error = e.message ?: "Error") }
+            uiState.update { it.copy(error = e.message ?: "Error") }
         } finally {
-            _uiState.update { it.copy(isLoading = false) }
+            uiState.update { it.copy(isLoading = false) }
         }
     }
 
     fun onMessageBodyChange(body: String) {
-        _uiState.update { it.copy(messageBody = body) }
+        uiState.update { it.copy(messageBody = body) }
     }
 
     fun sendMessage() {
-        val state = _uiState.value
+        val state = uiState.value
         val chatId = state.chatId ?: return
         val body = state.messageBody.trim()
 
         if (body.isBlank() || body.length > MESSAGE_BODY_MAX_LENGTH) return
 
-        _uiState.update { it.copy(messageBody = "") }
+        uiState.update { it.copy(messageBody = "") }
         viewModelScope.launch {
             try {
                 api.sendMessage(chatId, MessageSendDto(body))
                 loadMessages(chatId)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Error") }
+                uiState.update { it.copy(error = e.message ?: "Error") }
             }
         }
     }

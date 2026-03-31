@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.PlanApi
@@ -20,8 +19,8 @@ import kz.ruccola.food.model.PlanDays
 class PlanViewModel : ViewModel() {
     private val api = PlanApi()
 
-    private val _uiState = MutableStateFlow(PlanUiState())
-    val uiState: StateFlow<PlanUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<PlanUiState>
+        field = MutableStateFlow(PlanUiState())
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -37,12 +36,12 @@ class PlanViewModel : ViewModel() {
 
     fun loadAll() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val plans = api.getAll()
-                _uiState.update { it.copy(items = plans, isLoading = false) }
+                uiState.update { it.copy(items = plans, isLoading = false) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Unknown error", isLoading = false) }
+                uiState.update { it.copy(error = e.message ?: "Unknown error", isLoading = false) }
             }
         }
     }
@@ -54,13 +53,13 @@ class PlanViewModel : ViewModel() {
         allowVariantChoice: Boolean,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 api.create(PlanCreateDto(calories, periodDays, pricePerDay, allowVariantChoice))
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
+                uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
             }
         }
     }
@@ -73,32 +72,32 @@ class PlanViewModel : ViewModel() {
         allowVariantChoice: Boolean?,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 api.update(id, PlanUpdateDto(calories, periodDays, pricePerDay, allowVariantChoice))
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
+                uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
             }
         }
     }
 
     fun delete(id: Int) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null) }
             try {
                 api.delete(id)
-                _uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false) }
                 loadAll()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
+                uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
             }
         }
     }
 
     fun clearError() {
-        _uiState.update { it.copy(error = null) }
+        uiState.update { it.copy(error = null) }
     }
 }
 

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -15,29 +14,30 @@ import kz.ruccola.food.api.ChatDto
 import kz.ruccola.food.api.MarkReadDto
 import kz.ruccola.food.api.MessageDto
 import kz.ruccola.food.api.MessageSendDto
+import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel : ViewModel() {
     private val api = ChatApi()
 
-    private val _uiState = MutableStateFlow(ChatUiState())
-    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ChatUiState>
+        field = MutableStateFlow(ChatUiState())
 
     fun loadChat(isRefreshing: Boolean = false) {
         viewModelScope.launch {
             if (isRefreshing) {
-                _uiState.update { it.copy(isRefreshing = true) }
+                uiState.update { it.copy(isRefreshing = true) }
             } else {
-                _uiState.update { it.copy(isLoading = true, error = null) }
+                uiState.update { it.copy(isLoading = true, error = null) }
             }
             try {
                 val chat = api.getMyChat()
-                _uiState.update { it.copy(chat = chat, error = null) }
+                uiState.update { it.copy(chat = chat, error = null) }
                 loadMessages(chat.id)
                 loadLastMessage(chat)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: e.toString()) }
+                uiState.update { it.copy(error = e.message ?: e.toString()) }
             } finally {
-                _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
+                uiState.update { it.copy(isLoading = false, isRefreshing = false) }
             }
         }
     }
@@ -50,7 +50,7 @@ class ChatViewModel : ViewModel() {
                 afterId = afterId,
                 limit = 1,
             ).lastOrNull()
-            _uiState.update { it.copy(lastMessage = lastMessage) }
+            uiState.update { it.copy(lastMessage = lastMessage) }
         } catch (e: Exception) {
             // Non-critical error
         }
@@ -59,33 +59,33 @@ class ChatViewModel : ViewModel() {
     private suspend fun loadMessages(chatId: Int) {
         try {
             val messages = api.getMessages(chatId)
-            _uiState.update { it.copy(messages = messages) }
+            uiState.update { it.copy(messages = messages) }
 
             val lastId = messages.lastOrNull()?.id
-            val currentChat = _uiState.value.chat
+            val currentChat = uiState.value.chat
             if (lastId != null && currentChat != null && currentChat.lastReadMessageId != lastId) {
                 api.markRead(chatId, MarkReadDto(lastId))
-                _uiState.update { it.copy(chat = currentChat.copy(lastReadMessageId = lastId)) }
+                uiState.update { it.copy(chat = currentChat.copy(lastReadMessageId = lastId)) }
             }
         } catch (e: Exception) {
-            _uiState.update { it.copy(error = e.message ?: e.toString()) }
+            uiState.update { it.copy(error = e.message ?: e.toString()) }
         }
     }
 
     fun startPolling() {
         viewModelScope.launch {
             while (isActive) {
-                val chatId = _uiState.value.chat?.id
+                val chatId = uiState.value.chat?.id
                 if (chatId != null) {
                     loadMessages(chatId)
                 }
-                delay(5_000)
+                delay(5.seconds)
             }
         }
     }
 
     fun sendMessage(body: String) {
-        val chatId = _uiState.value.chat?.id ?: return
+        val chatId = uiState.value.chat?.id ?: return
         val trimmedBody = body.trim()
         if (trimmedBody.isBlank() || trimmedBody.length > MESSAGE_BODY_MAX_LENGTH) return
 
@@ -94,13 +94,13 @@ class ChatViewModel : ViewModel() {
                 api.sendMessage(chatId, MessageSendDto(trimmedBody))
                 loadMessages(chatId)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: e.toString()) }
+                uiState.update { it.copy(error = e.message ?: e.toString()) }
             }
         }
     }
 
     fun clearError() {
-        _uiState.update { it.copy(error = null) }
+        uiState.update { it.copy(error = null) }
     }
 }
 

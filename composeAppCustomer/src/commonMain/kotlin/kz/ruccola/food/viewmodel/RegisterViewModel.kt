@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.AuthApi
@@ -14,25 +13,25 @@ import kz.ruccola.food.api.RegisterRequestDto
 class RegisterViewModel : ViewModel() {
     private val api = AuthApi()
 
-    private val _uiState = MutableStateFlow(RegisterUiState())
-    val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<RegisterUiState>
+        field = MutableStateFlow(RegisterUiState())
 
-    fun updateEmail(email: String) = _uiState.update { it.copy(email = email) }
+    fun updateEmail(email: String) = uiState.update { it.copy(email = email) }
 
-    fun updatePassword(password: String) = _uiState.update { it.copy(password = password) }
+    fun updatePassword(password: String) = uiState.update { it.copy(password = password) }
 
-    fun updateConfirmPassword(confirm: String) = _uiState.update { it.copy(confirmPassword = confirm) }
+    fun updateConfirmPassword(confirm: String) = uiState.update { it.copy(confirmPassword = confirm) }
 
-    fun updateFirstName(firstName: String) = _uiState.update { it.copy(firstName = firstName) }
+    fun updateFirstName(firstName: String) = uiState.update { it.copy(firstName = firstName) }
 
-    fun updateLastName(lastName: String) = _uiState.update { it.copy(lastName = lastName) }
+    fun updateLastName(lastName: String) = uiState.update { it.copy(lastName = lastName) }
 
-    fun updateAddress(address: String) = _uiState.update { it.copy(address = address) }
+    fun updateAddress(address: String) = uiState.update { it.copy(address = address) }
 
     fun register(onRegistered: (AuthResponseDto) -> Unit) {
-        val state = _uiState.value
+        val state = uiState.value
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val resp = api.register(
                     RegisterRequestDto(
@@ -47,15 +46,15 @@ class RegisterViewModel : ViewModel() {
                 reset()
                 onRegistered(resp)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: "Registration failed") }
+                uiState.update { it.copy(error = e.message ?: "Registration failed") }
             } finally {
-                _uiState.update { it.copy(isLoading = false) }
+                uiState.update { it.copy(isLoading = false) }
             }
         }
     }
 
     fun reset() {
-        _uiState.value = RegisterUiState()
+        uiState.value = RegisterUiState()
     }
 }
 
