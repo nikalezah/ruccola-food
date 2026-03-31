@@ -1,6 +1,6 @@
 {
-  "name": "Interna Food Admin",
-  "short_name": "IF Admin",
+  "name": "Ruccola Food Admin",
+  "short_name": "RF Admin",
   "description": "Админ-панель сервиса правильного питания",
   "start_url": "/",
   "display": "standalone",
