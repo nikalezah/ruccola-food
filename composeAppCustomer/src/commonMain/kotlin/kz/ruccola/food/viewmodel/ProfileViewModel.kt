@@ -2,7 +2,6 @@ package kz.ruccola.food.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -118,49 +117,46 @@ class ProfileViewModel : ViewModel() {
     fun setCaloriesIndex(index: Int) {
         if (uiState.value.caloriesIndex == index) return
         uiState.update { it.copy(caloriesIndex = index) }
-        viewModelScope.launch {
-            updateDialogOptions(preserveDay = false)
-        }
+        updateDialogOptions(preserveDay = false)
     }
 
     fun setSelectedDayIndex(index: Int?) {
         uiState.update { it.copy(selectedDayIndex = index) }
     }
 
-    private suspend fun updateDialogOptions(preserveDay: Boolean) {
+    private fun updateDialogOptions(preserveDay: Boolean) {
         val state = uiState.value
-        try {
-            val caloriesOptions = planApi.getAvailableCalories()
-            uiState.update { it.copy(caloriesOptions = caloriesOptions) }
-
-            // Try to keep current calories if possible, or use initial if it's first load
-            val currentCalories = caloriesOptions.getOrNull(state.caloriesIndex)
-            val targetCalories =
-                currentCalories ?: state.customerPlan?.plan?.calories?.amount ?: caloriesOptions.firstOrNull()
-            val newCaloriesIndex = targetCalories?.let { caloriesOptions.indexOf(it) }?.takeIf { it >= 0 } ?: 0
-            uiState.update { it.copy(caloriesIndex = newCaloriesIndex) }
-
-            val selectedCalories = caloriesOptions.getOrNull(newCaloriesIndex)
-            if (selectedCalories != null) {
-                val daysOptions = planApi.getAvailableDays(selectedCalories)
-                uiState.update { it.copy(daysOptions = daysOptions) }
-
-                val oldDay = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
-                val targetDay = if (preserveDay) {
-                    oldDay ?: state.customerPlan?.plan?.periodDays?.amount
-                } else {
-                    null
-                }
-                val newDayIndex = targetDay?.let { daysOptions.indexOf(it) }?.takeIf { it >= 0 }
-                    ?: if (daysOptions.isNotEmpty()) 0 else null
-                uiState.update { it.copy(selectedDayIndex = newDayIndex) }
-            } else {
-                uiState.update { it.copy(daysOptions = emptyList(), selectedDayIndex = null) }
+        val allPlans = state.allPlans
+        if (allPlans.isEmpty()) {
+            uiState.update {
+                it.copy(caloriesOptions = emptyList(), daysOptions = emptyList(), selectedDayIndex = null)
             }
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
+            return
         }
+
+        val caloriesOptions = allPlans.map { it.calories.amount }.distinct().sorted()
+        uiState.update { it.copy(caloriesOptions = caloriesOptions) }
+
+        val currentCalories = caloriesOptions.getOrNull(state.caloriesIndex)
+        val targetCalories =
+            currentCalories ?: state.customerPlan?.plan?.calories?.amount ?: caloriesOptions.first()
+        val newCaloriesIndex = caloriesOptions.indexOf(targetCalories).coerceAtLeast(0)
+        uiState.update { it.copy(caloriesIndex = newCaloriesIndex) }
+
+        val selectedCalories = caloriesOptions[newCaloriesIndex]
+        val daysOptions = allPlans.filter { it.calories.amount == selectedCalories }
+            .map { it.periodDays.amount }.distinct().sorted()
+        uiState.update { it.copy(daysOptions = daysOptions) }
+
+        val oldDay = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
+        val targetDay = if (preserveDay) {
+            oldDay ?: state.customerPlan?.plan?.periodDays?.amount
+        } else {
+            null
+        }
+        val newDayIndex = targetDay?.let { daysOptions.indexOf(it) }?.takeIf { it >= 0 }
+            ?: daysOptions.indices.firstOrNull()
+        uiState.update { it.copy(selectedDayIndex = newDayIndex) }
     }
 
     fun savePlan() {

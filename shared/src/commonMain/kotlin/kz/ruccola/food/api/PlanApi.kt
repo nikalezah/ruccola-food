@@ -25,17 +25,6 @@ class Plans {
         val parent: Plans = Plans(),
         val id: Int,
     )
-
-    @Resource("calories")
-    class Calories(
-        val parent: Plans = Plans(),
-    )
-
-    @Resource("days")
-    class Days(
-        val parent: Plans = Plans(),
-        val calories: Int,
-    )
 }
 
 class PlanApi(
@@ -65,10 +54,6 @@ class PlanApi(
     }
 
     suspend fun delete(id: Int): Boolean = client.delete(Plans.Id(id = id)).status.isSuccess()
-
-    suspend fun getAvailableCalories(): List<Int> = client.get(Plans.Calories()).body()
-
-    suspend fun getAvailableDays(calories: Int): List<Int> = client.get(Plans.Days(calories = calories)).body()
 }
 
 @Serializable

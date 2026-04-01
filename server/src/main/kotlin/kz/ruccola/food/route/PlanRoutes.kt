@@ -48,14 +48,4 @@ fun Route.configurePlanRoutes() {
             call.respond(HttpStatusCode.OK)
         }
     }
-
-    withRole(Role.CUSTOMER) {
-        get<Plans.Calories> {
-            call.respond(service.getAvailableCalories())
-        }
-
-        get<Plans.Days> { days ->
-            call.respond(service.getAvailableDays(days.calories))
-        }
-    }
 }

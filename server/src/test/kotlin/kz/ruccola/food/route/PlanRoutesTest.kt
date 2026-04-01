@@ -168,31 +168,5 @@ class PlanRoutesTest {
                 CustomerPlans.selectAll().where { CustomerPlans.customer eq customer.user.id }.count()
             }
             assertEquals(1, recordCount)
-
-            // Test 5: Get available calories
-            client.get("/api/plans/calories") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                    assertTrue(arr.isNotEmpty())
-                    assertTrue(arr.any { it.jsonPrimitive.int == 1800 })
-                    assertTrue(arr.any { it.jsonPrimitive.int == 2000 })
-                }
-
-            // Test 6: Get available days for specific calories
-            client.get("/api/plans/days?calories=1800") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                    assertTrue(arr.isNotEmpty())
-                    assertTrue(arr.any { it.jsonPrimitive.int == 30 })
-                    assertTrue(arr.any { it.jsonPrimitive.int == 14 })
-                }
-
-            // Test 7: Get available days without calorie parameter (should fail)
-            client.get("/api/plans/days") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.BadRequest, status)
-                }
         }
 }

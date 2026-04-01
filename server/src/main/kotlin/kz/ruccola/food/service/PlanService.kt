@@ -17,7 +17,6 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insertReturning
-import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.updateReturning
 
@@ -57,25 +56,6 @@ class PlanService {
     suspend fun delete(id: Int): Int =
         dbQuery {
             Plans.deleteWhere { Plans.id eq id }
-        }
-
-    suspend fun getAvailableCalories(): List<Int> =
-        dbQuery {
-            Plans.select(Plans.calories)
-                .map { it[Plans.calories] }
-                .toList()
-                .distinct()
-                .sorted()
-        }
-
-    suspend fun getAvailableDays(calories: Int): List<Int> =
-        dbQuery {
-            Plans.select(Plans.periodDays)
-                .where { Plans.calories eq calories }
-                .map { it[Plans.periodDays] }
-                .toList()
-                .distinct()
-                .sorted()
         }
 
     fun toDto(row: ResultRow): PlanDto =
