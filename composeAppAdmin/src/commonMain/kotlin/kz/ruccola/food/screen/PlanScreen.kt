@@ -63,7 +63,6 @@ import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.PullToRefresh
-import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.PlanViewModel
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
@@ -319,15 +318,29 @@ fun PlanEditorDialog(
                         steps = (calOptions.size - 2).coerceAtLeast(0),
                         enabled = !isSaving,
                     )
-                    Text(stringResource(Res.string.period_days), style = MaterialTheme.typography.labelLarge)
-                    ToggleButtonsRow(
-                        options = PlanDays.entries.map { it.amount.toString() },
-                        initialSelectedIndex = PlanDays.entries.indexOf(days),
-                        onSelectedIndexChange = { i: Int ->
-                            days = PlanDays.entries[i]
+                    val dayOptions = remember { PlanDays.entries.toList() }
+                    val selectedDayIndex = remember(days) { dayOptions.indexOf(days).coerceAtLeast(0) }
+                    var daySliderPos by remember { mutableStateOf(selectedDayIndex.toFloat()) }
+                    LaunchedEffect(days) {
+                        val idx = dayOptions.indexOf(days)
+                        if (idx != daySliderPos.toInt()) daySliderPos = idx.toFloat()
+                    }
+
+                    Text(
+                        "${stringResource(Res.string.period_days)}: ${daysLabel(days)}",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Slider(
+                        value = daySliderPos,
+                        onValueChange = { v ->
+                            daySliderPos = v
+                            val idx = v.roundToInt().coerceIn(0, dayOptions.lastIndex)
+                            days = dayOptions[idx]
                             onClearError()
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        valueRange = 0f..dayOptions.lastIndex.toFloat(),
+                        steps = (dayOptions.size - 2).coerceAtLeast(0),
+                        enabled = !isSaving,
                     )
                 } else {
                     Text(

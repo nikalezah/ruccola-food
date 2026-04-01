@@ -375,12 +375,22 @@ private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
                 }
 
                 if (uiState.daysOptions.isNotEmpty()) {
-                    Text(stringResource(Res.string.period_days))
-                    ToggleButtonsRow(
-                        options = uiState.daysOptions.map { it.toString() },
-                        initialSelectedIndex = uiState.selectedDayIndex ?: 0,
-                        onSelectedIndexChange = { i: Int -> viewModel.setSelectedDayIndex(i) },
-                    )
+                    val maxDayIndex = (uiState.daysOptions.size - 1).coerceAtLeast(0)
+                    val daySteps = if (maxDayIndex >= 1) maxDayIndex - 1 else 0
+                    val shownDays = uiState.daysOptions.getOrNull(uiState.selectedDayIndex ?: 0)
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        val daysLabel = shownDays?.toString() ?: "-"
+                        Text(
+                            "${stringResource(Res.string.period_days)}: $daysLabel",
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        Slider(
+                            value = (uiState.selectedDayIndex ?: 0).toFloat(),
+                            onValueChange = { viewModel.setSelectedDayIndex(it.roundToInt()) },
+                            valueRange = 0f..maxDayIndex.toFloat(),
+                            steps = daySteps,
+                        )
+                    }
                 }
 
                 val selectedCalories = uiState.caloriesOptions.getOrNull(uiState.caloriesIndex)
