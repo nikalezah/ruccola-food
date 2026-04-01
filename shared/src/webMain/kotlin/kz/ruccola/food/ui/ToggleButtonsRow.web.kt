@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,6 +45,9 @@ actual fun ToggleButtonsRow(
 ) {
     if (options.isEmpty()) return
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
+    LaunchedEffect(initialSelectedIndex) {
+        selectedIndex = initialSelectedIndex
+    }
     Row(
         modifier = modifier.padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),

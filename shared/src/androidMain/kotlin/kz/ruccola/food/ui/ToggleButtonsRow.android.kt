@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,9 @@ actual fun ToggleButtonsRow(
 ) {
     if (options.isEmpty()) return
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
+    LaunchedEffect(initialSelectedIndex) {
+        selectedIndex = initialSelectedIndex
+    }
     Row(
         modifier = modifier.padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
@@ -43,7 +47,9 @@ actual fun ToggleButtonsRow(
                     selectedIndex = i
                     onSelectedIndexChange(i)
                 },
-                modifier = Modifier.weight(if (selectedIndex == i) 1.3f else 1f).semantics { role = Role.RadioButton },
+                modifier = Modifier
+                    .weight(if (selectedIndex == i) 1.3f else 1f)
+                    .semantics { role = Role.RadioButton },
                 shapes =
                     when (i) {
                         0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()

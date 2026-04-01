@@ -93,7 +93,13 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun setShowPlanDialog(show: Boolean) {
-        uiState.update { it.copy(showPlanDialog = show) }
+        uiState.update {
+            it.copy(
+                showPlanDialog = show,
+                caloriesIndex = 0,
+                selectedDayIndex = null,
+            )
+        }
         if (show) {
             loadPlansForDialog()
         }
@@ -137,9 +143,13 @@ class ProfileViewModel : ViewModel() {
         val caloriesOptions = allPlans.map { it.calories.amount }.distinct().sorted()
         uiState.update { it.copy(caloriesOptions = caloriesOptions) }
 
+        val planCalories = state.customerPlan?.plan?.calories?.amount
         val currentCalories = caloriesOptions.getOrNull(state.caloriesIndex)
-        val targetCalories =
-            currentCalories ?: state.customerPlan?.plan?.calories?.amount ?: caloriesOptions.first()
+        val targetCalories = if (preserveDay && planCalories != null && planCalories in caloriesOptions) {
+            planCalories
+        } else {
+            currentCalories ?: caloriesOptions.first()
+        }
         val newCaloriesIndex = caloriesOptions.indexOf(targetCalories).coerceAtLeast(0)
         uiState.update { it.copy(caloriesIndex = newCaloriesIndex) }
 
@@ -148,9 +158,10 @@ class ProfileViewModel : ViewModel() {
             .map { it.periodDays.amount }.distinct().sorted()
         uiState.update { it.copy(daysOptions = daysOptions) }
 
+        val planDays = state.customerPlan?.plan?.periodDays?.amount
         val oldDay = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
         val targetDay = if (preserveDay) {
-            oldDay ?: state.customerPlan?.plan?.periodDays?.amount
+            oldDay ?: planDays
         } else {
             null
         }
