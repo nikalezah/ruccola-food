@@ -29,13 +29,11 @@ class Plans {
     @Resource("calories")
     class Calories(
         val parent: Plans = Plans(),
-        val allowVariantChoice: Boolean,
     )
 
     @Resource("days")
     class Days(
         val parent: Plans = Plans(),
-        val allowVariantChoice: Boolean,
         val calories: Int,
     )
 }
@@ -68,18 +66,9 @@ class PlanApi(
 
     suspend fun delete(id: Int): Boolean = client.delete(Plans.Id(id = id)).status.isSuccess()
 
-    suspend fun getAvailableCalories(allowVariantChoice: Boolean): List<Int> =
-        client.get(
-            Plans.Calories(allowVariantChoice = allowVariantChoice),
-        ).body()
+    suspend fun getAvailableCalories(): List<Int> = client.get(Plans.Calories()).body()
 
-    suspend fun getAvailableDays(
-        allowVariantChoice: Boolean,
-        calories: Int,
-    ): List<Int> =
-        client.get(
-            Plans.Days(allowVariantChoice = allowVariantChoice, calories = calories),
-        ).body()
+    suspend fun getAvailableDays(calories: Int): List<Int> = client.get(Plans.Days(calories = calories)).body()
 }
 
 @Serializable
@@ -88,7 +77,6 @@ data class PlanDto(
     val calories: PlanCalories,
     val periodDays: PlanDays,
     val pricePerDay: Int,
-    val allowVariantChoice: Boolean,
     @Serializable(with = LocalDateTimeIso8601Serializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeIso8601Serializer::class)
@@ -100,7 +88,6 @@ data class PlanCreateDto(
     val calories: PlanCalories,
     val periodDays: PlanDays,
     val pricePerDay: Int,
-    val allowVariantChoice: Boolean,
 )
 
 @Serializable
@@ -108,5 +95,4 @@ data class PlanUpdateDto(
     val calories: PlanCalories? = null,
     val periodDays: PlanDays? = null,
     val pricePerDay: Int? = null,
-    val allowVariantChoice: Boolean? = null,
 )

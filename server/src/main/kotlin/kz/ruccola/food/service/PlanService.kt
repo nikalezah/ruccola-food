@@ -14,7 +14,6 @@ import kz.ruccola.food.model.Plans
 import kz.ruccola.food.now
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insertReturning
@@ -34,7 +33,6 @@ class PlanService {
                 it[calories] = newPlan.calories.value
                 it[periodDays] = newPlan.periodDays.amount
                 it[pricePerDay] = newPlan.pricePerDay
-                it[allowVariantChoice] = newPlan.allowVariantChoice
                 it[createdAt] = now()
                 it[updatedAt] = now()
             }.single().let(::toDto)
@@ -49,7 +47,6 @@ class PlanService {
                 update.calories?.let { c -> it[calories] = c.value }
                 update.periodDays?.let { d -> it[periodDays] = d.amount }
                 update.pricePerDay?.let { p -> it[pricePerDay] = p }
-                update.allowVariantChoice?.let { a -> it[allowVariantChoice] = a }
                 it[updatedAt] = now()
             }
                 .singleOrNull()
@@ -62,23 +59,19 @@ class PlanService {
             Plans.deleteWhere { Plans.id eq id }
         }
 
-    suspend fun getAvailableCalories(allowVariantChoice: Boolean): List<Int> =
+    suspend fun getAvailableCalories(): List<Int> =
         dbQuery {
             Plans.select(Plans.calories)
-                .where { Plans.allowVariantChoice eq allowVariantChoice }
                 .map { it[Plans.calories] }
                 .toList()
                 .distinct()
                 .sorted()
         }
 
-    suspend fun getAvailableDays(
-        allowVariantChoice: Boolean,
-        calories: Int,
-    ): List<Int> =
+    suspend fun getAvailableDays(calories: Int): List<Int> =
         dbQuery {
             Plans.select(Plans.periodDays)
-                .where { (Plans.allowVariantChoice eq allowVariantChoice) and (Plans.calories eq calories) }
+                .where { Plans.calories eq calories }
                 .map { it[Plans.periodDays] }
                 .toList()
                 .distinct()
@@ -91,7 +84,6 @@ class PlanService {
             PlanCalories.fromValue(row[Plans.calories]),
             PlanDays.fromDays(row[Plans.periodDays]),
             row[Plans.pricePerDay],
-            row[Plans.allowVariantChoice],
             row[Plans.createdAt],
             row[Plans.updatedAt],
         )

@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -36,7 +35,6 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PlanRoutesTest {
@@ -54,13 +52,12 @@ class PlanRoutesTest {
             client.post("/api/plans") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
-                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000, true))
+                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 id = obj["id"]!!.jsonPrimitive.int
                 assertEquals("C1800", obj["calories"]!!.jsonPrimitive.content)
-                assertTrue(obj["allowVariantChoice"]!!.jsonPrimitive.boolean)
             }
 
             // List
@@ -75,12 +72,11 @@ class PlanRoutesTest {
             client.put("/api/plans/$id") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
-                setBody(PlanUpdateDto(PlanCalories.C2000, allowVariantChoice = false))
+                setBody(PlanUpdateDto(PlanCalories.C2000))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals("C2000", obj["calories"]!!.jsonPrimitive.content)
-                assertFalse(obj["allowVariantChoice"]!!.jsonPrimitive.boolean)
             }
 
             // Delete
@@ -104,7 +100,6 @@ class PlanRoutesTest {
                     it[calories] = 1800
                     it[periodDays] = 30
                     it[pricePerDay] = 2000
-                    it[allowVariantChoice] = true
                 }.value
                 planId1800 = planId1
 
@@ -112,22 +107,19 @@ class PlanRoutesTest {
                     it[calories] = 2000
                     it[periodDays] = 14
                     it[pricePerDay] = 2500
-                    it[allowVariantChoice] = false
                 }.value
                 planId2000 = planId2
 
-                // Additional plans for options testing
+                // Additional plans for option testing
                 Plans.insert {
                     it[calories] = 1800
                     it[periodDays] = 14
                     it[pricePerDay] = 1800
-                    it[allowVariantChoice] = true
                 }
                 Plans.insert {
                     it[calories] = 2200
                     it[periodDays] = 30
                     it[pricePerDay] = 2200
-                    it[allowVariantChoice] = false
                 }
             }
 
@@ -177,26 +169,18 @@ class PlanRoutesTest {
             }
             assertEquals(1, recordCount)
 
-            // Test 5: Get available calories for with variants
-            client.get("/api/plans/calories?allowVariantChoice=true") { authHeader(customer.token) }
+            // Test 5: Get available calories
+            client.get("/api/plans/calories") { authHeader(customer.token) }
                 .apply {
                     assertEquals(HttpStatusCode.OK, status)
                     val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
                     assertTrue(arr.isNotEmpty())
                     assertTrue(arr.any { it.jsonPrimitive.int == 1800 })
-                }
-
-            // Test 6: Get available calories for without variants
-            client.get("/api/plans/calories?allowVariantChoice=false") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                    assertTrue(arr.isNotEmpty())
                     assertTrue(arr.any { it.jsonPrimitive.int == 2000 })
                 }
 
-            // Test 7: Get available days for specific calories with variants
-            client.get("/api/plans/days?allowVariantChoice=true&calories=1800") { authHeader(customer.token) }
+            // Test 6: Get available days for specific calories
+            client.get("/api/plans/days?calories=1800") { authHeader(customer.token) }
                 .apply {
                     assertEquals(HttpStatusCode.OK, status)
                     val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
@@ -205,8 +189,8 @@ class PlanRoutesTest {
                     assertTrue(arr.any { it.jsonPrimitive.int == 14 })
                 }
 
-            // Test 8: Get available days without calories parameter (should fail)
-            client.get("/api/plans/days?allowVariantChoice=true") { authHeader(customer.token) }
+            // Test 7: Get available days without calorie parameter (should fail)
+            client.get("/api/plans/days") { authHeader(customer.token) }
                 .apply {
                     assertEquals(HttpStatusCode.BadRequest, status)
                 }

@@ -36,8 +36,6 @@
     <string name="go_to_register">Зарегистрироваться</string>
     <string name="back_to_login">Назад к входу</string>
     <string name="error_prefix">Ошибка: %1$s</string>
-    <string name="no_variants">Без вариантов</string>
-    <string name="with_variants">С вариантами</string>
     <string name="period_days">Период дней</string>
     <string name="no_plans_available">Нет доступных планов для выбранной опции</string>
     <string name="label_price_per_day">Цена за день: %1$s</string>

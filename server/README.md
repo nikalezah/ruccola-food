@@ -35,7 +35,7 @@ Business logic is organized into service classes:
 
 - `JwtService` - JWT token generation and validation
 - `UserService` - User lookup and management
-- `DishService` - Dish and variant operations
+- `DishService` - Dish operations
 - `CustomerService` - Customer operations
 - `DayService` - Day and daily dish operations
 - `MealPlanDayService` - Meal plan day operations
@@ -52,9 +52,7 @@ The database schema is managed through Exposed table definitions in `model/` and
 
 - `Users` - User accounts
 - `Dishes` - Dish definitions
-- `DishVariants` - Dish variant options
 - `DishImages` - Dish image references
-- `DishVariantCustomers` - Customer-variant associations
 - `Customers` - Customer records
 - `Days` - Daily menu entries
 - `DayDishes` - Dishes assigned to days

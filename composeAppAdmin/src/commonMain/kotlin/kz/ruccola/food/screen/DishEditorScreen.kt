@@ -1,6 +1,5 @@
 package kz.ruccola.food.screen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,13 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,7 +23,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,28 +30,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import food.composeappadmin.generated.resources.Res
-import food.composeappadmin.generated.resources.add
 import food.composeappadmin.generated.resources.cancel
 import food.composeappadmin.generated.resources.close
-import food.composeappadmin.generated.resources.delete
 import food.composeappadmin.generated.resources.description
 import food.composeappadmin.generated.resources.edit
 import food.composeappadmin.generated.resources.edit_description
 import food.composeappadmin.generated.resources.edit_dish
 import food.composeappadmin.generated.resources.edit_name
 import food.composeappadmin.generated.resources.images
-import food.composeappadmin.generated.resources.label_customers
 import food.composeappadmin.generated.resources.name
 import food.composeappadmin.generated.resources.new_dish
-import food.composeappadmin.generated.resources.no_customers_bound
 import food.composeappadmin.generated.resources.save
-import food.composeappadmin.generated.resources.variants
 import kz.ruccola.food.api.DishDto
-import kz.ruccola.food.api.DishVariantDto
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SquareImagesCarousel200
-import kz.ruccola.food.ui.SwipeToRemove
 import kz.ruccola.food.viewmodel.DishEditorViewModel
 import org.jetbrains.compose.resources.stringResource
 
@@ -68,8 +57,6 @@ fun DishEditorScreen(
     val viewModel = remember(initialDish) { DishEditorViewModel(initialDish) }
     val uiState by viewModel.uiState.collectAsState()
 
-    var variantEditorVisible by remember { mutableStateOf(false) }
-    var editingVariant by remember { mutableStateOf<DishVariantDto?>(null) }
     var imageEditorVisible by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -211,82 +198,6 @@ fun DishEditorScreen(
                 }
                 Spacer(Modifier.height(8.dp))
                 SquareImagesCarousel200(imageUrls = uiState.dish?.images?.map { it.url } ?: emptyList())
-
-                Spacer(Modifier.height(24.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(Res.string.variants),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f),
-                    )
-                    IconButton(enabled = !uiState.isBusy, onClick = {
-                        editingVariant = null
-                        variantEditorVisible = true
-                    }) {
-                        Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-
-                if (!uiState.variantsLoaded) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        uiState.variants.forEach { v ->
-                            key(v.id) {
-                                SwipeToRemove(
-                                    Icons.Filled.Delete,
-                                    stringResource(Res.string.delete),
-                                    { viewModel.deleteVariant(v) },
-                                    CardDefaults.outlinedShape,
-                                    enabled = !uiState.isBusy,
-                                ) {
-                                    OutlinedCard(
-                                        onClick = {
-                                            editingVariant = v
-                                            variantEditorVisible = true
-                                        },
-                                    ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Column(Modifier.padding(12.dp).weight(1f)) {
-                                                Text(v.description, style = MaterialTheme.typography.bodyLarge)
-                                                Spacer(Modifier.height(4.dp))
-
-                                                val ids = uiState.variantCustomers[v.id]
-                                                when {
-                                                    uiState.customersLoading && ids == null -> {
-                                                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                                                    }
-
-                                                    ids.isNullOrEmpty() -> {
-                                                        Text(
-                                                            stringResource(Res.string.no_customers_bound),
-                                                            style = MaterialTheme.typography.bodySmall,
-                                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        )
-                                                    }
-
-                                                    else -> {
-                                                        val names = ids.map { cid ->
-                                                            val c = uiState.allCustomers?.find { it.id == cid }
-                                                            if (c != null) "${c.firstName} ${c.lastName}" else "ID $cid"
-                                                        }
-                                                        val line = names.joinToString(", ")
-                                                        Text(
-                                                            stringResource(Res.string.label_customers, line),
-                                                            style = MaterialTheme.typography.bodySmall,
-                                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             if (uiState.isBusy) {
@@ -294,20 +205,6 @@ fun DishEditorScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
-    }
-
-    if (variantEditorVisible && uiState.dish != null) {
-        DishVariantEditorScreen(
-            dishId = uiState.dish!!.id,
-            dishName = uiState.dish!!.name,
-            existing = editingVariant,
-            initialCustomerIds = editingVariant?.let { uiState.variantCustomers[it.id] },
-            onClose = { variantEditorVisible = false },
-            onSaved = { _, _ ->
-                variantEditorVisible = false
-                viewModel.loadVariants()
-            },
-        )
     }
 
     if (imageEditorVisible && uiState.dish != null) {

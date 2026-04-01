@@ -36,8 +36,6 @@
     <string name="go_to_register">Тіркелу</string>
     <string name="back_to_login">Кіруге қайту</string>
     <string name="error_prefix">Қате: %1$s</string>
-    <string name="no_variants">Нұсқасыз</string>
-    <string name="with_variants">Нұсқалармен</string>
     <string name="period_days">Күндер кезеңі</string>
     <string name="no_plans_available">Таңдалған нұсқа үшін қолжетімді жоспарлар жоқ</string>
     <string name="label_price_per_day">Күніне бағасы: %1$s</string>

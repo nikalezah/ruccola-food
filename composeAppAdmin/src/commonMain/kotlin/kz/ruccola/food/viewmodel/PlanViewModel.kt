@@ -50,12 +50,11 @@ class PlanViewModel : ViewModel() {
         calories: PlanCalories,
         periodDays: PlanDays,
         pricePerDay: Int,
-        allowVariantChoice: Boolean,
     ) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, error = null) }
             try {
-                api.create(PlanCreateDto(calories, periodDays, pricePerDay, allowVariantChoice))
+                api.create(PlanCreateDto(calories, periodDays, pricePerDay))
                 uiState.update { it.copy(isSaving = false) }
                 loadAll()
             } catch (e: Exception) {
@@ -69,12 +68,11 @@ class PlanViewModel : ViewModel() {
         calories: PlanCalories?,
         periodDays: PlanDays?,
         pricePerDay: Int?,
-        allowVariantChoice: Boolean?,
     ) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, error = null) }
             try {
-                api.update(id, PlanUpdateDto(calories, periodDays, pricePerDay, allowVariantChoice))
+                api.update(id, PlanUpdateDto(calories, periodDays, pricePerDay))
                 uiState.update { it.copy(isSaving = false) }
                 loadAll()
             } catch (e: Exception) {

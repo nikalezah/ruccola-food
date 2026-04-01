@@ -17,15 +17,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,6 +43,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
+import food.composeappadmin.generated.resources.add
 import food.composeappadmin.generated.resources.calories
 import food.composeappadmin.generated.resources.cancel
 import food.composeappadmin.generated.resources.create_plan
@@ -51,21 +51,17 @@ import food.composeappadmin.generated.resources.delete
 import food.composeappadmin.generated.resources.edit_plan
 import food.composeappadmin.generated.resources.error_prefix
 import food.composeappadmin.generated.resources.kcal_days
-import food.composeappadmin.generated.resources.new_price_no_variants
-import food.composeappadmin.generated.resources.new_price_with_variants
 import food.composeappadmin.generated.resources.no_plans
-import food.composeappadmin.generated.resources.no_variants
 import food.composeappadmin.generated.resources.period_days
 import food.composeappadmin.generated.resources.price_per_day_short
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.save
 import food.composeappadmin.generated.resources.tab_plans
 import food.composeappadmin.generated.resources.total_for_period
-import food.composeappadmin.generated.resources.with_variants
 import kz.ruccola.food.api.PlanDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
-import kz.ruccola.food.ui.FabMenu
+import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.PullToRefresh
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.PlanViewModel
@@ -80,14 +76,9 @@ fun PlanScreen() {
 
     var showEditor by remember { mutableStateOf(false) }
     var editingPlan by remember { mutableStateOf<PlanDto?>(null) }
-    var selectedTab by remember { mutableIntStateOf(0) }
 
-    var createAllowVariant by remember { mutableStateOf(false) }
     var prefillCalories by remember { mutableStateOf<PlanCalories?>(null) }
     var prefillDays by remember { mutableStateOf<PlanDays?>(null) }
-
-    val noVariants = remember(state.items) { state.items.filter { !it.allowVariantChoice } }
-    val withVariants = remember(state.items) { state.items.filter { it.allowVariantChoice } }
 
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
@@ -99,24 +90,14 @@ fun PlanScreen() {
             )
         },
         floatingActionButton = {
-            val onClick = {
+            FloatingActionButton(onClick = {
                 editingPlan = null
                 prefillCalories = null
                 prefillDays = null
                 showEditor = true
+            }) {
+                Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
             }
-            FabMenu(
-                listOf(
-                    Triple(null, stringResource(Res.string.new_price_no_variants)) {
-                        onClick()
-                        createAllowVariant = false
-                    },
-                    Triple(null, stringResource(Res.string.new_price_with_variants)) {
-                        onClick()
-                        createAllowVariant = true
-                    },
-                ),
-            )
         },
     ) { padding ->
         PullToRefresh(
@@ -130,19 +111,6 @@ fun PlanScreen() {
                     translationY = ptrState.distanceFraction * thresholdPx
                 },
             ) {
-                PrimaryTabRow(selectedTabIndex = selectedTab) {
-                    Tab(
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
-                        text = { Text(stringResource(Res.string.no_variants)) },
-                    )
-                    Tab(
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        text = { Text(stringResource(Res.string.with_variants)) },
-                    )
-                }
-
                 Box(Modifier.fillMaxSize()) {
                     if (state.error != null && state.items.isEmpty()) {
                         Column(
@@ -157,9 +125,8 @@ fun PlanScreen() {
                             Button(onClick = { vm.loadAll() }) { Text(stringResource(Res.string.retry)) }
                         }
                     } else {
-                        val itemsToShow = if (selectedTab == 0) noVariants else withVariants
                         PlansTable(
-                            items = itemsToShow,
+                            items = state.items,
                             onCellClick = { plan ->
                                 prefillCalories = null
                                 prefillDays = null
@@ -168,7 +135,6 @@ fun PlanScreen() {
                             },
                             onEmptyCellClick = { cal, d ->
                                 editingPlan = null
-                                createAllowVariant = selectedTab == 1
                                 prefillCalories = cal
                                 prefillDays = d
                                 showEditor = true
@@ -183,18 +149,17 @@ fun PlanScreen() {
     if (showEditor) {
         PlanEditorDialog(
             plan = editingPlan,
-            initialAllowForCreate = if (editingPlan == null) createAllowVariant else null,
             initialCalories = prefillCalories,
             initialDays = prefillDays,
             onDismiss = {
                 showEditor = false
                 vm.clearError()
             },
-            onSave = { cals, days, ppd, allow ->
+            onSave = { cals, days, ppd ->
                 if (editingPlan == null) {
-                    vm.create(cals, days, ppd, allow)
+                    vm.create(cals, days, ppd)
                 } else {
-                    vm.update(editingPlan!!.id, cals, days, ppd, allow)
+                    vm.update(editingPlan!!.id, cals, days, ppd)
                 }
                 showEditor = false
             },
@@ -294,11 +259,10 @@ fun PlansTable(
 @Composable
 fun PlanEditorDialog(
     plan: PlanDto?,
-    initialAllowForCreate: Boolean?,
     initialCalories: PlanCalories?,
     initialDays: PlanDays?,
     onDismiss: () -> Unit,
-    onSave: (PlanCalories, PlanDays, Int, Boolean) -> Unit,
+    onSave: (PlanCalories, PlanDays, Int) -> Unit,
     onDelete: (Int) -> Unit,
     isSaving: Boolean,
     error: String?,
@@ -312,23 +276,15 @@ fun PlanEditorDialog(
     var calories by remember { mutableStateOf(plan?.calories ?: (initialCalories ?: PlanCalories.C900)) }
     var days by remember { mutableStateOf(plan?.periodDays ?: (initialDays ?: PlanDays.D1)) }
     var ppd by remember { mutableStateOf(plan?.pricePerDay?.toString() ?: "") }
-    var allow by remember { mutableStateOf(plan?.allowVariantChoice ?: (initialAllowForCreate ?: false)) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            val title = if (plan == null) {
-                val type =
-                    if (allow) stringResource(Res.string.with_variants) else stringResource(Res.string.no_variants)
-                "${stringResource(Res.string.create_plan)} — $type"
-            } else {
-                stringResource(Res.string.edit_plan)
-            }
-            Text(title)
+            Text(if (plan == null) stringResource(Res.string.create_plan) else stringResource(Res.string.edit_plan))
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                // Calories slider
+                // Calorie slider
                 val calOptions = remember { PlanCalories.entries.toList() }
                 val selectedIndex = remember(calories) { calOptions.indexOf(calories).coerceAtLeast(0) }
                 var sliderPos by remember { mutableStateOf(selectedIndex.toFloat()) }
@@ -399,7 +355,7 @@ fun PlanEditorDialog(
             Button(
                 onClick = {
                     val price = ppd.toIntOrNull() ?: return@Button
-                    onSave(calories, days, price, allow)
+                    onSave(calories, days, price)
                 },
                 enabled = !isSaving && ppd.isNotEmpty(),
             ) {

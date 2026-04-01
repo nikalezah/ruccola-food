@@ -115,14 +115,6 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun setAllowVariants(allow: Boolean) {
-        if (uiState.value.allowVariants == allow) return
-        uiState.update { it.copy(allowVariants = allow) }
-        viewModelScope.launch {
-            updateDialogOptions(preserveDay = true)
-        }
-    }
-
     fun setCaloriesIndex(index: Int) {
         if (uiState.value.caloriesIndex == index) return
         uiState.update { it.copy(caloriesIndex = index) }
@@ -138,7 +130,7 @@ class ProfileViewModel : ViewModel() {
     private suspend fun updateDialogOptions(preserveDay: Boolean) {
         val state = uiState.value
         try {
-            val caloriesOptions = planApi.getAvailableCalories(state.allowVariants)
+            val caloriesOptions = planApi.getAvailableCalories()
             uiState.update { it.copy(caloriesOptions = caloriesOptions) }
 
             // Try to keep current calories if possible, or use initial if it's first load
@@ -150,7 +142,7 @@ class ProfileViewModel : ViewModel() {
 
             val selectedCalories = caloriesOptions.getOrNull(newCaloriesIndex)
             if (selectedCalories != null) {
-                val daysOptions = planApi.getAvailableDays(state.allowVariants, selectedCalories)
+                val daysOptions = planApi.getAvailableDays(selectedCalories)
                 uiState.update { it.copy(daysOptions = daysOptions) }
 
                 val oldDay = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
@@ -176,9 +168,7 @@ class ProfileViewModel : ViewModel() {
         val calories = state.caloriesOptions.getOrNull(state.caloriesIndex)
         val days = state.selectedDayIndex?.let { state.daysOptions.getOrNull(it) }
         val matchingPlan = state.allPlans.firstOrNull { p ->
-            p.allowVariantChoice == state.allowVariants &&
-                p.calories.amount == calories &&
-                p.periodDays.amount == days
+            p.calories.amount == calories && p.periodDays.amount == days
         }
 
         if (matchingPlan != null) {
@@ -216,7 +206,6 @@ data class ProfileUiState(
     val isLoadingPlansForDialog: Boolean = false,
     val isSavingPlan: Boolean = false,
     val dialogError: String? = null,
-    val allowVariants: Boolean = false,
     val caloriesOptions: List<Int> = emptyList(),
     val caloriesIndex: Int = 0,
     val daysOptions: List<Int> = emptyList(),

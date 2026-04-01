@@ -8,7 +8,6 @@ object Plans : IntIdTable("plans") {
     val calories = integer("calories")
     val periodDays = integer("period_days")
     val pricePerDay = integer("price_per_day")
-    val allowVariantChoice = bool("allow_variant_choice").default(false)
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
 }

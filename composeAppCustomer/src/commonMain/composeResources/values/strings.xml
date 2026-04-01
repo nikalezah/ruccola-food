@@ -36,8 +36,6 @@
     <string name="go_to_register">Go to register</string>
     <string name="back_to_login">Back to login</string>
     <string name="error_prefix">Error: %1$s</string>
-    <string name="no_variants">No variants</string>
-    <string name="with_variants">With variants</string>
     <string name="period_days">Period days</string>
     <string name="no_plans_available">No plans available</string>
     <string name="label_price_per_day">Price per day: %1$s</string>

@@ -17,7 +17,6 @@ for managing dishes, meal plans, customers, and chat communications.
 | `DishScreen`              | List and manage dishes with swipe-to-archive and pull-to-refresh |
 | `DishEditorScreen`        | Create/edit dish details                                         |
 | `DishImagesEditorScreen`  | Manage dish images                                               |
-| `DishVariantEditorScreen` | Manage dish variants                                             |
 | `MealPlanDayScreen`       | View and manage meal plan days                                   |
 | `MealPlanDayEditorScreen` | Edit meal plan day dishes                                        |
 | `DayScreen`               | View and manage days                                             |
@@ -34,7 +33,6 @@ All ViewModels follow the MVVM pattern and communicate with shared APIs from the
 - `DishViewModel` - Manages dish list and operations
 - `DishEditorViewModel` - Manages dish editing state
 - `DishImagesViewModel` - Manages dish image operations
-- `DishVariantViewModel` - Manages dish variant operations
 - `MealPlanDayViewModel` - Manages meal plan day operations
 - `DayViewModel` - Manages day operations
 - `PlanViewModel` - Manages plan operations
@@ -56,7 +54,7 @@ Platform-specific code:
 
 ## Key Features
 
-- Dish management with images and variants
+- Dish management with images
 - Meal plan day scheduling with dish assignment
 - Day management with dish tracking
 - Plan management

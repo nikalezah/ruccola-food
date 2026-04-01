@@ -9,8 +9,6 @@ import kz.ruccola.food.model.Customers
 import kz.ruccola.food.model.DayDishes
 import kz.ruccola.food.model.Days
 import kz.ruccola.food.model.DishImages
-import kz.ruccola.food.model.DishVariantCustomers
-import kz.ruccola.food.model.DishVariants
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
 import kz.ruccola.food.model.MealPlanDayDishes
@@ -44,8 +42,6 @@ class M001InitialMigration : Migration {
                 CustomerPlans,
                 DayDishes,
                 DishImages,
-                DishVariants,
-                DishVariantCustomers,
                 MealPlanDayDishes,
                 Chats,
                 Messages,

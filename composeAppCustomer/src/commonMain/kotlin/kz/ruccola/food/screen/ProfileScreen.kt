@@ -61,7 +61,6 @@ import food.composeappcustomer.generated.resources.loading_plan
 import food.composeappcustomer.generated.resources.log_out
 import food.composeappcustomer.generated.resources.no_plan_selected
 import food.composeappcustomer.generated.resources.no_plans_available
-import food.composeappcustomer.generated.resources.no_variants
 import food.composeappcustomer.generated.resources.period_days
 import food.composeappcustomer.generated.resources.save
 import food.composeappcustomer.generated.resources.saving
@@ -70,7 +69,6 @@ import food.composeappcustomer.generated.resources.theme_dark
 import food.composeappcustomer.generated.resources.theme_light
 import food.composeappcustomer.generated.resources.theme_section_title
 import food.composeappcustomer.generated.resources.theme_system
-import food.composeappcustomer.generated.resources.with_variants
 import kotlinx.datetime.LocalDate
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.Icons
@@ -358,12 +356,6 @@ private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
         title = { Text(stringResource(Res.string.choose_plan), style = MaterialTheme.typography.titleMedium) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                ToggleButtonsRow(
-                    options = listOf(stringResource(Res.string.no_variants), stringResource(Res.string.with_variants)),
-                    initialSelectedIndex = if (uiState.allowVariants) 1 else 0,
-                    onSelectedIndexChange = { i: Int -> viewModel.setAllowVariants(i == 1) },
-                )
-
                 if (uiState.caloriesOptions.isNotEmpty()) {
                     val maxIndex = (uiState.caloriesOptions.size - 1).coerceAtLeast(0)
                     val steps = if (maxIndex >= 1) maxIndex - 1 else 0
@@ -397,9 +389,7 @@ private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
                     null
                 } else {
                     uiState.allPlans.firstOrNull { p ->
-                        p.allowVariantChoice == uiState.allowVariants &&
-                            p.calories.amount == selectedCalories &&
-                            p.periodDays.amount == selectedDays
+                        p.calories.amount == selectedCalories && p.periodDays.amount == selectedDays
                     }
                 }
                 val totalPrice = matchingPlan?.let { it.pricePerDay * (selectedDays ?: 0) }
@@ -424,9 +414,7 @@ private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
                 null
             } else {
                 uiState.allPlans.firstOrNull { p ->
-                    p.allowVariantChoice == uiState.allowVariants &&
-                        p.calories.amount == selectedCalories &&
-                        p.periodDays.amount == selectedDays
+                    p.calories.amount == selectedCalories && p.periodDays.amount == selectedDays
                 }
             }
 

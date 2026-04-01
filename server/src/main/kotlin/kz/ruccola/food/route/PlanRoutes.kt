@@ -35,9 +35,7 @@ fun Route.configurePlanRoutes() {
 
         put<Plans.Id> { plan ->
             val body = call.receive<PlanUpdateDto>()
-            if (body.calories == null && body.periodDays == null && body.pricePerDay == null &&
-                body.allowVariantChoice == null
-            ) {
+            if (body.calories == null && body.periodDays == null && body.pricePerDay == null) {
                 call.respond(HttpStatusCode.BadRequest, "At least one field must be provided")
                 return@put
             }
@@ -52,12 +50,12 @@ fun Route.configurePlanRoutes() {
     }
 
     withRole(Role.CUSTOMER) {
-        get<Plans.Calories> { calories ->
-            call.respond(service.getAvailableCalories(calories.allowVariantChoice))
+        get<Plans.Calories> {
+            call.respond(service.getAvailableCalories())
         }
 
         get<Plans.Days> { days ->
-            call.respond(service.getAvailableDays(days.allowVariantChoice, days.calories))
+            call.respond(service.getAvailableDays(days.calories))
         }
     }
 }
