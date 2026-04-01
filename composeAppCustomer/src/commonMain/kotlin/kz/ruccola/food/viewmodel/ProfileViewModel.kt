@@ -116,12 +116,12 @@ class ProfileViewModel : ViewModel() {
 
     fun setCaloriesIndex(index: Int) {
         if (uiState.value.caloriesIndex == index) return
-        uiState.update { it.copy(caloriesIndex = index) }
+        uiState.update { it.copy(caloriesIndex = index, dialogError = null) }
         updateDialogOptions(preserveDay = false)
     }
 
     fun setSelectedDayIndex(index: Int?) {
-        uiState.update { it.copy(selectedDayIndex = index) }
+        uiState.update { it.copy(selectedDayIndex = index, dialogError = null) }
     }
 
     private fun updateDialogOptions(preserveDay: Boolean) {

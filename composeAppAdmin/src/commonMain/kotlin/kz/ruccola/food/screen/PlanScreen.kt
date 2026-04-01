@@ -173,6 +173,7 @@ fun PlanScreen() {
                 vm.delete(id)
                 showEditor = false
             },
+            onClearError = { vm.clearError() },
             isSaving = state.isSaving,
             error = state.error,
         )
@@ -270,6 +271,7 @@ fun PlanEditorDialog(
     onDismiss: () -> Unit,
     onSave: (PlanCalories, PlanDays, Int) -> Unit,
     onDelete: (Int) -> Unit,
+    onClearError: () -> Unit,
     isSaving: Boolean,
     error: String?,
 ) {
@@ -311,6 +313,7 @@ fun PlanEditorDialog(
                             sliderPos = v
                             val idx = v.roundToInt().coerceIn(0, calOptions.lastIndex)
                             calories = calOptions[idx]
+                            onClearError()
                         },
                         valueRange = 0f..calOptions.lastIndex.toFloat(),
                         steps = (calOptions.size - 2).coerceAtLeast(0),
@@ -320,7 +323,10 @@ fun PlanEditorDialog(
                     ToggleButtonsRow(
                         options = PlanDays.entries.map { it.amount.toString() },
                         initialSelectedIndex = PlanDays.entries.indexOf(days),
-                        onSelectedIndexChange = { i: Int -> days = PlanDays.entries[i] },
+                        onSelectedIndexChange = { i: Int ->
+                            days = PlanDays.entries[i]
+                            onClearError()
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
