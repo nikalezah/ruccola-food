@@ -159,7 +159,7 @@ fun PlanScreen() {
                 if (editingPlan == null) {
                     vm.create(cals, days, ppd)
                 } else {
-                    vm.update(editingPlan!!.id, cals, days, ppd)
+                    vm.update(editingPlan!!.id, ppd)
                 }
                 showEditor = false
             },

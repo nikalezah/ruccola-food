@@ -65,14 +65,12 @@ class PlanViewModel : ViewModel() {
 
     fun update(
         id: Int,
-        calories: PlanCalories?,
-        periodDays: PlanDays?,
         pricePerDay: Int?,
     ) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, error = null) }
             try {
-                api.update(id, PlanUpdateDto(calories, periodDays, pricePerDay))
+                api.update(id, PlanUpdateDto(pricePerDay))
                 uiState.update { it.copy(isSaving = false) }
                 loadAll()
             } catch (e: Exception) {

@@ -72,11 +72,11 @@ class PlanRoutesTest {
             client.put("/api/plans/$id") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
-                setBody(PlanUpdateDto(PlanCalories.C2000))
+                setBody(PlanUpdateDto(5000))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
-                assertEquals("C2000", obj["calories"]!!.jsonPrimitive.content)
+                assertEquals(5000, obj["pricePerDay"]!!.jsonPrimitive.int)
             }
 
             // Delete
@@ -84,6 +84,28 @@ class PlanRoutesTest {
                 .apply { assertEquals(HttpStatusCode.OK, status) }
             client.get("/api/plans/$id") { authHeader(token) }
                 .apply { assertEquals(HttpStatusCode.NotFound, status) }
+        }
+
+    @Test
+    fun testDuplicatePlan() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            client.post("/api/plans") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000))
+            }.apply {
+                assertEquals(HttpStatusCode.Created, status)
+            }
+
+            client.post("/api/plans") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2500))
+            }.apply {
+                assertEquals(HttpStatusCode.Conflict, status)
+                assertEquals("A plan with these calories and days already exists", bodyAsText())
+            }
         }
 
     @Test

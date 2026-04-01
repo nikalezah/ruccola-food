@@ -77,7 +77,5 @@ data class PlanCreateDto(
 
 @Serializable
 data class PlanUpdateDto(
-    val calories: PlanCalories? = null,
-    val periodDays: PlanDays? = null,
     val pricePerDay: Int? = null,
 )

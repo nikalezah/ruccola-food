@@ -48,6 +48,7 @@ class M001InitialMigration : Migration {
                 MessageReads,
             )
 
+            exec("CREATE UNIQUE INDEX ux_plans_calories_period_days ON plans(calories, period_days);")
             // Unique partial index: only one meal plan a day may have current = TRUE
             exec("CREATE UNIQUE INDEX ux_meal_plan_days_current_true ON meal_plan_days(current) WHERE current = TRUE;")
             // Case-insensitive unique index on trimmed name (only for non-archived dishes)

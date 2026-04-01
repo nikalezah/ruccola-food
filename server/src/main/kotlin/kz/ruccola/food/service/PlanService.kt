@@ -14,6 +14,7 @@ import kz.ruccola.food.model.Plans
 import kz.ruccola.food.now
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insertReturning
@@ -24,6 +25,16 @@ class PlanService {
     suspend fun getAll(): List<PlanDto> =
         dbQuery {
             Plans.selectAll().orderBy(Plans.id to SortOrder.ASC).map(::toDto).toList()
+        }
+
+    suspend fun exists(
+        calories: Int,
+        periodDays: Int,
+    ): Boolean =
+        dbQuery {
+            Plans.selectAll()
+                .where { (Plans.calories eq calories) and (Plans.periodDays eq periodDays) }
+                .count() > 0
         }
 
     suspend fun create(newPlan: PlanCreateDto): PlanDto =
@@ -43,8 +54,6 @@ class PlanService {
     ): PlanDto? =
         dbQuery {
             Plans.updateReturning(where = { Plans.id eq id }) {
-                update.calories?.let { c -> it[calories] = c.value }
-                update.periodDays?.let { d -> it[periodDays] = d.amount }
                 update.pricePerDay?.let { p -> it[pricePerDay] = p }
                 it[updatedAt] = now()
             }

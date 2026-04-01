@@ -29,13 +29,17 @@ fun Route.configurePlanRoutes() {
                 call.respond(HttpStatusCode.BadRequest, "Invalid values")
                 return@post
             }
+            if (service.exists(body.calories.value, body.periodDays.amount)) {
+                call.respond(HttpStatusCode.Conflict, "A plan with these calories and days already exists")
+                return@post
+            }
             val created = service.create(body)
             call.respond(HttpStatusCode.Created, created)
         }
 
         put<Plans.Id> { plan ->
             val body = call.receive<PlanUpdateDto>()
-            if (body.calories == null && body.periodDays == null && body.pricePerDay == null) {
+            if (body.pricePerDay == null) {
                 call.respond(HttpStatusCode.BadRequest, "At least one field must be provided")
                 return@put
             }
