@@ -113,24 +113,22 @@ class PlanRoutesTest {
         testApp { client ->
             // Setup: Create a customer and plans
             val customer = client.registerCustomer()
-            var planId1800 = 0
-            var planId2000 = 0
+            var planId1 = 0
+            var planId2 = 0
 
             suspendTransaction {
                 // Create plans with different options
-                val planId1 = Plans.insertAndGetId {
-                    it[calories] = 1800
+                planId1 = Plans.insertAndGetId {
+                    it[calories] = 1200
                     it[periodDays] = 30
                     it[pricePerDay] = 2000
                 }.value
-                planId1800 = planId1
 
-                val planId2 = Plans.insertAndGetId {
-                    it[calories] = 2000
+                planId2 = Plans.insertAndGetId {
+                    it[calories] = 1500
                     it[periodDays] = 14
                     it[pricePerDay] = 2500
                 }.value
-                planId2000 = planId2
 
                 // Additional plans for option testing
                 Plans.insert {
@@ -156,12 +154,12 @@ class PlanRoutesTest {
             client.post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
-                setBody(CustomerPlanCreateDto(planId1800, today))
+                setBody(CustomerPlanCreateDto(planId1, today))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(customer.user.id, obj["customerId"]!!.jsonPrimitive.int)
-                assertEquals(planId1800, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
+                assertEquals(planId1, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
                 assertEquals(today.toString(), obj["chosenDate"]!!.jsonPrimitive.content)
             }
 
@@ -171,18 +169,18 @@ class PlanRoutesTest {
                     assertEquals(HttpStatusCode.OK, status)
                     val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                     assertEquals(customer.user.id, obj["customerId"]!!.jsonPrimitive.int)
-                    assertEquals(planId1800, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
+                    assertEquals(planId1, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
                 }
 
             // Test 4: Update plan with the same date (should replace)
             client.post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
-                setBody(CustomerPlanCreateDto(planId2000, today))
+                setBody(CustomerPlanCreateDto(planId2, today))
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
-                assertEquals(planId2000, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
+                assertEquals(planId2, obj["plan"]!!.jsonObject["id"]!!.jsonPrimitive.int)
             }
 
             // Verify only one record exists for today
