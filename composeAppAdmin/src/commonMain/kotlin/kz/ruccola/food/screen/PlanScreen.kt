@@ -146,6 +146,13 @@ fun PlanScreen() {
         }
     }
 
+    LaunchedEffect(state.isSaved) {
+        if (state.isSaved) {
+            showEditor = false
+            vm.resetSaved()
+        }
+    }
+
     if (showEditor) {
         PlanEditorDialog(
             plan = editingPlan,
@@ -161,7 +168,6 @@ fun PlanScreen() {
                 } else {
                     vm.update(editingPlan!!.id, ppd)
                 }
-                showEditor = false
             },
             onDelete = { id ->
                 vm.delete(id)

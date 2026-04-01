@@ -52,10 +52,10 @@ class PlanViewModel : ViewModel() {
         pricePerDay: Int,
     ) {
         viewModelScope.launch {
-            uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null, isSaved = false) }
             try {
                 api.create(PlanCreateDto(calories, periodDays, pricePerDay))
-                uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false, isSaved = true) }
                 loadAll()
             } catch (e: Exception) {
                 uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
@@ -68,10 +68,10 @@ class PlanViewModel : ViewModel() {
         pricePerDay: Int?,
     ) {
         viewModelScope.launch {
-            uiState.update { it.copy(isSaving = true, error = null) }
+            uiState.update { it.copy(isSaving = true, error = null, isSaved = false) }
             try {
                 api.update(id, PlanUpdateDto(pricePerDay))
-                uiState.update { it.copy(isSaving = false) }
+                uiState.update { it.copy(isSaving = false, isSaved = true) }
                 loadAll()
             } catch (e: Exception) {
                 uiState.update { it.copy(error = e.message ?: "Unknown error", isSaving = false) }
@@ -95,6 +95,10 @@ class PlanViewModel : ViewModel() {
     fun clearError() {
         uiState.update { it.copy(error = null) }
     }
+
+    fun resetSaved() {
+        uiState.update { it.copy(isSaved = false) }
+    }
 }
 
 data class PlanUiState(
@@ -102,4 +106,5 @@ data class PlanUiState(
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
+    val isSaved: Boolean = false,
 )
