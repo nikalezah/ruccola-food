@@ -115,7 +115,9 @@ data class CustomerUpdateDto(
 data class CustomerPlanDetailsDto(
     val id: Int,
     val customerId: Int,
-    val plan: PlanDto,
+    val calories: Int,
+    val pricePerDay: Int,
+    val days: Int,
     @Serializable(with = LocalDateIso8601Serializer::class)
     val chosenDate: LocalDate,
 )
@@ -123,6 +125,7 @@ data class CustomerPlanDetailsDto(
 @Serializable
 data class CustomerPlanCreateDto(
     val planId: Int,
+    val days: Int,
     @Serializable(with = LocalDateIso8601Serializer::class)
     val chosenDate: LocalDate,
 )

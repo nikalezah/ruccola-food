@@ -19,6 +19,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.insertReturning
 import org.jetbrains.exposed.v1.r2dbc.select
@@ -26,8 +27,6 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 
 class CustomerService {
-    val planService = PlanService()
-
     suspend fun findById(id: Int): CustomerDto? =
         dbQuery {
             Customers.innerJoin(Users).selectAll()
@@ -112,19 +111,32 @@ class CustomerService {
             Customers.selectAll().where { Customers.id eq customerId }.singleOrNull()
                 ?: throw IllegalArgumentException("Customer not found")
 
-            val planId = Plans.select(Plans.id)
+            val plan = Plans.selectAll()
                 .where { Plans.id eq newCustomerPlan.planId }
                 .singleOrNull()
-                ?.get(Plans.id)
                 ?: throw IllegalArgumentException("Plan not found")
+
+            val calories = plan[Plans.calories]
+
+            val thresholdPlan = Plans.selectAll()
+                .where { (Plans.calories eq calories) and (Plans.periodDays lessEq newCustomerPlan.days) }
+                .orderBy(Plans.periodDays to SortOrder.DESC)
+                .firstOrNull()
+                ?: throw IllegalArgumentException("No plan available for the requested number of days")
+
+            val thresholdPricePerDay = thresholdPlan[Plans.pricePerDay]
+            val thresholdPlanId = thresholdPlan[Plans.id]
 
             CustomerPlans.deleteWhere {
                 (CustomerPlans.customer eq customerId) and (CustomerPlans.chosenDate eq newCustomerPlan.chosenDate)
             }
             val cp = CustomerPlans.insertReturning {
                 it[CustomerPlans.customer] = customerId
-                it[CustomerPlans.plan] = planId
+                it[CustomerPlans.plan] = thresholdPlanId
                 it[CustomerPlans.chosenDate] = newCustomerPlan.chosenDate
+                it[CustomerPlans.calories] = calories
+                it[CustomerPlans.pricePerDay] = thresholdPricePerDay
+                it[CustomerPlans.days] = newCustomerPlan.days
             }.single()
             toCustomerPlanDetailsDto(cp)
         }
@@ -145,12 +157,13 @@ class CustomerService {
             lastMessage,
         )
 
-    suspend fun toCustomerPlanDetailsDto(row: ResultRow): CustomerPlanDetailsDto =
+    fun toCustomerPlanDetailsDto(row: ResultRow): CustomerPlanDetailsDto =
         CustomerPlanDetailsDto(
             row[CustomerPlans.id].value,
             row[CustomerPlans.customer].value,
-            // todo: join plan to avoid n+1 additional query
-            Plans.selectAll().where { Plans.id eq row[CustomerPlans.plan].value }.single().let(planService::toDto),
+            row[CustomerPlans.calories],
+            row[CustomerPlans.pricePerDay],
+            row[CustomerPlans.days],
             row[CustomerPlans.chosenDate],
         )
 }

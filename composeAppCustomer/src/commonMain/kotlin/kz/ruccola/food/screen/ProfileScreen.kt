@@ -168,14 +168,13 @@ fun ProfileScreen(
 
                         else -> {
                             val customerPlan = uiState.customerPlan!!
-                            val plan = customerPlan.plan
                             val startDate = customerPlan.chosenDate
-                            val days = plan.periodDays.amount
+                            val days = customerPlan.days
                             val endEpoch = startDate.toEpochDays() + (days - 1)
                             val endDate = LocalDate.fromEpochDays(endEpoch)
-                            val totalPrice = plan.pricePerDay * days
+                            val totalPrice = customerPlan.pricePerDay * days
 
-                            val kcalText = stringResource(Res.string.format_kcal, plan.calories.amount.toString())
+                            val kcalText = stringResource(Res.string.format_kcal, customerPlan.calories.toString())
                             val totalPriceText = totalPrice.toString()
                             val startDateText = startDate.toString()
                             val endDateText = endDate.toString()
@@ -374,37 +373,23 @@ private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
                     Text(stringResource(Res.string.no_plans_available))
                 }
 
-                if (uiState.daysOptions.isNotEmpty()) {
-                    val maxDayIndex = (uiState.daysOptions.size - 1).coerceAtLeast(0)
-                    val daySteps = if (maxDayIndex >= 1) maxDayIndex - 1 else 0
-                    val shownDays = uiState.daysOptions.getOrNull(uiState.selectedDayIndex ?: 0)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        val daysLabel = shownDays?.toString() ?: "-"
-                        Text(
-                            "${stringResource(Res.string.period_days)}: $daysLabel",
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                        Slider(
-                            value = (uiState.selectedDayIndex ?: 0).toFloat(),
-                            onValueChange = { viewModel.setSelectedDayIndex(it.roundToInt()) },
-                            valueRange = 0f..maxDayIndex.toFloat(),
-                            steps = daySteps,
-                        )
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "${stringResource(Res.string.period_days)}: ${uiState.selectedDays}",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Slider(
+                        value = uiState.selectedDays.toFloat(),
+                        onValueChange = { viewModel.setSelectedDays(it.roundToInt()) },
+                        valueRange = 1f..30f,
+                        steps = 28,
+                    )
                 }
 
-                val selectedCalories = uiState.caloriesOptions.getOrNull(uiState.caloriesIndex)
-                val selectedDays = uiState.selectedDayIndex?.let { uiState.daysOptions.getOrNull(it) }
-                val matchingPlan = if (selectedCalories == null || selectedDays == null) {
-                    null
-                } else {
-                    uiState.allPlans.firstOrNull { p ->
-                        p.calories.amount == selectedCalories && p.periodDays.amount == selectedDays
-                    }
-                }
-                val totalPrice = matchingPlan?.let { it.pricePerDay * (selectedDays ?: 0) }
+                val pricePerDay = viewModel.effectivePricePerDay()
+                val totalPrice = pricePerDay?.let { it * uiState.selectedDays }
 
-                val pricePerDayText = matchingPlan?.pricePerDay?.toString() ?: "-"
+                val pricePerDayText = pricePerDay?.toString() ?: "-"
                 val totalPriceText = totalPrice?.toString() ?: "-"
                 Text(stringResource(Res.string.label_price_per_day, pricePerDayText))
                 Text(stringResource(Res.string.label_total_price, totalPriceText))
@@ -418,19 +403,14 @@ private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
             }
         },
         confirmButton = {
-            val selectedDays = uiState.selectedDayIndex?.let { uiState.daysOptions.getOrNull(it) }
             val selectedCalories = uiState.caloriesOptions.getOrNull(uiState.caloriesIndex)
-            val matchingPlan = if (selectedCalories == null || selectedDays == null) {
-                null
-            } else {
-                uiState.allPlans.firstOrNull { p ->
-                    p.calories.amount == selectedCalories && p.periodDays.amount == selectedDays
-                }
+            val hasValidPlan = selectedCalories != null && uiState.allPlans.any {
+                it.calories.amount == selectedCalories && it.periodDays.amount <= uiState.selectedDays
             }
 
             Button(
                 onClick = { viewModel.savePlan() },
-                enabled = matchingPlan != null && !uiState.isSavingPlan,
+                enabled = hasValidPlan && !uiState.isSavingPlan,
             ) {
                 Text(if (uiState.isSavingPlan) stringResource(Res.string.saving) else stringResource(Res.string.save))
             }
