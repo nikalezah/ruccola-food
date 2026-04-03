@@ -60,6 +60,8 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="screen_dish_details_title">Dish details</string>
+    <string name="tab_subscription">Subscription</string>
+    <string name="screen_subscription_title">Subscription</string>
     <string name="delivery_prefs_title">Delivery preferences</string>
     <string name="needs_cutlery">Need cutlery</string>
     <string name="weekend_delivery">Deliver on weekends</string>

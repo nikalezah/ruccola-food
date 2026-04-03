@@ -15,6 +15,7 @@ import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.tab_chat
 import food.composeappcustomer.generated.resources.tab_profile
 import food.composeappcustomer.generated.resources.tab_schedule
+import food.composeappcustomer.generated.resources.tab_subscription
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.LabeledNavigationBar
@@ -51,6 +52,11 @@ fun MainScreen(
                             showBadge = hasUnreadChat,
                         ),
                         LabeledNavigationTab(
+                            Icons.Filled.Settings,
+                            Icons.Outlined.Settings,
+                            stringResource(Res.string.tab_subscription),
+                        ),
+                        LabeledNavigationTab(
                             Icons.Filled.ManageAccounts,
                             Icons.Outlined.ManageAccounts,
                             stringResource(Res.string.tab_profile),
@@ -79,6 +85,10 @@ fun MainScreen(
                 }
 
                 2 -> {
+                    SubscriptionScreen()
+                }
+
+                3 -> {
                     val profileLanguage = when {
                         language.startsWith("ru") -> "ru"
                         language.startsWith("kk") -> "kk"
