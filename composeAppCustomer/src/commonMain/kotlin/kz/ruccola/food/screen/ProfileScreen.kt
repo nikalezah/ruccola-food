@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,8 +44,10 @@ import food.composeappcustomer.generated.resources.cancel
 import food.composeappcustomer.generated.resources.choose_plan
 import food.composeappcustomer.generated.resources.chosen_plan_title
 import food.composeappcustomer.generated.resources.days_quantity
+import food.composeappcustomer.generated.resources.delivery_prefs_title
 import food.composeappcustomer.generated.resources.edit_personal_info_title
 import food.composeappcustomer.generated.resources.error_prefix
+import food.composeappcustomer.generated.resources.evening
 import food.composeappcustomer.generated.resources.first_name
 import food.composeappcustomer.generated.resources.format_kcal
 import food.composeappcustomer.generated.resources.label_address
@@ -59,6 +62,9 @@ import food.composeappcustomer.generated.resources.language_section_title
 import food.composeappcustomer.generated.resources.last_name
 import food.composeappcustomer.generated.resources.loading_plan
 import food.composeappcustomer.generated.resources.log_out
+import food.composeappcustomer.generated.resources.morning
+import food.composeappcustomer.generated.resources.morning_delivery
+import food.composeappcustomer.generated.resources.needs_cutlery
 import food.composeappcustomer.generated.resources.no_plan_selected
 import food.composeappcustomer.generated.resources.no_plans_available
 import food.composeappcustomer.generated.resources.period_days
@@ -69,6 +75,7 @@ import food.composeappcustomer.generated.resources.theme_dark
 import food.composeappcustomer.generated.resources.theme_light
 import food.composeappcustomer.generated.resources.theme_section_title
 import food.composeappcustomer.generated.resources.theme_system
+import food.composeappcustomer.generated.resources.weekend_delivery
 import kotlinx.datetime.LocalDate
 import kz.ruccola.food.theme.ThemePreference
 import kz.ruccola.food.ui.Icons
@@ -214,6 +221,52 @@ fun ProfileScreen(
                             initialAddress = customer.address,
                         )
                     }
+
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        stringResource(Res.string.delivery_prefs_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(stringResource(Res.string.needs_cutlery))
+                        Switch(
+                            checked = uiState.needsCutlery,
+                            onCheckedChange = {
+                                viewModel.updateDeliveryPrefs(needsCutlery = it)
+                            },
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(stringResource(Res.string.weekend_delivery))
+                        Switch(
+                            checked = uiState.weekendDelivery,
+                            onCheckedChange = {
+                                viewModel.updateDeliveryPrefs(weekendDelivery = it)
+                            },
+                        )
+                    }
+                    Text(
+                        stringResource(Res.string.morning_delivery),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    ToggleButtonsRow(
+                        listOf(
+                            stringResource(Res.string.morning),
+                            stringResource(Res.string.evening),
+                        ),
+                        if (uiState.morningDelivery) 0 else 1,
+                        onSelectedIndexChange = { i ->
+                            viewModel.updateDeliveryPrefs(morningDelivery = i == 0)
+                        },
+                    )
 
                     Spacer(Modifier.height(16.dp))
                     Text(stringResource(Res.string.theme_section_title), style = MaterialTheme.typography.titleMedium)

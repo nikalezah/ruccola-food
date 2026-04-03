@@ -10,6 +10,7 @@ import io.ktor.server.routing.Route
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 import kz.ruccola.food.api.CustomerPlanCreateDto
+import kz.ruccola.food.api.CustomerPrefsUpdateDto
 import kz.ruccola.food.api.CustomerUpdateDto
 import kz.ruccola.food.api.Customers
 import kz.ruccola.food.api.PagingResponse
@@ -68,6 +69,16 @@ fun Route.configureCustomerRoutes() {
             } catch (e: IllegalArgumentException) {
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Invalid request")
             }
+        }
+
+        put<Customers.Prefs> {
+            val req = call.receive<CustomerPrefsUpdateDto>()
+            val updated = customerService.updateCustomerPrefs(call.user.id, req)
+            if (updated == null) {
+                call.respond(HttpStatusCode.NotFound, "Customer not found")
+                return@put
+            }
+            call.respond(updated)
         }
 
         get<Customers.Schedule> { schedule ->

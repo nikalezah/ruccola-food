@@ -8,4 +8,7 @@ object Customers : IdTable<Int>("customers") {
     override val id: Column<EntityID<Int>> = reference("id", Users)
     override val primaryKey = PrimaryKey(id)
     val address = text("address")
+    val needsCutlery = bool("needs_cutlery")
+    val weekendDelivery = bool("weekend_delivery")
+    val morningDelivery = bool("morning_delivery")
 }

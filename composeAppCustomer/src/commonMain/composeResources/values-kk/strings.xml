@@ -60,4 +60,10 @@
     <string name="theme_light">Жарық</string>
     <string name="theme_dark">Қараңғы</string>
     <string name="screen_dish_details_title">Тағам мәліметтері</string>
+    <string name="delivery_prefs_title">Жеткізу баптаулары</string>
+    <string name="needs_cutlery">Қасық-шанышқы керек</string>
+    <string name="weekend_delivery">Демалыс күндері жеткізу</string>
+    <string name="morning_delivery">Жеткізу уақыты</string>
+    <string name="morning">Таң</string>
+    <string name="evening">Кеш</string>
 </resources>

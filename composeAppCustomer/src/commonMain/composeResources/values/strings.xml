@@ -60,4 +60,10 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="screen_dish_details_title">Dish details</string>
+    <string name="delivery_prefs_title">Delivery preferences</string>
+    <string name="needs_cutlery">Need cutlery</string>
+    <string name="weekend_delivery">Deliver on weekends</string>
+    <string name="morning_delivery">Delivery time</string>
+    <string name="morning">Morning</string>
+    <string name="evening">Evening</string>
 </resources>

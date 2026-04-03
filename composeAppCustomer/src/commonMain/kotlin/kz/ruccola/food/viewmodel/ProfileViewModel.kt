@@ -13,6 +13,7 @@ import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerPlanDetailsDto
+import kz.ruccola.food.api.CustomerPrefsUpdateDto
 import kz.ruccola.food.api.CustomerUpdateDto
 import kz.ruccola.food.api.PlanApi
 import kz.ruccola.food.api.PlanDto
@@ -30,7 +31,14 @@ class ProfileViewModel : ViewModel() {
             uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val customer = customerApi.get()
-                uiState.update { it.copy(customer = customer) }
+                uiState.update {
+                    it.copy(
+                        customer = customer,
+                        needsCutlery = customer.prefs.needsCutlery,
+                        weekendDelivery = customer.prefs.weekendDelivery,
+                        morningDelivery = customer.prefs.morningDelivery,
+                    )
+                }
                 loadCustomerPlan()
             } catch (e: Exception) {
                 uiState.update { it.copy(error = e.message ?: e.toString()) }
@@ -201,6 +209,33 @@ class ProfileViewModel : ViewModel() {
             }
         }
     }
+
+    fun updateDeliveryPrefs(
+        needsCutlery: Boolean? = null,
+        weekendDelivery: Boolean? = null,
+        morningDelivery: Boolean? = null,
+    ) {
+        viewModelScope.launch {
+            try {
+                val result = customerApi.saveDeliveryPrefs(
+                    CustomerPrefsUpdateDto(
+                        needsCutlery = needsCutlery,
+                        weekendDelivery = weekendDelivery,
+                        morningDelivery = morningDelivery,
+                    ),
+                )
+                uiState.update {
+                    it.copy(
+                        needsCutlery = result.needsCutlery,
+                        weekendDelivery = result.weekendDelivery,
+                        morningDelivery = result.morningDelivery,
+                    )
+                }
+            } catch (e: Exception) {
+                // todo: show toast with an error message and revert control values if needed
+            }
+        }
+    }
 }
 
 data class ProfileUiState(
@@ -222,4 +257,8 @@ data class ProfileUiState(
     val caloriesOptions: List<Int> = emptyList(),
     val caloriesIndex: Int = 0,
     val selectedDays: Int = 1,
+    // Delivery prefs
+    val needsCutlery: Boolean = false,
+    val weekendDelivery: Boolean = false,
+    val morningDelivery: Boolean = false,
 )

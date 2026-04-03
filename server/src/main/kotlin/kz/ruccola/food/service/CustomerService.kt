@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.toList
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerPlanDetailsDto
+import kz.ruccola.food.api.CustomerPrefsDto
+import kz.ruccola.food.api.CustomerPrefsUpdateDto
 import kz.ruccola.food.dbQuery
 import kz.ruccola.food.model.Chats
 import kz.ruccola.food.model.CustomerPlans
@@ -141,6 +143,23 @@ class CustomerService {
             toCustomerPlanDetailsDto(cp)
         }
 
+    suspend fun updateCustomerPrefs(
+        id: Int,
+        prefs: CustomerPrefsUpdateDto,
+    ): CustomerPrefsDto? =
+        dbQuery {
+            val updateCount = Customers.update({ Customers.id eq id }) {
+                prefs.needsCutlery?.let { v -> it[needsCutlery] = v }
+                prefs.weekendDelivery?.let { v -> it[weekendDelivery] = v }
+                prefs.morningDelivery?.let { v -> it[morningDelivery] = v }
+            }
+            if (updateCount == 0) return@dbQuery null
+            Customers.selectAll()
+                .where { Customers.id eq id }
+                .singleOrNull()
+                ?.let(::toCustomerPrefsDto)
+        }
+
     fun toDto(
         row: ResultRow,
         calories: Int? = null,
@@ -153,8 +172,20 @@ class CustomerService {
             row[Users.lastName],
             row[Customers.address],
             row[Users.role].name,
+            CustomerPrefsDto(
+                row[Customers.needsCutlery],
+                row[Customers.weekendDelivery],
+                row[Customers.morningDelivery],
+            ),
             calories,
             lastMessage,
+        )
+
+    fun toCustomerPrefsDto(row: ResultRow): CustomerPrefsDto =
+        CustomerPrefsDto(
+            needsCutlery = row[Customers.needsCutlery],
+            weekendDelivery = row[Customers.weekendDelivery],
+            morningDelivery = row[Customers.morningDelivery],
         )
 
     fun toCustomerPlanDetailsDto(row: ResultRow): CustomerPlanDetailsDto =

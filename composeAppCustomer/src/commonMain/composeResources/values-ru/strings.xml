@@ -62,4 +62,10 @@
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Темная</string>
     <string name="screen_dish_details_title">Детали блюда</string>
+    <string name="delivery_prefs_title">Настройки доставки</string>
+    <string name="needs_cutlery">Нужны приборы</string>
+    <string name="weekend_delivery">Доставка по выходным</string>
+    <string name="morning_delivery">Время доставки</string>
+    <string name="morning">Утро</string>
+    <string name="evening">Вечер</string>
 </resources>

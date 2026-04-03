@@ -33,6 +33,11 @@ class Customers {
         val page: Int = 0,
         val size: Int = 20,
     )
+
+    @Resource("prefs")
+    class Prefs(
+        val parent: Customers = Customers(),
+    )
 }
 
 class CustomerApi(
@@ -90,6 +95,19 @@ class CustomerApi(
         page: Int = 0,
         size: Int = 20,
     ): PagingResponse<ScheduledDayDto> = client.get(Customers.Schedule(page = page, size = size)).body()
+
+    suspend fun saveDeliveryPrefs(prefs: CustomerPrefsUpdateDto): CustomerPrefsDto {
+        val response = client.put(Customers.Prefs()) {
+            contentType(ContentType.Application.Json)
+            setBody(prefs)
+        }
+        if (!response.status.isSuccess()) {
+            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
+                ?: "HTTP ${response.status.value}"
+            throw Exception(msg)
+        }
+        return response.body()
+    }
 }
 
 @Serializable
@@ -100,6 +118,7 @@ data class CustomerDto(
     val lastName: String,
     val address: String,
     val role: String,
+    val prefs: CustomerPrefsDto,
     val calories: Int? = null,
     val lastMessage: String? = null,
 )
@@ -134,4 +153,18 @@ data class CustomerPlanCreateDto(
 data class ScheduledDayDto(
     val date: LocalDate,
     val dishes: List<DishWithMealDto>,
+)
+
+@Serializable
+data class CustomerPrefsDto(
+    val needsCutlery: Boolean,
+    val weekendDelivery: Boolean,
+    val morningDelivery: Boolean,
+)
+
+@Serializable
+data class CustomerPrefsUpdateDto(
+    val needsCutlery: Boolean? = null,
+    val weekendDelivery: Boolean? = null,
+    val morningDelivery: Boolean? = null,
 )

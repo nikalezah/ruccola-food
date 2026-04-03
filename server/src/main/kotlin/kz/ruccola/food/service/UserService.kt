@@ -52,6 +52,9 @@ class UserService {
             Customers.insert {
                 it[Customers.id] = user[Users.id]
                 it[Customers.address] = address
+                it[Customers.needsCutlery] = false
+                it[Customers.weekendDelivery] = false
+                it[Customers.morningDelivery] = false
             }
             toDto(user)
         }
