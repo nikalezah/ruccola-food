@@ -2,8 +2,6 @@
     <string name="tab_schedule">Кесте</string>
     <string name="tab_profile">Профиль</string>
     <string name="tab_chat">Чат</string>
-    <string name="screen_profile_title">Профиль</string>
-    <string name="screen_chat_list_title">Хабарламалар</string>
     <string name="label_email">Email: %1$s</string>
     <string name="label_name">Аты-жөні: %1$s %2$s</string>
     <string name="label_address">Мекен-жайы: %1$s</string>
@@ -61,7 +59,6 @@
     <string name="theme_dark">Қараңғы</string>
     <string name="screen_dish_details_title">Тағам мәліметтері</string>
     <string name="tab_subscription">Жазылым</string>
-    <string name="screen_subscription_title">Жазылым</string>
     <string name="delivery_prefs_title">Жеткізу баптаулары</string>
     <string name="needs_cutlery">Қасық-шанышқы керек</string>
     <string name="weekend_delivery">Демалыс күндері жеткізу</string>

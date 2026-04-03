@@ -31,7 +31,7 @@ import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.chat_empty
 import food.composeappcustomer.generated.resources.chat_support_title
 import food.composeappcustomer.generated.resources.error_prefix
-import food.composeappcustomer.generated.resources.screen_chat_list_title
+import food.composeappcustomer.generated.resources.tab_chat
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.ChatViewModel
@@ -85,7 +85,7 @@ fun ChatListScreen(
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
-                            title = { Text(stringResource(Res.string.screen_chat_list_title)) },
+                            title = { Text(stringResource(Res.string.tab_chat)) },
                         )
                     },
                 ) { padding ->

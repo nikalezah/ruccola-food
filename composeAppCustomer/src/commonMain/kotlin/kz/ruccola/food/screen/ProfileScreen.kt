@@ -48,7 +48,7 @@ import food.composeappcustomer.generated.resources.last_name
 import food.composeappcustomer.generated.resources.log_out
 import food.composeappcustomer.generated.resources.save
 import food.composeappcustomer.generated.resources.saving
-import food.composeappcustomer.generated.resources.screen_profile_title
+import food.composeappcustomer.generated.resources.tab_profile
 import food.composeappcustomer.generated.resources.theme_dark
 import food.composeappcustomer.generated.resources.theme_light
 import food.composeappcustomer.generated.resources.theme_section_title
@@ -90,7 +90,7 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.screen_profile_title)) },
+                title = { Text(stringResource(Res.string.tab_profile)) },
             )
         },
     ) { padding ->

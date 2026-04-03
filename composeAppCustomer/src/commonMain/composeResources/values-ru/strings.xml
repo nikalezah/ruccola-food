@@ -2,8 +2,6 @@
     <string name="tab_schedule">Расписание</string>
     <string name="tab_profile">Профиль</string>
     <string name="tab_chat">Сообщения</string>
-    <string name="screen_profile_title">Профиль</string>
-    <string name="screen_chat_list_title">Сообщения</string>
     <string name="label_email">Email: %1$s</string>
     <string name="label_name">Имя: %1$s %2$s</string>
     <string name="label_address">Адрес: %1$s</string>
@@ -63,7 +61,6 @@
     <string name="theme_dark">Темная</string>
     <string name="screen_dish_details_title">Детали блюда</string>
     <string name="tab_subscription">Подписка</string>
-    <string name="screen_subscription_title">Подписка</string>
     <string name="delivery_prefs_title">Настройки доставки</string>
     <string name="needs_cutlery">Нужны приборы</string>
     <string name="weekend_delivery">Доставка по выходным</string>

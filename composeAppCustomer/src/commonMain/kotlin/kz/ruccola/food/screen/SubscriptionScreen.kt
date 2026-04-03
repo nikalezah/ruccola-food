@@ -53,7 +53,7 @@ import food.composeappcustomer.generated.resources.no_plans_available
 import food.composeappcustomer.generated.resources.period_days
 import food.composeappcustomer.generated.resources.save
 import food.composeappcustomer.generated.resources.saving
-import food.composeappcustomer.generated.resources.screen_subscription_title
+import food.composeappcustomer.generated.resources.tab_subscription
 import food.composeappcustomer.generated.resources.weekend_delivery
 import kotlinx.datetime.LocalDate
 import kz.ruccola.food.ui.ToggleButtonsRow
@@ -74,7 +74,7 @@ fun SubscriptionScreen(viewModel: ProfileViewModel = viewModel { ProfileViewMode
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.screen_subscription_title)) },
+                title = { Text(stringResource(Res.string.tab_subscription)) },
             )
         },
     ) { padding ->
