@@ -102,4 +102,13 @@
     <string name="failed_to_load_dishes">Не удалось загрузить блюда</string>
     <string name="no_dishes">Нет блюд</string>
     <string name="label_calories">Калории: %1$s</string>
+    <string name="preferences">Настройки доставки</string>
+    <string name="needs_cutlery">Нужны приборы</string>
+    <string name="weekend_delivery">Доставка в выходные</string>
+    <string name="morning_delivery">Утренняя доставка</string>
+    <string name="subscription">Подписка</string>
+    <string name="period">Период</string>
+    <string name="start_date">Дата начала</string>
+    <string name="total">Итого</string>
+    <string name="days_count">%1$s дн.</string>
 </resources>

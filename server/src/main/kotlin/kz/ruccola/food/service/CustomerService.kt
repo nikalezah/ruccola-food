@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
+import kz.ruccola.food.api.CustomerDetailsDto
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerPlanDetailsDto
@@ -37,19 +38,19 @@ class CustomerService {
                 ?.let(::toDto)
         }
 
-    suspend fun findAllWithDetails(): List<CustomerDto> =
+    suspend fun findAllWithDetails(): List<CustomerDetailsDto> =
         dbQuery {
             val customers = Customers.innerJoin(Users).selectAll().toList()
             val customerIds = customers.map { it[Customers.id].value }
 
             if (customerIds.isEmpty()) return@dbQuery emptyList()
 
-            val latestPlanCalories = CustomerPlans.innerJoin(Plans).selectAll()
+            val latestPlans = CustomerPlans.innerJoin(Plans).selectAll()
                 .where { CustomerPlans.customer inList customerIds }
                 .orderBy(CustomerPlans.customer to SortOrder.ASC, CustomerPlans.chosenDate to SortOrder.DESC)
                 .toList()
                 .groupBy { it[CustomerPlans.customer].value }
-                .mapValues { (_, rows) -> rows.first()[Plans.calories] }
+                .mapValues { (_, rows) -> rows.first() }
 
             val lastMessages = Messages.innerJoin(Chats).select(Messages.body, Chats.customerId)
                 .where { Chats.customerId inList customerIds }
@@ -60,7 +61,9 @@ class CustomerService {
 
             customers.map { row ->
                 val id = row[Customers.id].value
-                toDto(row, latestPlanCalories[id], lastMessages[id])
+                val planRow = latestPlans[id]
+                val plan = planRow?.let { toCustomerPlanDetailsDto(it) }
+                toDetailsDto(row, plan, lastMessages[id])
             }
         }
 
@@ -179,6 +182,27 @@ class CustomerService {
             ),
             calories,
             lastMessage,
+        )
+
+    fun toDetailsDto(
+        row: ResultRow,
+        plan: CustomerPlanDetailsDto? = null,
+        lastMessage: String? = null,
+    ): CustomerDetailsDto =
+        CustomerDetailsDto(
+            id = row[Customers.id].value,
+            email = row[Users.email],
+            firstName = row[Users.firstName],
+            lastName = row[Users.lastName],
+            address = row[Customers.address],
+            role = row[Users.role].name,
+            prefs = CustomerPrefsDto(
+                row[Customers.needsCutlery],
+                row[Customers.weekendDelivery],
+                row[Customers.morningDelivery],
+            ),
+            plan = plan,
+            lastMessage = lastMessage,
         )
 
     fun toCustomerPrefsDto(row: ResultRow): CustomerPrefsDto =

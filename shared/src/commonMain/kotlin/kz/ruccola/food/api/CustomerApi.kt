@@ -43,7 +43,7 @@ class Customers {
 class CustomerApi(
     private val client: HttpClient = httpClient,
 ) {
-    suspend fun getAll(): List<CustomerDto> = client.get(Customers()).body()
+    suspend fun getAll(): List<CustomerDetailsDto> = client.get(Customers()).body()
 
     suspend fun get(): CustomerDto {
         val response = client.get(Customers.Profile())
@@ -120,6 +120,19 @@ data class CustomerDto(
     val role: String,
     val prefs: CustomerPrefsDto,
     val calories: Int? = null,
+    val lastMessage: String? = null,
+)
+
+@Serializable
+data class CustomerDetailsDto(
+    val id: Int,
+    val email: String,
+    val firstName: String,
+    val lastName: String,
+    val address: String,
+    val role: String,
+    val prefs: CustomerPrefsDto,
+    val plan: CustomerPlanDetailsDto? = null,
     val lastMessage: String? = null,
 )
 

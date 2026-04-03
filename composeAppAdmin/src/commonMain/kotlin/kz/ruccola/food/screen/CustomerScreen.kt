@@ -42,7 +42,7 @@ import food.composeappadmin.generated.resources.label_calories
 import food.composeappadmin.generated.resources.no_customers_found
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_customers
-import kz.ruccola.food.api.CustomerDto
+import kz.ruccola.food.api.CustomerDetailsDto
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.CustomersViewModel
@@ -57,9 +57,9 @@ fun CustomerScreen(
     val viewModel: CustomersViewModel = viewModel { CustomersViewModel() }
     val uiState by viewModel.uiState.collectAsState()
 
-    var selectedChatCustomer by remember { mutableStateOf<CustomerDto?>(null) }
+    var selectedChatCustomer by remember { mutableStateOf<CustomerDetailsDto?>(null) }
     var selectedChatId by remember { mutableStateOf<Int?>(null) }
-    var selectedCustomerDetails by remember { mutableStateOf<CustomerDto?>(null) }
+    var selectedCustomerDetails by remember { mutableStateOf<CustomerDetailsDto?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadCustomers()
@@ -130,7 +130,10 @@ fun CustomerScreen(
                                 supportingContent = {
                                     SingleLineText(
                                         "${c.address} - ${
-                                            stringResource(Res.string.label_calories, c.calories?.toString() ?: "-")
+                                            stringResource(
+                                                Res.string.label_calories,
+                                                c.plan?.calories?.toString() ?: "-",
+                                            )
                                         }",
                                     )
                                 },
@@ -156,10 +159,6 @@ fun CustomerScreen(
                             )
                         }
                     }
-                }
-
-                else -> {
-                    Unit
                 }
             }
         }

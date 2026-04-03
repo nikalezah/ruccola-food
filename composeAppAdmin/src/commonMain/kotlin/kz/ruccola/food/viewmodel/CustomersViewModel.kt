@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kz.ruccola.food.api.ChatApi
 import kz.ruccola.food.api.ChatListItemDto
 import kz.ruccola.food.api.CustomerApi
-import kz.ruccola.food.api.CustomerDto
+import kz.ruccola.food.api.CustomerDetailsDto
 
 class CustomersViewModel : ViewModel() {
     private val api = CustomerApi()
@@ -39,7 +39,7 @@ class CustomersViewModel : ViewModel() {
 }
 
 data class CustomersUiState(
-    val customers: List<CustomerDto> = emptyList(),
+    val customers: List<CustomerDetailsDto> = emptyList(),
     val chats: Map<Int, ChatListItemDto> = emptyMap(),
     val isLoading: Boolean = false,
     val error: String? = null,
