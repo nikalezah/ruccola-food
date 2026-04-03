@@ -4,13 +4,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.CustomerPrefsDto
 import kz.ruccola.food.api.CustomerPrefsUpdateDto
 import kz.ruccola.food.authHeader
@@ -30,15 +26,15 @@ class PrefsRoutesTest {
     }
 
     @Test
-    fun testGetProfileIncludesPrefs() =
+    fun testGetPrefs() =
         testApp { client ->
             val customer = client.registerCustomer("customer1@ruccola.food")
-            val response = client.get("/api/customers/profile") { authHeader(customer.token) }
+            val response = client.get("/api/customers/prefs") { authHeader(customer.token) }
             assertEquals(HttpStatusCode.OK, response.status)
-            val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject["prefs"]!!.jsonObject
-            assertFalse(json["needsCutlery"]!!.jsonPrimitive.content.toBoolean())
-            assertFalse(json["weekendDelivery"]!!.jsonPrimitive.content.toBoolean())
-            assertFalse(json["morningDelivery"]!!.jsonPrimitive.content.toBoolean())
+            val prefs = response.body<CustomerPrefsDto>()
+            assertFalse(prefs.needsCutlery)
+            assertFalse(prefs.weekendDelivery)
+            assertFalse(prefs.morningDelivery)
         }
 
     @Test

@@ -55,6 +55,16 @@ class CustomerApi(
         return response.body()
     }
 
+    suspend fun getPrefs(): CustomerPrefsDto {
+        val response = client.get(Customers.Prefs())
+        if (!response.status.isSuccess()) {
+            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
+                ?: "HTTP ${response.status.value}"
+            throw Exception(msg)
+        }
+        return response.body()
+    }
+
     suspend fun update(payload: CustomerUpdateDto): CustomerDto {
         val response = client.put(Customers.Profile()) {
             contentType(ContentType.Application.Json)
@@ -118,7 +128,6 @@ data class CustomerDto(
     val lastName: String,
     val address: String,
     val role: String,
-    val prefs: CustomerPrefsDto,
     val calories: Int? = null,
     val lastMessage: String? = null,
 )

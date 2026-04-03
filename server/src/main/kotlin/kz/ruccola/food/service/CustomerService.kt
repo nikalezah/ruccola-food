@@ -38,6 +38,14 @@ class CustomerService {
                 ?.let(::toDto)
         }
 
+    suspend fun getCustomerPrefs(id: Int): CustomerPrefsDto? =
+        dbQuery {
+            Customers.selectAll()
+                .where { Customers.id eq id }
+                .singleOrNull()
+                ?.let(::toCustomerPrefsDto)
+        }
+
     suspend fun findAllWithDetails(): List<CustomerDetailsDto> =
         dbQuery {
             val customers = Customers.innerJoin(Users).selectAll().toList()
@@ -175,11 +183,6 @@ class CustomerService {
             row[Users.lastName],
             row[Customers.address],
             row[Users.role].name,
-            CustomerPrefsDto(
-                row[Customers.needsCutlery],
-                row[Customers.weekendDelivery],
-                row[Customers.morningDelivery],
-            ),
             calories,
             lastMessage,
         )

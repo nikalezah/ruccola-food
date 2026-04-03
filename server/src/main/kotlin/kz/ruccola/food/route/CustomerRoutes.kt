@@ -71,6 +71,15 @@ fun Route.configureCustomerRoutes() {
             }
         }
 
+        get<Customers.Prefs> {
+            val prefs = customerService.getCustomerPrefs(call.user.id)
+            if (prefs == null) {
+                call.respond(HttpStatusCode.NotFound, "Customer not found")
+            } else {
+                call.respond(prefs)
+            }
+        }
+
         put<Customers.Prefs> {
             val req = call.receive<CustomerPrefsUpdateDto>()
             val updated = customerService.updateCustomerPrefs(call.user.id, req)

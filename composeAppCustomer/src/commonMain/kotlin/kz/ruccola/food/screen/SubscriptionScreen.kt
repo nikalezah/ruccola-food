@@ -23,7 +23,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -57,19 +56,15 @@ import food.composeappcustomer.generated.resources.tab_subscription
 import food.composeappcustomer.generated.resources.weekend_delivery
 import kotlinx.datetime.LocalDate
 import kz.ruccola.food.ui.ToggleButtonsRow
-import kz.ruccola.food.viewmodel.ProfileViewModel
+import kz.ruccola.food.viewmodel.SubscriptionViewModel
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubscriptionScreen(viewModel: ProfileViewModel = viewModel { ProfileViewModel() }) {
+fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { SubscriptionViewModel() }) {
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadProfile()
-    }
 
     Scaffold(
         topBar = {
@@ -188,7 +183,7 @@ fun SubscriptionScreen(viewModel: ProfileViewModel = viewModel { ProfileViewMode
 }
 
 @Composable
-private fun PlanSelectionDialog(viewModel: ProfileViewModel) {
+private fun PlanSelectionDialog(viewModel: SubscriptionViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     AlertDialog(
