@@ -7,6 +7,7 @@
     <string name="label_address">Address: %1$s</string>
     <string name="loading_plan">Loading plan...</string>
     <string name="no_plan_selected">No plan selected</string>
+    <string name="no_plan_selected_description">Choose a meal plan to get started with regular deliveries</string>
     <string name="choose_plan">Choose plan</string>
     <string name="chosen_plan_title">Chosen plan</string>
     <string name="label_calories">Calories: %1$s</string>

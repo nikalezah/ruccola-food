@@ -7,6 +7,7 @@
     <string name="label_address">Мекен-жайы: %1$s</string>
     <string name="loading_plan">Жоспар жүктелуде...</string>
     <string name="no_plan_selected">Жоспар таңдалмаған</string>
+    <string name="no_plan_selected_description">Тұрақты жеткізуді бастау үшін тамақтану жоспарын таңдаңыз</string>
     <string name="choose_plan">Жоспарды таңдаңыз</string>
     <string name="chosen_plan_title">Таңдалған жоспар</string>
     <string name="label_calories">Калориялар: %1$s</string>
