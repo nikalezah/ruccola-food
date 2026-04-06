@@ -102,32 +102,6 @@ fun CustomerDetailsScreen(
                 }
             }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                ),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    SectionTitle(stringResource(Res.string.preferences))
-                    PrefRow(
-                        label = stringResource(Res.string.needs_cutlery),
-                        value = customer.prefs.needsCutlery,
-                    )
-                    PrefRow(
-                        label = stringResource(Res.string.weekend_delivery),
-                        value = customer.prefs.weekendDelivery,
-                    )
-                    PrefRow(
-                        label = stringResource(Res.string.morning_delivery),
-                        value = customer.prefs.morningDelivery,
-                    )
-                }
-            }
-
             val plan = customer.plan
             if (plan != null) {
                 Card(
@@ -160,6 +134,31 @@ fun CustomerDetailsScreen(
                         DetailRow(
                             label = stringResource(Res.string.start_date),
                             value = plan.chosenDate.toString(),
+                        )
+                    }
+                }
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    ),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        SectionTitle(stringResource(Res.string.preferences))
+                        PrefRow(
+                            label = stringResource(Res.string.needs_cutlery),
+                            value = customer.prefs.needsCutlery,
+                        )
+                        PrefRow(
+                            label = stringResource(Res.string.weekend_delivery),
+                            value = customer.prefs.weekendDelivery,
+                        )
+                        PrefRow(
+                            label = stringResource(Res.string.morning_delivery),
+                            value = customer.prefs.morningDelivery,
                         )
                     }
                 }
