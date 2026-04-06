@@ -8,6 +8,7 @@ import kz.ruccola.food.api.CustomerDetailsDto
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerPlanDetailsDto
+import kz.ruccola.food.api.CustomerPlanWithPrefsDto
 import kz.ruccola.food.api.CustomerPrefsDto
 import kz.ruccola.food.api.CustomerPrefsUpdateDto
 import kz.ruccola.food.dbQuery
@@ -36,14 +37,6 @@ class CustomerService {
                 .where { Customers.id eq id }
                 .singleOrNull()
                 ?.let(::toDto)
-        }
-
-    suspend fun getCustomerPrefs(id: Int): CustomerPrefsDto? =
-        dbQuery {
-            Customers.selectAll()
-                .where { Customers.id eq id }
-                .singleOrNull()
-                ?.let(::toCustomerPrefsDto)
         }
 
     suspend fun findAllWithDetails(): List<CustomerDetailsDto> =
@@ -107,13 +100,22 @@ class CustomerService {
             }
         }
 
-    suspend fun getCustomerPlan(customerId: Int): CustomerPlanDetailsDto? =
+    suspend fun getCustomerPlanWithPrefs(customerId: Int): CustomerPlanWithPrefsDto? =
         dbQuery {
-            val cp = CustomerPlans.selectAll()
+            val customerRow = Customers.selectAll()
+                .where { Customers.id eq customerId }
+                .singleOrNull()
+                ?: throw IllegalStateException("Customer not found")
+
+            val prefs = toCustomerPrefsDto(customerRow)
+
+            val planRow = CustomerPlans.selectAll()
                 .where { CustomerPlans.customer eq customerId }
                 .orderBy(CustomerPlans.chosenDate to SortOrder.DESC)
                 .firstOrNull()
-            if (cp == null) null else toCustomerPlanDetailsDto(cp)
+                ?: return@dbQuery null
+
+            CustomerPlanWithPrefsDto(plan = toCustomerPlanDetailsDto(planRow), prefs = prefs)
         }
 
     suspend fun saveCustomerPlan(

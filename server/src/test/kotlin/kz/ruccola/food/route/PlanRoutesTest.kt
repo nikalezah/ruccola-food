@@ -171,7 +171,7 @@ class PlanRoutesTest {
             client.get("/api/customers/plan") { authHeader(customer.token) }
                 .apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
+                    val obj = Json.parseToJsonElement(bodyAsText()).jsonObject["plan"]!!.jsonObject
                     assertEquals(customer.user.id, obj["customerId"]!!.jsonPrimitive.int)
                     assertEquals(1200, obj["calories"]!!.jsonPrimitive.int)
                     assertEquals(2000, obj["pricePerDay"]!!.jsonPrimitive.int)

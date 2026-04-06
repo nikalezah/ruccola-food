@@ -53,7 +53,7 @@ fun Route.configureCustomerRoutes() {
         }
 
         get<Customers.Plan> {
-            val customerPlan = customerService.getCustomerPlan(call.user.id)
+            val customerPlan = customerService.getCustomerPlanWithPrefs(call.user.id)
             if (customerPlan == null) {
                 call.respond(HttpStatusCode.NotFound, "No plan found for customer")
             } else {
@@ -68,15 +68,6 @@ fun Route.configureCustomerRoutes() {
                 call.respond(HttpStatusCode.Created, saved)
             } catch (e: IllegalArgumentException) {
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Invalid request")
-            }
-        }
-
-        get<Customers.Prefs> {
-            val prefs = customerService.getCustomerPrefs(call.user.id)
-            if (prefs == null) {
-                call.respond(HttpStatusCode.NotFound, "Customer not found")
-            } else {
-                call.respond(prefs)
             }
         }
 

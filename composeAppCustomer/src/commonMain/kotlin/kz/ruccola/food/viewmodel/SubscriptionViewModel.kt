@@ -28,33 +28,31 @@ class SubscriptionViewModel : ViewModel() {
 
     private fun loadData() {
         viewModelScope.launch {
-            loadPrefs()
-            loadCustomerPlan()
+            loadPlanWithPrefs()
         }
     }
 
-    private suspend fun loadPrefs() {
+    private suspend fun loadPlanWithPrefs() {
+        uiState.update { it.copy(isLoadingPlan = true) }
         try {
-            val prefs = customerApi.getPrefs()
+            val result = customerApi.getPlanWithPrefs()
             uiState.update {
                 it.copy(
-                    needsCutlery = prefs.needsCutlery,
-                    weekendDelivery = prefs.weekendDelivery,
-                    morningDelivery = prefs.morningDelivery,
+                    customerPlan = result.plan,
+                    needsCutlery = result.prefs.needsCutlery,
+                    weekendDelivery = result.prefs.weekendDelivery,
+                    morningDelivery = result.prefs.morningDelivery,
                 )
             }
         } catch (e: Exception) {
-            // todo: show toast with an error message and revert control values if needed
-        }
-    }
-
-    private suspend fun loadCustomerPlan() {
-        uiState.update { it.copy(isLoadingPlan = true) }
-        try {
-            val customerPlan = customerApi.getCustomerPlan()
-            uiState.update { it.copy(customerPlan = customerPlan) }
-        } catch (e: Exception) {
-            uiState.update { it.copy(customerPlan = null) }
+            uiState.update {
+                it.copy(
+                    customerPlan = null,
+                    needsCutlery = false,
+                    weekendDelivery = false,
+                    morningDelivery = false,
+                )
+            }
         } finally {
             uiState.update { it.copy(isLoadingPlan = false) }
         }
@@ -162,7 +160,7 @@ class SubscriptionViewModel : ViewModel() {
                     ),
                 )
                 uiState.update { it.copy(customerPlan = saved, showPlanDialog = false) }
-                loadCustomerPlan()
+                loadPlanWithPrefs()
             } catch (e: Exception) {
                 uiState.update { it.copy(dialogError = e.message ?: e.toString()) }
             } finally {

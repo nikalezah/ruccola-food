@@ -133,51 +133,53 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
                 PlanSelectionDialog(viewModel = viewModel)
             }
 
-            Spacer(Modifier.height(16.dp))
-            Text(
-                stringResource(Res.string.delivery_prefs_title),
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(stringResource(Res.string.needs_cutlery))
-                Switch(
-                    checked = uiState.needsCutlery,
-                    onCheckedChange = {
-                        viewModel.updateDeliveryPrefs(needsCutlery = it)
+            if (uiState.customerPlan != null) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    stringResource(Res.string.delivery_prefs_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(Res.string.needs_cutlery))
+                    Switch(
+                        checked = uiState.needsCutlery,
+                        onCheckedChange = {
+                            viewModel.updateDeliveryPrefs(needsCutlery = it)
+                        },
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(Res.string.weekend_delivery))
+                    Switch(
+                        checked = uiState.weekendDelivery,
+                        onCheckedChange = {
+                            viewModel.updateDeliveryPrefs(weekendDelivery = it)
+                        },
+                    )
+                }
+                Text(
+                    stringResource(Res.string.morning_delivery),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                ToggleButtonsRow(
+                    listOf(
+                        stringResource(Res.string.morning),
+                        stringResource(Res.string.evening),
+                    ),
+                    if (uiState.morningDelivery) 0 else 1,
+                    onSelectedIndexChange = { i ->
+                        viewModel.updateDeliveryPrefs(morningDelivery = i == 0)
                     },
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(stringResource(Res.string.weekend_delivery))
-                Switch(
-                    checked = uiState.weekendDelivery,
-                    onCheckedChange = {
-                        viewModel.updateDeliveryPrefs(weekendDelivery = it)
-                    },
-                )
-            }
-            Text(
-                stringResource(Res.string.morning_delivery),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            ToggleButtonsRow(
-                listOf(
-                    stringResource(Res.string.morning),
-                    stringResource(Res.string.evening),
-                ),
-                if (uiState.morningDelivery) 0 else 1,
-                onSelectedIndexChange = { i ->
-                    viewModel.updateDeliveryPrefs(morningDelivery = i == 0)
-                },
-            )
         }
     }
 }

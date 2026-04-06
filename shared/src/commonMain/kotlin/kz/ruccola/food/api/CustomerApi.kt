@@ -27,16 +27,16 @@ class Customers {
         val parent: Customers = Customers(),
     )
 
+    @Resource("prefs")
+    class Prefs(
+        val parent: Customers = Customers(),
+    )
+
     @Resource("schedule")
     class Schedule(
         val parent: Customers = Customers(),
         val page: Int = 0,
         val size: Int = 20,
-    )
-
-    @Resource("prefs")
-    class Prefs(
-        val parent: Customers = Customers(),
     )
 }
 
@@ -55,8 +55,8 @@ class CustomerApi(
         return response.body()
     }
 
-    suspend fun getPrefs(): CustomerPrefsDto {
-        val response = client.get(Customers.Prefs())
+    suspend fun getPlanWithPrefs(): CustomerPlanWithPrefsDto {
+        val response = client.get(Customers.Plan())
         if (!response.status.isSuccess()) {
             val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
                 ?: "HTTP ${response.status.value}"
@@ -70,16 +70,6 @@ class CustomerApi(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
-            throw Exception(msg)
-        }
-        return response.body()
-    }
-
-    suspend fun getCustomerPlan(): CustomerPlanDetailsDto? {
-        val response = client.get(Customers.Plan())
         if (!response.status.isSuccess()) {
             val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
                 ?: "HTTP ${response.status.value}"
@@ -150,6 +140,12 @@ data class CustomerUpdateDto(
     val firstName: String? = null,
     val lastName: String? = null,
     val address: String? = null,
+)
+
+@Serializable
+data class CustomerPlanWithPrefsDto(
+    val plan: CustomerPlanDetailsDto,
+    val prefs: CustomerPrefsDto,
 )
 
 @Serializable
