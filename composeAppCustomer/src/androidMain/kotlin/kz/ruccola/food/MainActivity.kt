@@ -5,12 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
@@ -37,6 +41,8 @@ class MainActivity : ComponentActivity() {
             val token by AppPreferences.tokenFlow(context)
                 .collectAsState(initial = null)
 
+            var sessionOwner by remember { mutableStateOf(SessionViewModelStoreOwner()) }
+
             DisposableEffect(Unit) {
                 TokenProvider.onUnauthorized = {
                     scope.launch {
@@ -48,32 +54,40 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            App(
-                token = token,
-                language = language ?: AppLocaleManager.getCurrentLanguageTag(context),
-                themePreference = themePreference,
-                isSystemDark = isSystemInDarkTheme(),
-                onLogin = { newToken ->
-                    scope.launch { AppPreferences.setToken(context, newToken) }
-                },
-                onRegister = { newToken ->
-                    scope.launch { AppPreferences.setToken(context, newToken) }
-                },
-                onLogout = {
-                    scope.launch { AppPreferences.setToken(context, null) }
-                },
-                onLanguageChanged = { newLang ->
-                    scope.launch {
-                        AppLocaleManager.setLanguage(context, newLang)
-                        (context as? android.app.Activity)?.recreate()
-                    }
-                },
-                onThemePreferenceChanged = { newPreference ->
-                    scope.launch {
-                        AppPreferences.setThemePreference(context, newPreference.storageValue())
-                    }
-                },
-            )
+            CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) {
+                App(
+                    token = token,
+                    language = language ?: AppLocaleManager.getCurrentLanguageTag(context),
+                    themePreference = themePreference,
+                    isSystemDark = isSystemInDarkTheme(),
+                    onLogin = { newToken ->
+                        sessionOwner.clear()
+                        sessionOwner = SessionViewModelStoreOwner()
+                        scope.launch { AppPreferences.setToken(context, newToken) }
+                    },
+                    onRegister = { newToken ->
+                        sessionOwner.clear()
+                        sessionOwner = SessionViewModelStoreOwner()
+                        scope.launch { AppPreferences.setToken(context, newToken) }
+                    },
+                    onLogout = {
+                        sessionOwner.clear()
+                        sessionOwner = SessionViewModelStoreOwner()
+                        scope.launch { AppPreferences.setToken(context, null) }
+                    },
+                    onLanguageChanged = { newLang ->
+                        scope.launch {
+                            AppLocaleManager.setLanguage(context, newLang)
+                            (context as? android.app.Activity)?.recreate()
+                        }
+                    },
+                    onThemePreferenceChanged = { newPreference ->
+                        scope.launch {
+                            AppPreferences.setThemePreference(context, newPreference.storageValue())
+                        }
+                    },
+                )
+            }
         }
     }
 }

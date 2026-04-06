@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
@@ -57,33 +59,44 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            App(
-                role = role,
-                token = token,
-                themePreference = themePreference,
-                onLoggedIn = { r, t ->
-                    role = r
-                    token = t
-                    scope.launch {
-                        AppPreferences.setRole(context, r)
-                        AppPreferences.setToken(context, t)
-                    }
-                },
-                onLoggedOut = {
-                    role = null
-                    token = null
-                    scope.launch {
-                        AppPreferences.setRole(context, null)
-                        AppPreferences.setToken(context, null)
-                    }
-                },
-                onThemePreferenceChange = { newPref ->
-                    scope.launch {
-                        AppPreferences.setTheme(context, newPref.storageValue())
-                    }
-                },
-                isLoading = loginLoading,
-            )
+            var sessionOwner by remember { mutableStateOf(SessionViewModelStoreOwner()) }
+
+            fun resetSession() {
+                sessionOwner.clear()
+                sessionOwner = SessionViewModelStoreOwner()
+            }
+
+            CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) {
+                App(
+                    role = role,
+                    token = token,
+                    themePreference = themePreference,
+                    onLoggedIn = { r, t ->
+                        resetSession()
+                        role = r
+                        token = t
+                        scope.launch {
+                            AppPreferences.setRole(context, r)
+                            AppPreferences.setToken(context, t)
+                        }
+                    },
+                    onLoggedOut = {
+                        resetSession()
+                        role = null
+                        token = null
+                        scope.launch {
+                            AppPreferences.setRole(context, null)
+                            AppPreferences.setToken(context, null)
+                        }
+                    },
+                    onThemePreferenceChange = { newPref ->
+                        scope.launch {
+                            AppPreferences.setTheme(context, newPref.storageValue())
+                        }
+                    },
+                    isLoading = loginLoading,
+                )
+            }
         }
     }
 }

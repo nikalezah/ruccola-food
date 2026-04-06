@@ -1,6 +1,7 @@
 package kz.ruccola.food
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -9,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.browser.window
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
@@ -28,6 +30,13 @@ fun AdminApp() {
         mutableStateOf(ThemePreference.fromStorage(window.localStorage.getItem("admin.theme")))
     }
 
+    var sessionOwner by remember { mutableStateOf(SessionViewModelStoreOwner()) }
+
+    fun resetSession() {
+        sessionOwner.clear()
+        sessionOwner = SessionViewModelStoreOwner()
+    }
+
     LaunchedEffect(token) {
         TokenProvider.token = token
     }
@@ -44,25 +53,29 @@ fun AdminApp() {
         }
     }
 
-    App(
-        role = role,
-        token = token,
-        themePreference = themePreference,
-        onLoggedIn = { r, t ->
-            role = r
-            token = t
-            window.localStorage.setItem("admin.role", r)
-            window.localStorage.setItem("admin.token", t)
-        },
-        onLoggedOut = {
-            role = null
-            token = null
-            window.localStorage.removeItem("admin.role")
-            window.localStorage.removeItem("admin.token")
-        },
-        onThemePreferenceChange = { preference ->
-            themePreference = preference
-            window.localStorage.setItem("admin.theme", preference.storageValue())
-        },
-    )
+    CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) {
+        App(
+            role = role,
+            token = token,
+            themePreference = themePreference,
+            onLoggedIn = { r, t ->
+                resetSession()
+                role = r
+                token = t
+                window.localStorage.setItem("admin.role", r)
+                window.localStorage.setItem("admin.token", t)
+            },
+            onLoggedOut = {
+                resetSession()
+                role = null
+                token = null
+                window.localStorage.removeItem("admin.role")
+                window.localStorage.removeItem("admin.token")
+            },
+            onThemePreferenceChange = { preference ->
+                themePreference = preference
+                window.localStorage.setItem("admin.theme", preference.storageValue())
+            },
+        )
+    }
 }

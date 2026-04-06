@@ -60,6 +60,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.androidx.paging.common)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
