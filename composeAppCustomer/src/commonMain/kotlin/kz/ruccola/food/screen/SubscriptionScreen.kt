@@ -56,7 +56,8 @@ import food.composeappcustomer.generated.resources.period_days
 import food.composeappcustomer.generated.resources.save
 import food.composeappcustomer.generated.resources.saving
 import food.composeappcustomer.generated.resources.tab_subscription
-import food.composeappcustomer.generated.resources.weekend_delivery
+import food.composeappcustomer.generated.resources.weekend_delivery_evening
+import food.composeappcustomer.generated.resources.weekend_delivery_morning
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 import kz.ruccola.food.ui.Icons
@@ -243,7 +244,11 @@ private fun DeliveryPreferencesSection(
             )
             HorizontalDivider()
             PreferenceSwitchRow(
-                label = stringResource(Res.string.weekend_delivery),
+                label = if (uiState.morningDelivery) {
+                    stringResource(Res.string.weekend_delivery_morning)
+                } else {
+                    stringResource(Res.string.weekend_delivery_evening)
+                },
                 checked = uiState.weekendDelivery,
                 onCheckedChange = { viewModel.updateDeliveryPrefs(weekendDelivery = it) },
             )

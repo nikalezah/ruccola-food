@@ -1,7 +1,8 @@
 <resources>
     <string name="tab_schedule">Schedule</string>
-    <string name="tab_profile">Profile</string>
     <string name="tab_chat">Messages</string>
+    <string name="tab_subscription">Subscription</string>
+    <string name="tab_profile">Profile</string>
     <string name="label_email">Email: %1$s</string>
     <string name="label_name">Name: %1$s %2$s</string>
     <string name="label_address">Address: %1$s</string>
@@ -56,10 +57,9 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="screen_dish_details_title">Dish details</string>
-    <string name="tab_subscription">Subscription</string>
-    <string name="delivery_prefs_title">Delivery preferences</string>
     <string name="needs_cutlery">Need cutlery</string>
-    <string name="weekend_delivery">Deliver on weekends</string>
+    <string name="weekend_delivery_morning">Delivery on SAT &amp; SUN</string>
+    <string name="weekend_delivery_evening">Delivery on FRI &amp; SAT</string>
     <string name="morning_delivery">Delivery time</string>
     <string name="morning">Morning</string>
     <string name="evening">Evening</string>
