@@ -163,7 +163,7 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
                                 )
                                 IconButton(onClick = { viewModel.setShowPlanDialog(true) }) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Edit,
+                                        imageVector = Icons.Outlined.EditSquare,
                                         contentDescription = stringResource(Res.string.choose_plan),
                                         modifier = Modifier.size(20.dp),
                                     )

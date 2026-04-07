@@ -118,7 +118,7 @@ fun DishEditorScreen(
                         modifier = Modifier.weight(1f),
                     )
                     IconButton(onClick = { showEditName = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit name")
+                        Icon(Icons.Outlined.EditSquare, contentDescription = "Edit name")
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -129,7 +129,7 @@ fun DishEditorScreen(
                         modifier = Modifier.weight(1f),
                     )
                     IconButton(onClick = { showEditDescription = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit description")
+                        Icon(Icons.Outlined.EditSquare, contentDescription = "Edit description")
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -193,7 +193,7 @@ fun DishEditorScreen(
                     Text(stringResource(Res.string.images), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = { imageEditorVisible = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.edit))
+                        Icon(Icons.Outlined.EditSquare, contentDescription = stringResource(Res.string.edit))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
