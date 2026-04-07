@@ -9,11 +9,9 @@
     <string name="no_plan_selected">Жоспар таңдалмаған</string>
     <string name="no_plan_selected_description">Тұрақты жеткізуді бастау үшін тамақтану жоспарын таңдаңыз</string>
     <string name="choose_plan">Жоспарды таңдаңыз</string>
-    <string name="chosen_plan_title">Таңдалған жоспар</string>
-    <string name="label_calories">Калориялар: %1$s</string>
-    <string name="label_total_price">Жалпы бағасы: %1$s</string>
-    <string name="label_start_date">Басталу күні: %1$s</string>
-    <string name="label_end_date">Аяқталу күні: %1$s</string>
+    <string name="label_calories">Калориялар</string>
+    <string name="label_total_price">Жалпы бағасы</string>
+    <string name="label_price_per_day">Күніне бағасы</string>
     <string name="edit_personal_info_title">Жеке ақпаратты өзгерту</string>
     <string name="first_name">Аты</string>
     <string name="last_name">Тегі</string>
@@ -37,7 +35,6 @@
     <string name="error_prefix">Қате: %1$s</string>
     <string name="period_days">Күндер кезеңі</string>
     <string name="no_plans_available">Таңдалған нұсқа үшін қолжетімді жоспарлар жоқ</string>
-    <string name="label_price_per_day">Күніне бағасы: %1$s</string>
     <string name="format_kcal">%1$s ккал</string>
     <string name="loading">Жүктелуде...</string>
     <string name="no_dishes">Тағамдар жоқ</string>

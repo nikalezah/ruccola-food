@@ -9,11 +9,9 @@
     <string name="no_plan_selected">No plan selected</string>
     <string name="no_plan_selected_description">Choose a meal plan to get started with regular deliveries</string>
     <string name="choose_plan">Choose plan</string>
-    <string name="chosen_plan_title">Chosen plan</string>
-    <string name="label_calories">Calories: %1$s</string>
-    <string name="label_total_price">Total price: %1$s</string>
-    <string name="label_start_date">Start date: %1$s</string>
-    <string name="label_end_date">End date: %1$s</string>
+    <string name="label_calories">Calories</string>
+    <string name="label_total_price">Total price</string>
+    <string name="label_price_per_day">Price per day</string>
     <string name="edit_personal_info_title">Edit personal information</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
@@ -37,7 +35,6 @@
     <string name="error_prefix">Error: %1$s</string>
     <string name="period_days">Period days</string>
     <string name="no_plans_available">No plans available</string>
-    <string name="label_price_per_day">Price per day: %1$s</string>
     <string name="format_kcal">%1$s kcal</string>
     <string name="loading">Loading...</string>
     <string name="no_dishes">No dishes</string>

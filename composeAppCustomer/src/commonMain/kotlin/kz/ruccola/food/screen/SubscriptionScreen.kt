@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
@@ -32,21 +33,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.cancel
 import food.composeappcustomer.generated.resources.choose_plan
-import food.composeappcustomer.generated.resources.chosen_plan_title
 import food.composeappcustomer.generated.resources.days_quantity
 import food.composeappcustomer.generated.resources.delivery_prefs_title
 import food.composeappcustomer.generated.resources.error_prefix
 import food.composeappcustomer.generated.resources.evening
-import food.composeappcustomer.generated.resources.format_kcal
 import food.composeappcustomer.generated.resources.label_calories
-import food.composeappcustomer.generated.resources.label_end_date
 import food.composeappcustomer.generated.resources.label_price_per_day
-import food.composeappcustomer.generated.resources.label_start_date
 import food.composeappcustomer.generated.resources.label_total_price
 import food.composeappcustomer.generated.resources.loading_plan
 import food.composeappcustomer.generated.resources.morning
@@ -142,7 +140,8 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
                     val endDate = LocalDate.fromEpochDays(endEpoch)
                     val totalPrice = customerPlan.pricePerDay * days
 
-                    val kcalText = stringResource(Res.string.format_kcal, customerPlan.calories.toString())
+                    val caloriesText = customerPlan.calories.toString()
+                    val pricePerDayText = customerPlan.pricePerDay.toString()
                     val totalPriceText = totalPrice.toString()
                     val startDateText = startDate.toString()
                     val endDateText = endDate.toString()
@@ -151,33 +150,37 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
 
                     OutlinedCard(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { viewModel.setShowPlanDialog(true) },
                     ) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text(
-                                stringResource(Res.string.chosen_plan_title),
-                                style = MaterialTheme.typography.titleLarge,
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = "$startDateText - $endDateText, $daysText",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                                IconButton(onClick = { viewModel.setShowPlanDialog(true) }) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Edit,
+                                        contentDescription = stringResource(Res.string.choose_plan),
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                            }
+                            InfoRow(
+                                label = stringResource(Res.string.label_calories),
+                                value = caloriesText,
                             )
-                            PlanInfoRow(
-                                icon = Icons.Filled.DinnerDining,
-                                label = stringResource(Res.string.label_calories, kcalText),
+                            InfoRow(
+                                label = stringResource(Res.string.label_price_per_day),
+                                value = pricePerDayText,
                             )
-                            PlanInfoRow(
-                                icon = Icons.Filled.CalendarMonth,
-                                label = daysText,
-                            )
-                            PlanInfoRow(
-                                icon = Icons.Filled.PriceChange,
-                                label = stringResource(Res.string.label_total_price, totalPriceText),
+                            InfoRow(
+                                label = stringResource(Res.string.label_total_price),
+                                value = totalPriceText,
                                 valueColor = MaterialTheme.colorScheme.primary,
-                            )
-                            PlanInfoRow(
-                                icon = Icons.Filled.Today,
-                                label = stringResource(Res.string.label_start_date, startDateText),
-                            )
-                            PlanInfoRow(
-                                icon = Icons.Filled.Today,
-                                label = stringResource(Res.string.label_end_date, endDateText),
                             )
                         }
                     }
@@ -196,24 +199,23 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
 }
 
 @Composable
-private fun PlanInfoRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+private fun InfoRow(
     label: String,
-    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
+    value: String,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
         Text(
             text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = value,
             style = MaterialTheme.typography.bodyLarge,
             color = valueColor,
         )
@@ -382,7 +384,7 @@ private fun PlanSelectionDialog(viewModel: SubscriptionViewModel) {
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    stringResource(Res.string.label_calories, shownCalories?.toString() ?: "-"),
+                                    "${stringResource(Res.string.label_calories)}: ${shownCalories?.toString() ?: "-"}",
                                     style = MaterialTheme.typography.labelLarge,
                                 )
                                 Icon(

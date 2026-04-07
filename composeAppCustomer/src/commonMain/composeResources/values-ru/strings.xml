@@ -9,11 +9,9 @@
     <string name="no_plan_selected">План не выбран</string>
     <string name="no_plan_selected_description">Выберите план питания, чтобы начать регулярные доставки</string>
     <string name="choose_plan">Выберите план</string>
-    <string name="chosen_plan_title">Выбранный план</string>
-    <string name="label_calories">Калории: %1$s</string>
-    <string name="label_total_price">Общая цена: %1$s</string>
-    <string name="label_start_date">Дата начала: %1$s</string>
-    <string name="label_end_date">Дата окончания: %1$s</string>
+    <string name="label_calories">Калории</string>
+    <string name="label_total_price">Общая цена</string>
+    <string name="label_price_per_day">Цена за день</string>
     <string name="edit_personal_info_title">Редактировать личную информацию</string>
     <string name="first_name">Имя</string>
     <string name="last_name">Фамилия</string>
@@ -37,7 +35,6 @@
     <string name="error_prefix">Ошибка: %1$s</string>
     <string name="period_days">Период дней</string>
     <string name="no_plans_available">Нет доступных планов для выбранной опции</string>
-    <string name="label_price_per_day">Цена за день: %1$s</string>
     <string name="format_kcal">%1$s ккал</string>
     <string name="loading">Загрузка...</string>
     <string name="no_dishes">Нет блюд</string>
