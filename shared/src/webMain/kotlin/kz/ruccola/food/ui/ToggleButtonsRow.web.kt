@@ -48,10 +48,7 @@ actual fun ToggleButtonsRow(
     LaunchedEffect(initialSelectedIndex) {
         selectedIndex = initialSelectedIndex
     }
-    Row(
-        modifier = modifier.padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-    ) {
+    Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
         options.forEachIndexed { i, o ->
             ToggleButton(
                 checked = selectedIndex == i,

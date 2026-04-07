@@ -40,7 +40,6 @@ import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.cancel
 import food.composeappcustomer.generated.resources.choose_plan
 import food.composeappcustomer.generated.resources.days_quantity
-import food.composeappcustomer.generated.resources.delivery_prefs_title
 import food.composeappcustomer.generated.resources.error_prefix
 import food.composeappcustomer.generated.resources.evening
 import food.composeappcustomer.generated.resources.label_calories
@@ -59,6 +58,7 @@ import food.composeappcustomer.generated.resources.saving
 import food.composeappcustomer.generated.resources.tab_subscription
 import food.composeappcustomer.generated.resources.weekend_delivery
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.ToggleButtonsRow
 import kz.ruccola.food.viewmodel.SubscriptionUiState
@@ -143,8 +143,10 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
                     val caloriesText = customerPlan.calories.toString()
                     val pricePerDayText = customerPlan.pricePerDay.toString()
                     val totalPriceText = totalPrice.toString()
-                    val startDateText = startDate.toString()
-                    val endDateText = endDate.toString()
+                    val startDateText = startDate.day.toString().padStart(2, '0') +
+                        "." + startDate.month.number.toString().padStart(2, '0')
+                    val endDateText = endDate.day.toString().padStart(2, '0') +
+                        "." + endDate.month.number.toString().padStart(2, '0')
 
                     val daysText = pluralStringResource(Res.plurals.days_quantity, days, days)
 
@@ -158,17 +160,17 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel { Subscripti
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "$startDateText - $endDateText, $daysText",
+                                    text = "$startDateText — $endDateText ($daysText)",
                                     style = MaterialTheme.typography.titleMedium,
                                 )
                                 IconButton(onClick = { viewModel.setShowPlanDialog(true) }) {
                                     Icon(
                                         imageVector = Icons.Outlined.EditSquare,
                                         contentDescription = stringResource(Res.string.choose_plan),
-                                        modifier = Modifier.size(20.dp),
                                     )
                                 }
                             }
+                            HorizontalDivider()
                             InfoRow(
                                 label = stringResource(Res.string.label_calories),
                                 value = caloriesText,
@@ -231,52 +233,43 @@ private fun DeliveryPreferencesSection(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(
-                stringResource(Res.string.delivery_prefs_title),
-                style = MaterialTheme.typography.titleLarge,
-            )
-            HorizontalDivider()
             PreferenceSwitchRow(
-                icon = Icons.Outlined.Settings,
                 label = stringResource(Res.string.needs_cutlery),
                 checked = uiState.needsCutlery,
                 onCheckedChange = { viewModel.updateDeliveryPrefs(needsCutlery = it) },
             )
             HorizontalDivider()
             PreferenceSwitchRow(
-                icon = Icons.Filled.CalendarMonth,
                 label = stringResource(Res.string.weekend_delivery),
                 checked = uiState.weekendDelivery,
                 onCheckedChange = { viewModel.updateDeliveryPrefs(weekendDelivery = it) },
             )
             HorizontalDivider()
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    stringResource(Res.string.morning_delivery),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                ToggleButtonsRow(
-                    listOf(
-                        stringResource(Res.string.morning),
-                        stringResource(Res.string.evening),
-                    ),
-                    if (uiState.morningDelivery) 0 else 1,
-                    onSelectedIndexChange = { i ->
-                        viewModel.updateDeliveryPrefs(morningDelivery = i == 0)
-                    },
-                )
-            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(Res.string.morning_delivery),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            ToggleButtonsRow(
+                listOf(
+                    stringResource(Res.string.morning),
+                    stringResource(Res.string.evening),
+                ),
+                if (uiState.morningDelivery) 0 else 1,
+                onSelectedIndexChange = { i ->
+                    viewModel.updateDeliveryPrefs(morningDelivery = i == 0)
+                },
+            )
+            Spacer(Modifier)
         }
     }
 }
 
 @Composable
 private fun PreferenceSwitchRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -286,22 +279,8 @@ private fun PreferenceSwitchRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
