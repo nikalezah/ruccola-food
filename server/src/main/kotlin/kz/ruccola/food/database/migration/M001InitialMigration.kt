@@ -3,12 +3,14 @@ package kz.ruccola.food.database.migration
 import kz.ruccola.food.DISH_NAME_PATTERN
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.database.Migration
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.model.Chats
 import kz.ruccola.food.model.CustomerPlans
 import kz.ruccola.food.model.Customers
 import kz.ruccola.food.model.DayDishes
 import kz.ruccola.food.model.Days
 import kz.ruccola.food.model.DishImages
+import kz.ruccola.food.model.DishTranslations
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
 import kz.ruccola.food.model.MealPlanDayDishes
@@ -42,6 +44,7 @@ class M001InitialMigration : Migration {
                 CustomerPlans,
                 DayDishes,
                 DishImages,
+                DishTranslations,
                 MealPlanDayDishes,
                 Chats,
                 Messages,
@@ -60,6 +63,23 @@ class M001InitialMigration : Migration {
                 """
                 ALTER TABLE dishes ADD CONSTRAINT chk_dishes_name_format
                 CHECK (TRIM(name) ~ '$DISH_NAME_PATTERN');
+                """.trimIndent(),
+            )
+            val languages = Language.entries.joinToString(", ") { "'${it.name}'" }
+            exec(
+                """
+                ALTER TABLE dish_translations ADD CONSTRAINT chk_dish_translations_language
+                CHECK (language IN ($languages));
+                """.trimIndent(),
+            )
+            exec(
+                """
+                ALTER TABLE dish_translations ADD CONSTRAINT chk_dish_translations_name_format
+                CHECK (
+                  (language = 'EN' AND name ~ '${Language.EN.dishNamePattern}') OR
+                  (language = 'RU' AND name ~ '${Language.RU.dishNamePattern}') OR
+                  (language = 'KK' AND name ~ '${Language.KK.dishNamePattern}')
+                );
                 """.trimIndent(),
             )
 
