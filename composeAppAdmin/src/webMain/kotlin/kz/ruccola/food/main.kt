@@ -12,6 +12,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.browser.window
+import kz.ruccola.food.api.LanguageProvider
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
@@ -24,6 +25,8 @@ fun main() {
 
 @Composable
 fun AdminApp() {
+    LanguageProvider.language = "ru"
+
     var role by remember { mutableStateOf(window.localStorage.getItem("admin.role")) }
     var token by remember { mutableStateOf(window.localStorage.getItem("admin.token")) }
     var themePreference by remember {

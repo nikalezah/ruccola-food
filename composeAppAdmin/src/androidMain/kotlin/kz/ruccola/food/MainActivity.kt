@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.coroutines.launch
+import kz.ruccola.food.api.LanguageProvider
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppLocaleManager.applyStoredLanguage(this)
+        LanguageProvider.language = "ru"
         enableEdgeToEdge()
 
         setContent {

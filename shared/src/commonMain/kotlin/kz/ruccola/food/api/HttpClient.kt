@@ -10,6 +10,8 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.resources.Resources
+import io.ktor.client.request.header
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -28,6 +30,7 @@ val httpClient = HttpClient {
     install(Resources)
     install(DefaultRequest) {
         url("$BASE_URL/api/")
+        header(HttpHeaders.AcceptLanguage, LanguageProvider.language)
     }
     install(Auth) {
         bearer {
@@ -59,4 +62,8 @@ object TokenProvider {
         }
 
     var onUnauthorized: (() -> Unit)? = null
+}
+
+object LanguageProvider {
+    var language: String = "ru"
 }

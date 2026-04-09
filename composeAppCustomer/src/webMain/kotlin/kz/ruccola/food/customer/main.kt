@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.browser.window
 import kz.ruccola.food.App
 import kz.ruccola.food.SessionViewModelStoreOwner
+import kz.ruccola.food.api.LanguageProvider
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
@@ -37,6 +38,10 @@ fun main() {
 
         LaunchedEffect(token) {
             TokenProvider.token = token
+        }
+
+        LaunchedEffect(language) {
+            LanguageProvider.language = language
         }
 
         DisposableEffect(Unit) {
