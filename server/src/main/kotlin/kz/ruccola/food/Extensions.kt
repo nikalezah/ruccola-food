@@ -1,6 +1,7 @@
 package kz.ruccola.food
 
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.log
 import io.ktor.server.auth.principal
 import kotlinx.coroutines.flow.toList
 import kotlinx.datetime.TimeZone
@@ -21,8 +22,7 @@ val ApplicationCall.language: Language
     get() = try {
         Language.valueOf(request.headers["Accept-Language"]!!.substring(0, 2).uppercase())
     } catch (e: Exception) {
-        // todo: output error to log
-        // application.log.error("Failed to parse Accept-Language header", e)
+        application.log.error("Failed to parse Accept-Language header", e)
         user.role.defaultLanguage
     }
 
