@@ -94,6 +94,10 @@
     <string name="pick_dish_for">Выберите блюдо для %1$s</string>
     <string name="tab_schedule">Расписание</string>
 
+    <string name="language_kk">Казахский</string>
+    <string name="language_ru">Русский</string>
+    <string name="language_en">Английский</string>
+
     <!-- Days -->
     <string name="screen_history_title">История</string>
     <string name="triggering_midnight">Создание следующего дня...</string>

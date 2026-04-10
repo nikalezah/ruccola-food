@@ -35,6 +35,9 @@ import food.composeappadmin.generated.resources.close
 import food.composeappadmin.generated.resources.description
 import food.composeappadmin.generated.resources.edit_dish
 import food.composeappadmin.generated.resources.images
+import food.composeappadmin.generated.resources.language_en
+import food.composeappadmin.generated.resources.language_kk
+import food.composeappadmin.generated.resources.language_ru
 import food.composeappadmin.generated.resources.name
 import food.composeappadmin.generated.resources.new_dish
 import kz.ruccola.food.api.DishWithTranslationsDto
@@ -58,7 +61,11 @@ fun DishEditorScreen(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     val languageTabs = Language.entries.sortedByDescending { it.ordinal }.toTypedArray()
-    val languageNames = mapOf(Language.KK to "Казахский", Language.RU to "Русский", Language.EN to "Английский")
+    val languageNames: Map<Language, String> = mapOf(
+        Language.KK to stringResource(Res.string.language_kk),
+        Language.RU to stringResource(Res.string.language_ru),
+        Language.EN to stringResource(Res.string.language_en),
+    )
 
     val allFieldsFilled = Language.entries.all { lang ->
         uiState.translations[lang]?.name?.isNotBlank() == true
