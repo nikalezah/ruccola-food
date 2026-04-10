@@ -148,18 +148,6 @@ class DishRoutesTest {
                 }
             }
 
-            client.get("/api/dishes/$dishId") { authHeader(token) }
-                .apply {
-                    assertEquals(HttpStatusCode.BadRequest, status)
-                }
-
-            client.get("/api/dishes/$dishId") {
-                authHeader(token)
-                header("Accept-Language", "invalid")
-            }.apply {
-                assertEquals(HttpStatusCode.BadRequest, status)
-            }
-
             client.get("/api/dishes/$dishId") {
                 authHeader(token)
                 header("Accept-Language", "EN")

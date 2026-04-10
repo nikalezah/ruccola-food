@@ -11,6 +11,7 @@ import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.Dishes
 import kz.ruccola.food.api.Role
+import kz.ruccola.food.language
 import kz.ruccola.food.localization.Language
 import kz.ruccola.food.service.DishService
 import kz.ruccola.food.withRole
@@ -19,19 +20,7 @@ fun Route.configureDishRoutes() {
     val dishService = DishService()
 
     get<Dishes.Id> { dish ->
-//        todo: replace implementation
-//        val language = call.language
-        val acceptLanguage = call.request.headers["Accept-Language"]
-            ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Accept-Language header is required")
-                return@get
-            }
-        val language = runCatching { Language.valueOf(acceptLanguage.substring(0, 2).uppercase()) }
-            .getOrElse {
-                call.respond(HttpStatusCode.BadRequest, "Invalid language. Supported: EN, RU, KK")
-                return@get
-            }
-        val d = dishService.findById(dish.id, language) ?: run {
+        val d = dishService.findById(dish.id, call.language) ?: run {
             call.respond(HttpStatusCode.NotFound, "Dish not found")
             return@get
         }
