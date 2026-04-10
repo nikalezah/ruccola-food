@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.toList
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.dbQuery
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.model.MealPlanDayDishes
@@ -32,7 +33,7 @@ class MealPlanDayService {
             MealPlanDays.selectAll()
                 .where { MealPlanDays.current eq true }
                 .singleOrNull()
-                ?.let(::toDto)
+                ?.let { toDto(it) }
         }
 
     suspend fun advanceCurrentToNext() =
@@ -51,7 +52,7 @@ class MealPlanDayService {
             MealPlanDays.update({ MealPlanDays.serial eq serialOfNext }) { it[MealPlanDays.current] = true }
         }
 
-    suspend fun getAll(): List<MealPlanDayDto> =
+    suspend fun getAll(language: Language): List<MealPlanDayDto> =
         dbQuery {
             val allDays = MealPlanDays.selectAll()
                 .orderBy(MealPlanDays.serial to SortOrder.ASC)
@@ -73,7 +74,7 @@ class MealPlanDayService {
                 val dayId = dayRow[MealPlanDays.id].value
                 val dayDishes = dishesByDayId[dayId]?.map { dishRow ->
                     DishWithMealDto(
-                        dishService.toDto(dishRow),
+                        dishService.toDto(dishRow, language),
                         Meal.valueOf(dishRow[MealPlanDayDishes.meal]),
                     )
                 }?.sortedBy { it.meal.ordinal } ?: emptyList()
@@ -89,6 +90,7 @@ class MealPlanDayService {
     suspend fun save(
         id: Int?,
         dishIdToMeal: Map<Int, Meal>,
+        language: Language,
     ): Result<MealPlanDayDto> =
         dbQuery {
             val mpdDto = if (id == null) {
@@ -125,7 +127,7 @@ class MealPlanDayService {
 
             val dishDtoList = Dishes.selectAll().where { Dishes.id inList dishIds }
                 .toList()
-                .map { dishService.toDto(it) }
+                .map { dishService.toDto(it, language) }
 
             val dishWithMeal = dishes.map { (dishId, meal) ->
                 DishWithMealDto(
@@ -149,7 +151,10 @@ class MealPlanDayService {
             MealPlanDays.deleteWhere { MealPlanDays.id eq id }
         }
 
-    suspend fun getDishes(mealPlanDayId: Int): Result<List<DishWithMealDto>> =
+    suspend fun getDishes(
+        mealPlanDayId: Int,
+        language: Language,
+    ): Result<List<DishWithMealDto>> =
         dbQuery {
             MealPlanDays.selectAll().where { MealPlanDays.id eq mealPlanDayId }.count() > 0 ||
                 return@dbQuery Result.failure(NoSuchElementException("MealPlanDay not found"))
@@ -165,7 +170,7 @@ class MealPlanDayService {
                 } else {
                     Dishes.selectAll().where { Dishes.id inList dishIds }
                         .toList()
-                        .map { dishService.toDto(it) }
+                        .map { dishService.toDto(it, language) }
                         .associateBy { it.id }
                 }
 

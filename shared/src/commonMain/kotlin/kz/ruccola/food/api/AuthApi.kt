@@ -11,6 +11,7 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.resources.Resource
 import kotlinx.serialization.Serializable
+import kz.ruccola.food.localization.Language
 
 @Resource("auth")
 class Auth {
@@ -74,9 +75,11 @@ class AuthApi(
     }
 }
 
-enum class Role {
-    ADMIN,
-    CUSTOMER,
+enum class Role(
+    val defaultLanguage: Language,
+) {
+    ADMIN(Language.adminDefault),
+    CUSTOMER(Language.customerDefault),
     ;
 
     val isAdmin: Boolean get() = this == ADMIN

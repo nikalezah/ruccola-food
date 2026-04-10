@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.DishApi
-import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishUpdateDto
+import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.api.FileApi
 
 data class DishImageItem(
@@ -17,7 +17,7 @@ data class DishImageItem(
 )
 
 data class DishImagesUiState(
-    val dish: DishDto,
+    val dish: DishWithTranslationsDto,
     val workingList: List<DishImageItem> = emptyList(),
     val initialWorkingList: List<DishImageItem> = emptyList(),
     val isBusy: Boolean = false,
@@ -29,7 +29,7 @@ data class DishImagesUiState(
 }
 
 class DishImagesViewModel(
-    initialDish: DishDto,
+    initialDish: DishWithTranslationsDto,
 ) : ViewModel() {
     private val dishApi = DishApi()
     private val fileApi = FileApi()

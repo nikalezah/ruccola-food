@@ -9,6 +9,7 @@ import kotlinx.datetime.LocalDate
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.api.DishWithMealDto
 import kz.ruccola.food.dbQuery
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.model.DayDishes
 import kz.ruccola.food.model.Days
 import kz.ruccola.food.model.Dishes
@@ -69,7 +70,7 @@ class DayService {
             Result.success(dayDto)
         }
 
-    suspend fun getAllDays(): List<DayDto> =
+    suspend fun getAllDays(language: Language): List<DayDto> =
         dbQuery {
             val days = Days.selectAll()
                 .orderBy(Days.date to SortOrder.ASC)
@@ -86,7 +87,7 @@ class DayService {
 
             for (row in dishRows) {
                 val dayId = row[DayDishes.dayId].value
-                val dish = dishService.toDto(row)
+                val dish = dishService.toDto(row, language)
                 val mealStr = row[DayDishes.meal]
                 val meal = runCatching { Meal.valueOf(mealStr) }.getOrNull()
                 if (meal != null) {

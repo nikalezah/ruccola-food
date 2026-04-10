@@ -10,6 +10,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.authHeader
 import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.localization.Language
+import kz.ruccola.food.model.DishTranslations
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.model.MealPlanDayDishes
@@ -35,7 +37,6 @@ class CustomerScheduleRoutesTest {
         testApp { client ->
             val token = client.registerCustomer().token
 
-            // Prepare 3 meal plan days with serials 1,2,3 and attach dishes
             suspendTransaction {
                 val mpId1 = MealPlanDays.insertAndGetId {
                     it[serial] = 1
@@ -43,26 +44,49 @@ class CustomerScheduleRoutesTest {
                 }
                 val mpId2 = MealPlanDays.insertAndGetId {
                     it[serial] = 2
-                    it[current] = true // current starts at serial=2
+                    it[current] = true
                 }
                 val mpId3 = MealPlanDays.insertAndGetId {
                     it[serial] = 3
                     it[current] = false
                 }
-                // three dishes
+
                 val dishId1 = Dishes.insertAndGetId {
-                    it[name] = "A"
-                    it[description] = "d"
+                    it[archived] = false
                 }
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId1
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = if (lang == Language.EN) "A" else "А"
+                        it[DishTranslations.description] = "d"
+                    }
+                }
+
                 val dishId2 = Dishes.insertAndGetId {
-                    it[name] = "B"
-                    it[description] = "d"
+                    it[archived] = false
                 }
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId2
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = if (lang == Language.EN) "B" else "В"
+                        it[DishTranslations.description] = "d"
+                    }
+                }
+
                 val dishId3 = Dishes.insertAndGetId {
-                    it[name] = "C"
-                    it[description] = "d"
+                    it[archived] = false
                 }
-                // link: mp2 -> dishId2, mp3 -> dishId3, mp1 -> dishId1
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId3
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = if (lang == Language.EN) "C" else "С"
+                        it[DishTranslations.description] = "d"
+                    }
+                }
+
                 MealPlanDayDishes.insert {
                     it[MealPlanDayDishes.mealPlanDayId] = mpId2
                     it[MealPlanDayDishes.dishId] = dishId2
@@ -93,17 +117,14 @@ class CustomerScheduleRoutesTest {
             assertEquals(pageSize, json["totalCount"]!!.jsonPrimitive.content.toInt())
             assertEquals(0, json["page"]!!.jsonPrimitive.content.toInt())
             assertEquals(pageSize, json["size"]!!.jsonPrimitive.content.toInt())
-            // Day 0 should correspond to current (serial=2) and include dish B
             val day0Dishes = arr[0].jsonObject["dishes"]!!.jsonArray
             val names0 = day0Dishes.map { it.jsonObject["dish"]!!.jsonObject["name"]!!.jsonPrimitive.content }
-            assertTrue(names0.contains("B"))
-            // Day 1 -> serial=3 has C
+            assertTrue(names0.contains("В"))
             val day1Dishes = arr[1].jsonObject["dishes"]!!.jsonArray
             val names1 = day1Dishes.map { it.jsonObject["dish"]!!.jsonObject["name"]!!.jsonPrimitive.content }
-            assertTrue(names1.contains("C"))
-            // Day 2 wraps to serial=1 has A
+            assertTrue(names1.contains("С"))
             val day2Dishes = arr[2].jsonObject["dishes"]!!.jsonArray
             val names2 = day2Dishes.map { it.jsonObject["dish"]!!.jsonObject["name"]!!.jsonPrimitive.content }
-            assertTrue(names2.contains("A"))
+            assertTrue(names2.contains("А"))
         }
 }

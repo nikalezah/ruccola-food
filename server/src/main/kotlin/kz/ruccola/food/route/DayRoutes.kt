@@ -9,6 +9,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 import kz.ruccola.food.api.Days
 import kz.ruccola.food.api.Role
+import kz.ruccola.food.language
 import kz.ruccola.food.runMidnightFor
 import kz.ruccola.food.service.DayService
 import kz.ruccola.food.today
@@ -19,7 +20,7 @@ fun Route.configureDayRoutes() {
 
     withRole(Role.ADMIN) {
         get<Days> {
-            val days = dayService.getAllDays()
+            val days = dayService.getAllDays(call.language)
             call.respond(days)
         }
 

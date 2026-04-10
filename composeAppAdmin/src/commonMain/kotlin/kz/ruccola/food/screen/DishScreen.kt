@@ -47,8 +47,9 @@ import food.composeappadmin.generated.resources.error_prefix
 import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_dishes
-import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.dishImageUrl
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.PullToRefresh
@@ -64,7 +65,7 @@ fun DishScreen() {
     val dishes = viewModel.dishes.collectAsLazyPagingItems()
 
     var editorVisible by remember { mutableStateOf(false) }
-    var editingDish by remember { mutableStateOf<DishDto?>(null) }
+    var editingDish by remember { mutableStateOf<DishWithTranslationsDto?>(null) }
 
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
@@ -193,11 +194,13 @@ fun DishScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DishListItem(
-    dish: DishDto,
+    dish: DishWithTranslationsDto,
     onEdit: () -> Unit,
     onArchive: () -> Unit,
 ) {
     val imageUrl = dish.images.firstOrNull()?.url
+    val displayName = dish.translations[Language.adminDefault]?.name ?: ""
+    val displayDescription = dish.translations[Language.adminDefault]?.description ?: ""
 
     SwipeToRemove(Icons.Filled.Archive, stringResource(Res.string.archive), onArchive) {
         ListItem(
@@ -210,8 +213,8 @@ private fun DishListItem(
                     )
                 }
             },
-            headlineContent = { SingleLineText(dish.name) },
-            supportingContent = { SingleLineText(dish.description) },
+            headlineContent = { SingleLineText(displayName) },
+            supportingContent = { SingleLineText(displayDescription) },
             modifier = Modifier.clickable(onClick = onEdit),
         )
     }

@@ -7,11 +7,11 @@ import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import kz.ruccola.food.DISH_NAME_PATTERN
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.Dishes
 import kz.ruccola.food.api.Role
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.service.DishService
 import kz.ruccola.food.withRole
 
@@ -19,7 +19,19 @@ fun Route.configureDishRoutes() {
     val dishService = DishService()
 
     get<Dishes.Id> { dish ->
-        val d = dishService.findById(dish.id) ?: run {
+//        todo: replace implementation
+//        val language = call.language
+        val acceptLanguage = call.request.headers["Accept-Language"]
+            ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Accept-Language header is required")
+                return@get
+            }
+        val language = runCatching { Language.valueOf(acceptLanguage.substring(0, 2).uppercase()) }
+            .getOrElse {
+                call.respond(HttpStatusCode.BadRequest, "Invalid language. Supported: EN, RU, KK")
+                return@get
+            }
+        val d = dishService.findById(dish.id, language) ?: run {
             call.respond(HttpStatusCode.NotFound, "Dish not found")
             return@get
         }
@@ -28,60 +40,98 @@ fun Route.configureDishRoutes() {
 
     withRole(Role.ADMIN) {
         get<Dishes.List> { dishes ->
-            call.respond(dishService.getAll(dishes.page, dishes.size))
+            call.respond(dishService.getAllWithTranslations(dishes.page, dishes.size))
         }
 
         post<Dishes> {
             val payload = call.receive<DishCreateDto>()
-            val name = payload.name.trim()
-            if (name.isEmpty()) {
-                call.respond(HttpStatusCode.BadRequest, "Name cannot be empty")
+            val translations = payload.translations
+
+            if (translations.isEmpty()) {
+                call.respond(HttpStatusCode.BadRequest, "At least one translation is required")
                 return@post
             }
-            if (!Regex(DISH_NAME_PATTERN).matches(name)) {
-                call.respond(HttpStatusCode.BadRequest, "Name can only contain letters and spaces")
+
+            val missingLanguages = Language.entries.filter { it !in translations.keys }
+            if (missingLanguages.isNotEmpty()) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Missing translations for: ${missingLanguages.joinToString(", ") { it.name }}",
+                )
                 return@post
             }
-            if (dishService.nameExists(name, excludeId = null)) {
-                call.respond(HttpStatusCode.Conflict, "A dish with this name already exists")
-                return@post
+
+            for (lang in Language.entries) {
+                val translation = translations[lang]!!
+                val name = translation.name.trim()
+                if (name.isEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, "Name cannot be empty for language ${lang.name}")
+                    return@post
+                }
+                if (!Regex(lang.dishNamePattern).matches(name)) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Invalid name format for language ${lang.name}. Only letters and spaces allowed",
+                    )
+                    return@post
+                }
+                if (dishService.translationNameExists(lang, name, excludeId = null)) {
+                    call.respond(HttpStatusCode.Conflict, "A dish with this name already exists in ${lang.name}")
+                    return@post
+                }
             }
-            val dish = dishService.createDish(name, payload.description, payload.imageFileIds)
+
+            val dish = dishService.createDish(translations, payload.imageFileIds)
             call.respond(HttpStatusCode.Created, dish)
         }
 
         put<Dishes.Id> { dish ->
             if (!dishService.exists(dish.id)) {
-                // todo: remove duplication ↓
                 call.respond(HttpStatusCode.NotFound, "Dish not found")
                 return@put
             }
             val payload = call.receive<DishUpdateDto>()
-            if (payload.name.isNullOrBlank() && payload.description.isNullOrBlank() && payload.imageFileIds == null) {
+            if (payload.translations == null && payload.imageFileIds == null) {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    "At least one field (name, description, or images) must be provided for update",
+                    "At least one field (translations or images) must be provided for update",
                 )
                 return@put
             }
-            val trimmedName = payload.name?.trim()
-            if (trimmedName != null) {
-                if (trimmedName.isEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, "Name cannot be empty")
+
+            payload.translations?.let { translations ->
+                val missingLanguages = Language.entries.filter { it !in translations.keys }
+                if (missingLanguages.isNotEmpty()) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Missing translations for: ${missingLanguages.joinToString(", ") { it.name }}",
+                    )
                     return@put
                 }
-                if (!Regex(DISH_NAME_PATTERN).matches(trimmedName)) {
-                    call.respond(HttpStatusCode.BadRequest, "Name can only contain letters and spaces")
-                    return@put
-                }
-                if (dishService.nameExists(trimmedName, excludeId = dish.id)) {
-                    call.respond(HttpStatusCode.Conflict, "A dish with this name already exists")
-                    return@put
+
+                for (lang in Language.entries) {
+                    val translation = translations[lang]!!
+                    val name = translation.name.trim()
+                    if (name.isEmpty()) {
+                        call.respond(HttpStatusCode.BadRequest, "Name cannot be empty for language ${lang.name}")
+                        return@put
+                    }
+                    if (!Regex(lang.dishNamePattern).matches(name)) {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Invalid name format for language ${lang.name}. Only letters and spaces allowed",
+                        )
+                        return@put
+                    }
+                    if (dishService.translationNameExists(lang, name, excludeId = dish.id)) {
+                        call.respond(HttpStatusCode.Conflict, "A dish with this name already exists in ${lang.name}")
+                        return@put
+                    }
                 }
             }
-            val updated = dishService.updateDish(dish.id, trimmedName, payload.description, payload.imageFileIds)
+
+            val updated = dishService.updateDish(dish.id, payload.translations, payload.imageFileIds)
                 ?: run {
-                    // todo: remove duplication ↑
                     call.respond(HttpStatusCode.NotFound, "Dish not found")
                     return@put
                 }

@@ -1,6 +1,5 @@
 package kz.ruccola.food.database.migration
 
-import kz.ruccola.food.DISH_NAME_PATTERN
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.database.Migration
 import kz.ruccola.food.localization.Language
@@ -54,17 +53,6 @@ class M001InitialMigration : Migration {
             exec("CREATE UNIQUE INDEX ux_plans_calories_period_days ON plans(calories, period_days);")
             // Unique partial index: only one meal plan a day may have current = TRUE
             exec("CREATE UNIQUE INDEX ux_meal_plan_days_current_true ON meal_plan_days(current) WHERE current = TRUE;")
-            // Case-insensitive unique index on trimmed name (only for non-archived dishes)
-            exec(
-                "CREATE UNIQUE INDEX ux_dishes_name_unique ON dishes (LOWER(TRIM(name))) WHERE archived = FALSE;",
-            )
-            // CHECK constraint: name (trimmed) must contain only letters (Latin, Cyrillic, Kazakh) and spaces
-            exec(
-                """
-                ALTER TABLE dishes ADD CONSTRAINT chk_dishes_name_format
-                CHECK (TRIM(name) ~ '$DISH_NAME_PATTERN');
-                """.trimIndent(),
-            )
             val languages = Language.entries.joinToString(", ") { "'${it.name}'" }
             exec(
                 """

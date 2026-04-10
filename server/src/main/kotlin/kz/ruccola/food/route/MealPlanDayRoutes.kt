@@ -12,6 +12,7 @@ import kz.ruccola.food.api.MealPlanDaySaveDto
 import kz.ruccola.food.api.MealPlanDays
 import kz.ruccola.food.api.MealPlanDaysReorderDto
 import kz.ruccola.food.api.Role
+import kz.ruccola.food.language
 import kz.ruccola.food.service.MealPlanDayService
 import kz.ruccola.food.withRole
 
@@ -20,13 +21,13 @@ fun Route.configureMealPlanDayRoutes() {
 
     withRole(Role.ADMIN) {
         get<MealPlanDays> {
-            val list = service.getAll()
+            val list = service.getAll(call.language)
             call.respond(list)
         }
 
         put<MealPlanDays> {
             val body = call.receive<MealPlanDaySaveDto>()
-            val result = service.save(body.id, body.dishIdToMeal)
+            val result = service.save(body.id, body.dishIdToMeal, call.language)
             result.fold(
                 onSuccess = { call.respond(it) },
                 onFailure = {

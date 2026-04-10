@@ -39,7 +39,7 @@ import food.composeappadmin.generated.resources.delete
 import food.composeappadmin.generated.resources.images
 import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.save
-import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.provideImagePicker
 import kz.ruccola.food.ui.ApplyIconButton
@@ -52,9 +52,9 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DishImagesEditorScreen(
-    dish: DishDto,
+    dish: DishWithTranslationsDto,
     onClose: () -> Unit,
-    onSaved: (DishDto) -> Unit,
+    onSaved: (DishWithTranslationsDto) -> Unit,
 ) {
     val viewModel = remember(dish.id) { DishImagesViewModel(dish) }
     val uiState by viewModel.uiState.collectAsState()

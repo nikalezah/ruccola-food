@@ -16,6 +16,7 @@ import kz.ruccola.food.api.Customers
 import kz.ruccola.food.api.PagingResponse
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.api.ScheduledDayDto
+import kz.ruccola.food.language
 import kz.ruccola.food.service.CustomerService
 import kz.ruccola.food.service.MealPlanDayService
 import kz.ruccola.food.today
@@ -82,7 +83,8 @@ fun Route.configureCustomerRoutes() {
         }
 
         get<Customers.Schedule> { schedule ->
-            val all = mpdService.getAll()
+            val language = call.language
+            val all = mpdService.getAll(language)
             // Determine starting MPD: current or first by serial
             val start = mpdService.getCurrent() ?: all.firstOrNull()
 
@@ -112,7 +114,7 @@ fun Route.configureCustomerRoutes() {
             var idx = startIndex
             repeat(schedule.size) { i ->
                 val mpd = ordered[idx]
-                val dishes = mpdService.getDishes(mpd.id).getOrElse { emptyList() }
+                val dishes = mpdService.getDishes(mpd.id, language).getOrElse { emptyList() }
                 result.add(ScheduledDayDto(date = today.plus(i, DateTimeUnit.DAY), dishes = dishes))
                 idx = (idx + 1) % ordered.size
             }

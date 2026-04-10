@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,12 +16,14 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,18 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import food.composeappadmin.generated.resources.Res
-import food.composeappadmin.generated.resources.cancel
 import food.composeappadmin.generated.resources.close
 import food.composeappadmin.generated.resources.description
-import food.composeappadmin.generated.resources.edit
-import food.composeappadmin.generated.resources.edit_description
 import food.composeappadmin.generated.resources.edit_dish
-import food.composeappadmin.generated.resources.edit_name
 import food.composeappadmin.generated.resources.images
 import food.composeappadmin.generated.resources.name
 import food.composeappadmin.generated.resources.new_dish
-import food.composeappadmin.generated.resources.save
-import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.api.DishWithTranslationsDto
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SquareImagesCarousel200
@@ -51,13 +48,21 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DishEditorScreen(
-    initialDish: DishDto?,
+    initialDish: DishWithTranslationsDto?,
     onClose: () -> Unit,
 ) {
     val viewModel = remember(initialDish) { DishEditorViewModel(initialDish) }
     val uiState by viewModel.uiState.collectAsState()
 
     var imageEditorVisible by remember { mutableStateOf(false) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+    val languageTabs = Language.entries.sortedByDescending { it.ordinal }.toTypedArray()
+    val languageNames = mapOf(Language.KK to "Казахский", Language.RU to "Русский", Language.EN to "Английский")
+
+    val allFieldsFilled = Language.entries.all { lang ->
+        uiState.translations[lang]?.name?.isNotBlank() == true
+    }
 
     Scaffold(
         topBar = {
@@ -74,7 +79,12 @@ fun DishEditorScreen(
                     if (uiState.dish == null) {
                         ApplyIconButton(
                             onClick = { viewModel.saveDish() },
-                            enabled = uiState.name.isNotBlank() && !uiState.isBusy,
+                            enabled = allFieldsFilled && !uiState.isBusy,
+                        )
+                    } else {
+                        ApplyIconButton(
+                            onClick = { viewModel.saveDish() },
+                            enabled = allFieldsFilled && !uiState.isBusy,
                         )
                     }
                 },
@@ -88,112 +98,43 @@ fun DishEditorScreen(
                 Spacer(Modifier.height(8.dp))
             }
 
-            if (uiState.dish == null) {
-                OutlinedTextField(
-                    value = uiState.name,
-                    onValueChange = { viewModel.onNameChange(it) },
-                    label = { Text(stringResource(Res.string.name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    enabled = !uiState.isBusy,
-                )
-                Spacer(Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = uiState.description,
-                    onValueChange = { viewModel.onDescriptionChange(it) },
-                    label = { Text(stringResource(Res.string.description)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
-                    enabled = !uiState.isBusy,
-                )
-                Spacer(Modifier.height(12.dp))
-            } else {
-                var showEditName by remember { mutableStateOf(false) }
-                var showEditDescription by remember { mutableStateOf(false) }
-
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = uiState.name.ifBlank { "(no name)" },
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f),
-                    )
-                    IconButton(onClick = { showEditName = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Outlined.EditSquare, contentDescription = "Edit name")
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = uiState.description.ifBlank { "(no description)" },
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f),
-                    )
-                    IconButton(onClick = { showEditDescription = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Outlined.EditSquare, contentDescription = "Edit description")
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-
-                if (showEditName) {
-                    var temp by remember { mutableStateOf(uiState.name) }
-                    AlertDialog(
-                        onDismissRequest = { showEditName = false },
-                        confirmButton = {
-                            TextButton(enabled = temp.isNotBlank() && !uiState.isBusy, onClick = {
-                                showEditName = false
-                                viewModel.updateDishName(temp)
-                            }) { Text(stringResource(Res.string.save)) }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {
-                                showEditName = false
-                            }) { Text(stringResource(Res.string.cancel)) }
-                        },
-                        title = { Text(stringResource(Res.string.edit_name)) },
-                        text = {
-                            OutlinedTextField(
-                                value = temp,
-                                onValueChange = { temp = it },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                            )
-                        },
+            TabRow(selectedTabIndex = selectedTabIndex) {
+                languageTabs.forEachIndexed { index, lang ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(languageNames[lang] ?: lang.name) },
                     )
                 }
+            }
+            Spacer(Modifier.height(12.dp))
 
-                if (showEditDescription) {
-                    var temp by remember { mutableStateOf(uiState.description) }
-                    AlertDialog(
-                        onDismissRequest = { showEditDescription = false },
-                        confirmButton = {
-                            TextButton(enabled = !uiState.isBusy, onClick = {
-                                showEditDescription = false
-                                viewModel.updateDishDescription(temp)
-                            }) { Text(stringResource(Res.string.save)) }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {
-                                showEditDescription = false
-                            }) { Text(stringResource(Res.string.cancel)) }
-                        },
-                        title = { Text(stringResource(Res.string.edit_description)) },
-                        text = {
-                            OutlinedTextField(
-                                value = temp,
-                                onValueChange = { temp = it },
-                                modifier = Modifier.fillMaxWidth(),
-                                minLines = 3,
-                            )
-                        },
-                    )
-                }
+            val currentLanguage = languageTabs[selectedTabIndex]
+            OutlinedTextField(
+                value = uiState.translations[currentLanguage]?.name ?: "",
+                onValueChange = { viewModel.onTranslationNameChange(currentLanguage, it) },
+                label = { Text(stringResource(Res.string.name)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                enabled = !uiState.isBusy,
+            )
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(
+                value = uiState.translations[currentLanguage]?.description ?: "",
+                onValueChange = { viewModel.onTranslationDescriptionChange(currentLanguage, it) },
+                label = { Text(stringResource(Res.string.description)) },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                enabled = !uiState.isBusy,
+            )
 
+            if (uiState.dish != null) {
                 Spacer(Modifier.height(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(Res.string.images), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = { imageEditorVisible = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Outlined.EditSquare, contentDescription = stringResource(Res.string.edit))
+                        Icon(Icons.Outlined.EditSquare, contentDescription = "Edit images")
                     }
                 }
                 Spacer(Modifier.height(8.dp))

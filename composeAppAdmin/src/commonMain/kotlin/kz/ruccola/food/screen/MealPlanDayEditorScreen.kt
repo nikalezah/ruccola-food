@@ -62,9 +62,12 @@ import food.composeappadmin.generated.resources.mpd_subtitle
 import food.composeappadmin.generated.resources.new_day
 import food.composeappadmin.generated.resources.pick_dish_for
 import food.composeappadmin.generated.resources.save
+import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishWithMealDto
+import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.dishImageUrl
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
@@ -175,7 +178,9 @@ fun MealPlanDayEditorScreen(
                                                     if (idx >= 0) {
                                                         localDishes[idx] = localDishes[idx].copy(meal = meal)
                                                     } else {
-                                                        localDishes.add(DishWithMealDto(dish = dish, meal = meal))
+                                                        localDishes.add(
+                                                            DishWithMealDto(dish = dish.toDishDto(), meal = meal),
+                                                        )
                                                     }
                                                     localDishIdToMeal[dish.id] = meal
                                                     showPickerForMeal = null
@@ -194,7 +199,10 @@ fun MealPlanDayEditorScreen(
                                                         )
                                                         Spacer(Modifier.width(12.dp))
                                                     }
-                                                    Text(dish.name, modifier = Modifier.weight(1f))
+                                                    Text(
+                                                        dish.translations[Language.adminDefault]!!.name,
+                                                        modifier = Modifier.weight(1f),
+                                                    )
                                                 }
                                             }
                                         }
@@ -276,3 +284,15 @@ private fun Meal.toLocalizedString() =
         Meal.AFTERNOON_SNACK -> stringResource(Res.string.meal_afternoon_snack)
         Meal.DINNER -> stringResource(Res.string.meal_dinner)
     }
+
+// todo: remove
+private fun DishWithTranslationsDto.toDishDto(language: Language = Language.adminDefault) =
+    DishDto(
+        id,
+        translations[language]!!.name,
+        translations[language]!!.description,
+        archived,
+        createdAt,
+        updatedAt,
+        images,
+    )

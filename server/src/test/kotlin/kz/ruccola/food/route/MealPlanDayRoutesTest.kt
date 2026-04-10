@@ -16,10 +16,12 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kz.ruccola.food.api.DishCreateDto
+import kz.ruccola.food.api.DishTranslation
 import kz.ruccola.food.api.MealPlanDaySaveDto
 import kz.ruccola.food.api.MealPlanDaysReorderDto
 import kz.ruccola.food.authHeader
 import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.testApp
@@ -49,7 +51,15 @@ class MealPlanDayRoutesTest {
                 client.post("/api/dishes") {
                     authHeader(token)
                     contentType(ContentType.Application.Json)
-                    setBody(DishCreateDto(name = "Test Dish", description = "Desc"))
+                    setBody(
+                        DishCreateDto(
+                            translations = mapOf(
+                                Language.EN to DishTranslation("Test Dish", "Desc"),
+                                Language.RU to DishTranslation("Тест Блюдо", "Описание"),
+                                Language.KK to DishTranslation("Тест Тағам", "Сипаттама"),
+                            ),
+                        ),
+                    )
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 
@@ -86,7 +96,15 @@ class MealPlanDayRoutesTest {
                 client.post("/api/dishes") {
                     authHeader(token)
                     contentType(ContentType.Application.Json)
-                    setBody(DishCreateDto(name = "Test Dish Two", description = "Desc 2"))
+                    setBody(
+                        DishCreateDto(
+                            translations = mapOf(
+                                Language.EN to DishTranslation("Test Dish Two", "Desc 2"),
+                                Language.RU to DishTranslation("Тест Блюдо Два", "Описание 2"),
+                                Language.KK to DishTranslation("Тест Тағам Екі", "Сипаттама 2"),
+                            ),
+                        ),
+                    )
                 }.bodyAsText(),
             ).jsonObject["id"]!!.jsonPrimitive.int
 

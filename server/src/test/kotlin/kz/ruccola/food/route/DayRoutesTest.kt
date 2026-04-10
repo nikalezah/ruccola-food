@@ -14,9 +14,11 @@ import kz.ruccola.food.api.MealPlanDaysReorderDto
 import kz.ruccola.food.authHeader
 import kz.ruccola.food.dbQuery
 import kz.ruccola.food.initializeTestDatabase
+import kz.ruccola.food.localization.Language
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.DayDishes
 import kz.ruccola.food.model.Days
+import kz.ruccola.food.model.DishTranslations
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.testApp
@@ -38,12 +40,19 @@ class DayRoutesTest {
         testApp { client ->
             val token = client.loginAdmin()
 
-            // add a day with a dish manually for testing
             dbQuery {
                 val dishId = Dishes.insertReturning {
-                    it[name] = "Test Dish"
-                    it[description] = "Desc"
+                    it[archived] = false
                 }.toList().first()[Dishes.id]
+
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = if (lang == Language.EN) "Test Dish" else "Тестовое блюдо"
+                        it[DishTranslations.description] = "Desc"
+                    }
+                }
 
                 val dayId = Days.insertReturning {
                     it[date] = LocalDate(2025, 1, 1)
@@ -63,7 +72,7 @@ class DayRoutesTest {
             assertTrue(days.isNotEmpty())
             val firstDay = days.first()
             assertEquals(1, firstDay.dishes.size)
-            assertEquals("Test Dish", firstDay.dishes.first().dish.name)
+            assertEquals("Тестовое блюдо", firstDay.dishes.first().dish.name)
             assertEquals(Meal.BREAKFAST, firstDay.dishes.first().meal)
         }
 
@@ -71,7 +80,6 @@ class DayRoutesTest {
     fun testMealPlanReorderEndpointExists() =
         testApp { client ->
             val token = client.loginAdmin()
-            // With no MealPlanDays in DB, the service returns success and the route should respond 200
             val response = client.post("/api/meal-plan-days/reorder") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)

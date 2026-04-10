@@ -8,6 +8,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import kz.ruccola.food.api.PagingResponse
 import kz.ruccola.food.api.UserDto
+import kz.ruccola.food.localization.Language
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.r2dbc.Query
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -15,6 +16,15 @@ import kotlin.time.Clock
 
 val ApplicationCall.user: UserDto
     get() = principal<UserDto>() ?: error("User principal not found.")
+
+val ApplicationCall.language: Language
+    get() = try {
+        Language.valueOf(request.headers["Accept-Language"]!!.substring(0, 2).uppercase())
+    } catch (e: Exception) {
+        // todo: output error to log
+        // application.log.error("Failed to parse Accept-Language header", e)
+        user.role.defaultLanguage
+    }
 
 fun now() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 

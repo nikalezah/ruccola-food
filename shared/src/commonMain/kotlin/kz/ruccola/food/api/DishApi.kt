@@ -13,6 +13,7 @@ import io.ktor.resources.Resource
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
 import kotlinx.serialization.Serializable
+import kz.ruccola.food.localization.Language
 
 @Resource("dishes")
 class Dishes {
@@ -38,14 +39,16 @@ class Dishes {
 class DishApi(
     private val client: HttpClient = httpClient,
 ) {
-    suspend fun getAllDishes(
-        page: Int = 0,
-        size: Int = 20,
-    ): PagingResponse<DishDto> = client.get(Dishes.List(page = page, size = size)).body()
-
     suspend fun getDishById(id: Int): DishDto = client.get(Dishes.Id(id = id)).body()
 
-    suspend fun createDish(newDish: DishCreateDto): DishDto =
+    suspend fun getAllDishesWithTranslations(
+        page: Int = 0,
+        size: Int = 20,
+    ): PagingResponse<DishWithTranslationsDto> = client.get(Dishes.List(page = page, size = size)).body()
+
+    suspend fun getDishByIdWithTranslations(id: Int): DishWithTranslationsDto = client.get(Dishes.Id(id = id)).body()
+
+    suspend fun createDish(newDish: DishCreateDto): DishWithTranslationsDto =
         client.post(Dishes()) {
             contentType(ContentType.Application.Json)
             setBody(newDish)
@@ -54,7 +57,7 @@ class DishApi(
     suspend fun updateDish(
         id: Int,
         updateDish: DishUpdateDto,
-    ): DishDto =
+    ): DishWithTranslationsDto =
         client.put(Dishes.Id(id = id)) {
             contentType(ContentType.Application.Json)
             setBody(updateDish)
@@ -63,6 +66,12 @@ class DishApi(
     suspend fun archiveDish(id: Int): Boolean =
         client.post(Dishes.Id.Archive(parent = Dishes.Id(id = id))).status.isSuccess()
 }
+
+@Serializable
+data class DishTranslation(
+    val name: String,
+    val description: String,
+)
 
 @Serializable
 data class DishDto(
@@ -79,16 +88,26 @@ data class DishDto(
 
 @Serializable
 data class DishCreateDto(
-    val name: String,
-    val description: String,
+    val translations: Map<Language, DishTranslation>,
     val imageFileIds: List<Int> = emptyList(),
 )
 
 @Serializable
 data class DishUpdateDto(
-    val name: String? = null,
-    val description: String? = null,
+    val translations: Map<Language, DishTranslation>? = null,
     val imageFileIds: List<Int>? = null,
+)
+
+@Serializable
+data class DishWithTranslationsDto(
+    val id: Int,
+    val translations: Map<Language, DishTranslation>,
+    val archived: Boolean,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class)
+    val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class)
+    val updatedAt: LocalDateTime,
+    val images: List<DishImageDto> = emptyList(),
 )
 
 @Serializable
