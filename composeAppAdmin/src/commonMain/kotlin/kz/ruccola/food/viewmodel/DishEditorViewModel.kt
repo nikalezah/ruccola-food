@@ -16,9 +16,17 @@ import kz.ruccola.food.localization.Language
 data class DishEditorUiState(
     val dish: DishWithTranslationsDto? = null,
     val translations: Map<Language, DishTranslation> = emptyMap(),
+    val originalTranslations: Map<Language, DishTranslation> = emptyMap(),
     val isBusy: Boolean = false,
     val error: String? = null,
-)
+) {
+    val hasChanges: Boolean
+        get() = Language.entries.any { lang ->
+            val current = translations[lang]
+            val original = originalTranslations[lang]
+            current?.name != original?.name || current?.description != original?.description
+        } || dish == null
+}
 
 class DishEditorViewModel(
     initialDish: DishWithTranslationsDto?,
@@ -39,6 +47,7 @@ class DishEditorViewModel(
             DishEditorUiState(
                 dish = initialDish,
                 translations = getInitialTranslations(initialDish),
+                originalTranslations = getInitialTranslations(initialDish),
             ),
         )
 

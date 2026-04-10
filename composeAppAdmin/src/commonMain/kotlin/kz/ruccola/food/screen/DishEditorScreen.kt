@@ -21,6 +21,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -71,6 +72,23 @@ fun DishEditorScreen(
         uiState.translations[lang]?.name?.isNotBlank() == true
     }
 
+    var previousIsBusy by remember { mutableStateOf(false) }
+    var previousDish by remember { mutableStateOf(uiState.dish) }
+
+    LaunchedEffect(uiState.isBusy, uiState.dish) {
+        val capturedPreviousIsBusy = previousIsBusy
+        val capturedPreviousDish = previousDish
+
+        if (!uiState.isBusy && capturedPreviousIsBusy && uiState.error == null) {
+            onClose()
+        }
+        if (capturedPreviousDish == null && uiState.dish != null) {
+            onClose()
+        }
+        previousIsBusy = uiState.isBusy
+        previousDish = uiState.dish
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,17 +101,11 @@ fun DishEditorScreen(
                     }
                 },
                 actions = {
-                    if (uiState.dish == null) {
-                        ApplyIconButton(
-                            onClick = { viewModel.saveDish() },
-                            enabled = allFieldsFilled && !uiState.isBusy,
-                        )
-                    } else {
-                        ApplyIconButton(
-                            onClick = { viewModel.saveDish() },
-                            enabled = allFieldsFilled && !uiState.isBusy,
-                        )
-                    }
+                    val isNewDish = uiState.dish == null
+                    ApplyIconButton(
+                        onClick = { viewModel.saveDish() },
+                        enabled = allFieldsFilled && !uiState.isBusy && (isNewDish || uiState.hasChanges),
+                    )
                 },
             )
         },
