@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +48,8 @@ import food.composeappadmin.generated.resources.error_prefix
 import food.composeappadmin.generated.resources.no_items
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_dishes
-import kz.ruccola.food.api.DishWithTranslationsDto
+import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.dishImageUrl
-import kz.ruccola.food.localization.Language
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.PullToRefresh
@@ -65,7 +65,7 @@ fun DishScreen() {
     val dishes = viewModel.dishes.collectAsLazyPagingItems()
 
     var editorVisible by remember { mutableStateOf(false) }
-    var editingDish by remember { mutableStateOf<DishWithTranslationsDto?>(null) }
+    val selectedDish by viewModel.uiState.collectAsState()
 
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
@@ -82,7 +82,7 @@ fun DishScreen() {
             if (!editorVisible) {
                 FloatingActionButton(
                     onClick = {
-                        editingDish = null
+                        viewModel.getDishById(-1) // Load empty state
                         editorVisible = true
                     },
                 ) {
@@ -152,7 +152,7 @@ fun DishScreen() {
                                 DishListItem(
                                     dish = dish,
                                     onEdit = {
-                                        editingDish = dish
+                                        viewModel.getDishById(dish.id)
                                         editorVisible = true
                                     },
                                     onArchive = {
@@ -180,10 +180,9 @@ fun DishScreen() {
 
         if (editorVisible) {
             DishEditorScreen(
-                initialDish = editingDish,
+                initialDish = selectedDish.selectedDish,
                 onClose = {
                     editorVisible = false
-                    editingDish = null
                     dishes.refresh()
                 },
             )
@@ -194,13 +193,13 @@ fun DishScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DishListItem(
-    dish: DishWithTranslationsDto,
+    dish: DishDto,
     onEdit: () -> Unit,
     onArchive: () -> Unit,
 ) {
     val imageUrl = dish.images.firstOrNull()?.url
-    val displayName = dish.translations[Language.adminDefault]?.name ?: ""
-    val displayDescription = dish.translations[Language.adminDefault]?.description ?: ""
+    val displayName = dish.name
+    val displayDescription = dish.description
 
     SwipeToRemove(Icons.Filled.Archive, stringResource(Res.string.archive), onArchive) {
         ListItem(

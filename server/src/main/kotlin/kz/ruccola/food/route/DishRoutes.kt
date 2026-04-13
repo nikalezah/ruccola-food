@@ -29,7 +29,15 @@ fun Route.configureDishRoutes() {
 
     withRole(Role.ADMIN) {
         get<Dishes.List> { dishes ->
-            call.respond(dishService.getAllWithTranslations(dishes.page, dishes.size))
+            call.respond(dishService.getAll(dishes.page, dishes.size, call.language))
+        }
+
+        get<Dishes.Id.WithTranslations> { dish ->
+            val d = dishService.findByIdWithTranslations(dish.parent.id) ?: run {
+                call.respond(HttpStatusCode.NotFound, "Dish not found")
+                return@get
+            }
+            call.respond(d)
         }
 
         post<Dishes> {

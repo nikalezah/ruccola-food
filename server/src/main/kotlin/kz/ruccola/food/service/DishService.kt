@@ -3,6 +3,7 @@ package kz.ruccola.food.service
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishImageDto
@@ -62,15 +63,21 @@ class DishService {
             if (dish == null) null else toDto(dish, language)
         }
 
-    suspend fun getAllWithTranslations(
+    suspend fun findByIdWithTranslations(id: Int): DishWithTranslationsDto? =
+        dbQuery {
+            Dishes.selectAll().where { Dishes.id eq id }.singleOrNull()?.let { toDtoWithTranslations(it) }
+        }
+
+    suspend fun getAll(
         page: Int = 0,
         size: Int = 20,
-    ): PagingResponse<DishWithTranslationsDto> =
+        language: Language,
+    ): PagingResponse<DishDto> =
         dbQuery {
             Dishes.selectAll()
                 .where { Dishes.archived eq false }
                 .orderBy(Dishes.id to SortOrder.ASC)
-                .toPagingResponse(page, size) { toDtoWithTranslations(it) }
+                .toPagingResponse(page, size) { toDto(it, language) }
         }
 
     suspend fun createDish(

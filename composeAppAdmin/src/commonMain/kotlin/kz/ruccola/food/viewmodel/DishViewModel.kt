@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.DishApi
+import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.paging.ApiPagingSource
 
@@ -24,9 +25,9 @@ class DishViewModel : ViewModel() {
     val uiState: StateFlow<DishUiState>
         field = MutableStateFlow(DishUiState())
 
-    val dishes: Flow<PagingData<DishWithTranslationsDto>> =
+    val dishes: Flow<PagingData<DishDto>> =
         Pager(PagingConfig(pageSize = 20, initialLoadSize = 20)) {
-            ApiPagingSource { page, size -> dishApi.getAllDishesWithTranslations(page, size) }
+            ApiPagingSource { page, size -> dishApi.getAllDishes(page, size) }
         }.flow.cachedIn(viewModelScope)
 
     companion object {
@@ -41,6 +42,10 @@ class DishViewModel : ViewModel() {
         viewModelScope.launch {
             uiState.update { it.copy(isLoading = true, error = null) }
             try {
+                if (id <= 0) {
+                    uiState.update { it.copy(selectedDish = null, isLoading = false, error = null) }
+                    return@launch
+                }
                 val dish = dishApi.getDishByIdWithTranslations(id)
                 uiState.update {
                     it.copy(
@@ -81,10 +86,7 @@ class DishViewModel : ViewModel() {
 }
 
 data class DishUiState(
-    val dishes: List<DishWithTranslationsDto> = emptyList(),
     val selectedDish: DishWithTranslationsDto? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val showAddDialog: Boolean = false,
-    val showEditDialog: Boolean = false,
 )

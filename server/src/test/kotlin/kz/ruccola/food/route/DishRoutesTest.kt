@@ -106,15 +106,15 @@ class DishRoutesTest {
 
                     val firstDish = jsonArray[0].jsonObject
                     assertTrue(firstDish.containsKey("id"))
-                    assertTrue(firstDish.containsKey("translations"))
+                    assertTrue(firstDish.containsKey("name"))
+                    assertTrue(firstDish.containsKey("description"))
                     assertTrue(firstDish.containsKey("archived"))
                     assertTrue(firstDish.containsKey("createdAt"))
                     assertTrue(firstDish.containsKey("updatedAt"))
+                    assertTrue(firstDish.containsKey("images"))
 
-                    val translations = firstDish["translations"]!!.jsonObject
-                    assertTrue(translations.containsKey("EN"))
-                    assertTrue(translations.containsKey("RU"))
-                    assertTrue(translations.containsKey("KK"))
+                    val name = firstDish["name"]!!.jsonPrimitive.content
+                    assertTrue(name.isNotEmpty())
                 }
         }
 
