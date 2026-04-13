@@ -9,10 +9,4 @@ enum class Language(
     EN("""^(?!\s)[a-zA-Z -]+(?<!\s)$"""),
     RU("""^(?!\s)[а-яА-Я -]+(?<!\s)$"""),
     KK("""^(?!\s)[а-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ -]+(?<!\s)$"""),
-    ;
-
-    companion object {
-        val adminDefault = RU
-        val customerDefault = RU
-    }
 }

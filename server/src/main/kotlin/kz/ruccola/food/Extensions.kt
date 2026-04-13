@@ -23,7 +23,7 @@ val ApplicationCall.language: Language
         Language.valueOf(request.headers["Accept-Language"]!!.substring(0, 2).uppercase())
     } catch (e: Exception) {
         application.log.error("Failed to parse Accept-Language header", e)
-        user.role.defaultLanguage
+        Language.RU
     }
 
 fun now() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
