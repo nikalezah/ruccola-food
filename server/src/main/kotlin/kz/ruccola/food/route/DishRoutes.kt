@@ -8,6 +8,7 @@ import io.ktor.server.resources.put
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import kz.ruccola.food.api.DishCreateDto
+import kz.ruccola.food.api.DishTranslation
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.Dishes
 import kz.ruccola.food.api.Role
@@ -41,33 +42,40 @@ fun Route.configureDishRoutes() {
                 return@post
             }
 
-            val missingLanguages = Language.entries.filter { it !in translations.keys }
-            if (missingLanguages.isNotEmpty()) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "Missing translations for: ${missingLanguages.joinToString(", ") { it.name }}",
-                )
-                return@post
-            }
-
-            for (lang in Language.entries) {
-                val translation = translations[lang]!!
-                val name = translation.name.trim()
-                if (name.isEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, "Name cannot be empty for language ${lang.name}")
-                    return@post
-                }
-                if (!Regex(lang.dishNamePattern).matches(name)) {
+            when (val validationResult = validateTranslations(translations, null, dishService)) {
+                is ValidationResult.MissingLanguages -> {
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Invalid name format for language ${lang.name}. Only letters and spaces allowed",
+                        "Missing translations for: ${validationResult.languages.joinToString(", ") { it.name }}",
                     )
                     return@post
                 }
-                if (dishService.translationNameExists(lang, name, excludeId = null)) {
-                    call.respond(HttpStatusCode.Conflict, "A dish with this name already exists in ${lang.name}")
+
+                is ValidationResult.EmptyName -> {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Name cannot be empty for language ${validationResult.language.name}",
+                    )
                     return@post
                 }
+
+                is ValidationResult.InvalidNameFormat -> {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Invalid name format for language ${validationResult.language.name}. Only letters and spaces allowed",
+                    )
+                    return@post
+                }
+
+                is ValidationResult.DuplicateName -> {
+                    call.respond(
+                        HttpStatusCode.Conflict,
+                        "A dish with this name already exists in ${validationResult.language.name}",
+                    )
+                    return@post
+                }
+
+                is ValidationResult.Ok -> {}
             }
 
             val dish = dishService.createDish(translations, payload.imageFileIds)
@@ -89,33 +97,40 @@ fun Route.configureDishRoutes() {
             }
 
             payload.translations?.let { translations ->
-                val missingLanguages = Language.entries.filter { it !in translations.keys }
-                if (missingLanguages.isNotEmpty()) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        "Missing translations for: ${missingLanguages.joinToString(", ") { it.name }}",
-                    )
-                    return@put
-                }
-
-                for (lang in Language.entries) {
-                    val translation = translations[lang]!!
-                    val name = translation.name.trim()
-                    if (name.isEmpty()) {
-                        call.respond(HttpStatusCode.BadRequest, "Name cannot be empty for language ${lang.name}")
-                        return@put
-                    }
-                    if (!Regex(lang.dishNamePattern).matches(name)) {
+                when (val validationResult = validateTranslations(translations, dish.id, dishService)) {
+                    is ValidationResult.MissingLanguages -> {
                         call.respond(
                             HttpStatusCode.BadRequest,
-                            "Invalid name format for language ${lang.name}. Only letters and spaces allowed",
+                            "Missing translations for: ${validationResult.languages.joinToString(", ") { it.name }}",
                         )
                         return@put
                     }
-                    if (dishService.translationNameExists(lang, name, excludeId = dish.id)) {
-                        call.respond(HttpStatusCode.Conflict, "A dish with this name already exists in ${lang.name}")
+
+                    is ValidationResult.EmptyName -> {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Name cannot be empty for language ${validationResult.language.name}",
+                        )
                         return@put
                     }
+
+                    is ValidationResult.InvalidNameFormat -> {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Invalid name format for language ${validationResult.language.name}. Only letters and spaces allowed",
+                        )
+                        return@put
+                    }
+
+                    is ValidationResult.DuplicateName -> {
+                        call.respond(
+                            HttpStatusCode.Conflict,
+                            "A dish with this name already exists in ${validationResult.language.name}",
+                        )
+                        return@put
+                    }
+
+                    is ValidationResult.Ok -> {}
                 }
             }
 
@@ -136,4 +151,50 @@ fun Route.configureDishRoutes() {
             call.respond(HttpStatusCode.OK, "Dish archived successfully")
         }
     }
+}
+
+private sealed class ValidationResult {
+    data object Ok : ValidationResult()
+
+    data class MissingLanguages(
+        val languages: List<Language>,
+    ) : ValidationResult()
+
+    data class EmptyName(
+        val language: Language,
+    ) : ValidationResult()
+
+    data class InvalidNameFormat(
+        val language: Language,
+    ) : ValidationResult()
+
+    data class DuplicateName(
+        val language: Language,
+    ) : ValidationResult()
+}
+
+private suspend fun validateTranslations(
+    translations: Map<Language, DishTranslation>,
+    excludeId: Int?,
+    dishService: DishService,
+): ValidationResult {
+    val missingLanguages = Language.entries.filter { it !in translations.keys }
+    if (missingLanguages.isNotEmpty()) {
+        return ValidationResult.MissingLanguages(missingLanguages)
+    }
+
+    for (lang in Language.entries) {
+        val translation = translations[lang]!!
+        val name = translation.name.trim()
+        if (name.isEmpty()) {
+            return ValidationResult.EmptyName(lang)
+        }
+        if (!Regex(lang.dishNamePattern).matches(name)) {
+            return ValidationResult.InvalidNameFormat(lang)
+        }
+        if (dishService.translationNameExists(lang, name, excludeId)) {
+            return ValidationResult.DuplicateName(lang)
+        }
+    }
+    return ValidationResult.Ok
 }
