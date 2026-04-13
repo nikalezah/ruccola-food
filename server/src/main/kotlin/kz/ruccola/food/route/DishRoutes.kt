@@ -36,21 +36,14 @@ fun Route.configureDishRoutes() {
         post<Dishes> {
             val payload = call.receive<DishCreateDto>()
             val translations = payload.translations
-
             if (translations.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest, "At least one translation is required")
                 return@post
             }
-
-            when (val result = validateTranslations(translations, null, dishService)) {
-                is ValidationResult.Ok -> {}
-
-                else -> {
-                    call.respond(result.status, result.message)
-                    return@post
-                }
+            validateTranslations(translations, null, dishService)?.let { (status, message) ->
+                call.respond(status, message)
+                return@post
             }
-
             val dish = dishService.createDish(translations, payload.imageFileIds)
             call.respond(HttpStatusCode.Created, dish)
         }
@@ -68,18 +61,12 @@ fun Route.configureDishRoutes() {
                 )
                 return@put
             }
-
             payload.translations?.let { translations ->
-                when (val result = validateTranslations(translations, dish.id, dishService)) {
-                    is ValidationResult.Ok -> {}
-
-                    else -> {
-                        call.respond(result.status, result.message)
-                        return@put
-                    }
+                validateTranslations(translations, dish.id, dishService)?.let { (status, message) ->
+                    call.respond(status, message)
+                    return@put
                 }
             }
-
             val updated = dishService.updateDish(dish.id, payload.translations, payload.imageFileIds)
                 ?: run {
                     call.respond(HttpStatusCode.NotFound, "Dish not found")
@@ -99,66 +86,30 @@ fun Route.configureDishRoutes() {
     }
 }
 
-private sealed class ValidationResult {
-    abstract val status: HttpStatusCode
-    abstract val message: String
-
-    data object Ok : ValidationResult() {
-        override val status = HttpStatusCode.OK
-        override val message = ""
-    }
-
-    data class MissingLanguages(
-        val languages: List<Language>,
-    ) : ValidationResult() {
-        override val status = HttpStatusCode.BadRequest
-        override val message = "Missing translations for: ${languages.joinToString(", ") { it.name }}"
-    }
-
-    data class EmptyName(
-        val language: Language,
-    ) : ValidationResult() {
-        override val status = HttpStatusCode.BadRequest
-        override val message = "Name cannot be empty for language ${language.name}"
-    }
-
-    data class InvalidNameFormat(
-        val language: Language,
-    ) : ValidationResult() {
-        override val status = HttpStatusCode.BadRequest
-        override val message = "Invalid name format for language ${language.name}. Only letters and spaces allowed"
-    }
-
-    data class DuplicateName(
-        val language: Language,
-    ) : ValidationResult() {
-        override val status = HttpStatusCode.Conflict
-        override val message = "A dish with this name already exists in ${language.name}"
-    }
-}
-
 private suspend fun validateTranslations(
     translations: Map<Language, DishTranslation>,
     excludeId: Int?,
     dishService: DishService,
-): ValidationResult {
+): Pair<HttpStatusCode, String>? {
     val missingLanguages = Language.entries.filter { it !in translations.keys }
     if (missingLanguages.isNotEmpty()) {
-        return ValidationResult.MissingLanguages(missingLanguages)
+        return HttpStatusCode.BadRequest to
+            "Missing translations for: ${missingLanguages.joinToString(", ") { it.name }}"
     }
 
     for (lang in Language.entries) {
         val translation = translations[lang]!!
         val name = translation.name.trim()
         if (name.isEmpty()) {
-            return ValidationResult.EmptyName(lang)
+            return HttpStatusCode.BadRequest to "Name cannot be empty for language ${lang.name}"
         }
         if (!Regex(lang.dishNamePattern).matches(name)) {
-            return ValidationResult.InvalidNameFormat(lang)
+            return HttpStatusCode.BadRequest to
+                "Invalid name format for language ${lang.name}. Only letters and spaces allowed"
         }
         if (dishService.translationNameExists(lang, name, excludeId)) {
-            return ValidationResult.DuplicateName(lang)
+            return HttpStatusCode.Conflict to "A dish with this name already exists in ${lang.name}"
         }
     }
-    return ValidationResult.Ok
+    return null
 }
