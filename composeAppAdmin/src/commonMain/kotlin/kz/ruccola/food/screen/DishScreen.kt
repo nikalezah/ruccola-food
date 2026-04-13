@@ -82,7 +82,7 @@ fun DishScreen() {
             if (!editorVisible) {
                 FloatingActionButton(
                     onClick = {
-                        viewModel.getDishById(-1) // Load empty state
+                        viewModel.clearSelectedDish()
                         editorVisible = true
                     },
                 ) {

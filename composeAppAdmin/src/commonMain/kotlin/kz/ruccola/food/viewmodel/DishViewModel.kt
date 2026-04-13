@@ -42,10 +42,6 @@ class DishViewModel : ViewModel() {
         viewModelScope.launch {
             uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                if (id <= 0) {
-                    uiState.update { it.copy(selectedDish = null, isLoading = false, error = null) }
-                    return@launch
-                }
                 val dish = dishApi.getDishById(id)
                 uiState.update {
                     it.copy(
@@ -63,6 +59,10 @@ class DishViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    fun clearSelectedDish() {
+        uiState.update { it.copy(selectedDish = null, isLoading = false, error = null) }
     }
 
     fun archiveDish(id: Int) {
