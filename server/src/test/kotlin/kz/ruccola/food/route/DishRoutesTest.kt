@@ -1,7 +1,6 @@
 package kz.ruccola.food.route
 
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -116,62 +115,6 @@ class DishRoutesTest {
                     val name = firstDish["name"]!!.jsonPrimitive.content
                     assertTrue(name.isNotEmpty())
                 }
-        }
-
-    @Test
-    fun testGetDishByIdApi() =
-        testApp { client ->
-            val token = client.loginAdmin()
-            var dishId = 0
-
-            suspendTransaction {
-                Dishes.deleteAll()
-                DishTranslations.deleteAll()
-                dishId = Dishes.insertAndGetId {
-                    it[archived] = false
-                }.value
-                Language.entries.forEach { lang ->
-                    DishTranslations.insert {
-                        it[DishTranslations.dishId] = dishId
-                        it[DishTranslations.language] = lang.name
-                        it[DishTranslations.name] = when (lang) {
-                            Language.EN -> "Sushi Roll"
-                            Language.RU -> "Суши ролл"
-                            Language.KK -> "Суши ролл"
-                        }
-                        it[DishTranslations.description] = when (lang) {
-                            Language.EN -> "Fresh fish and vegetables"
-                            Language.RU -> "Свежая рыба и овощи"
-                            Language.KK -> "Жаңа балық және көкөністер"
-                        }
-                    }
-                }
-            }
-
-            client.get("/api/dishes/$dishId") {
-                authHeader(token)
-                header("Accept-Language", "EN")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-
-                val responseText = bodyAsText()
-                val jsonObject = Json.parseToJsonElement(responseText).jsonObject
-
-                assertEquals(dishId, jsonObject["id"]?.jsonPrimitive?.int)
-                assertEquals("Sushi Roll", jsonObject["name"]?.jsonPrimitive?.content)
-                assertEquals(
-                    "Fresh fish and vegetables",
-                    jsonObject["description"]?.jsonPrimitive?.content,
-                )
-                assertEquals(false, jsonObject["archived"]?.jsonPrimitive?.boolean)
-            }
-
-            client.get("/api/dishes/9999") {
-                authHeader(token)
-                header("Accept-Language", "EN")
-            }.apply {
-                assertEquals(HttpStatusCode.NotFound, status)
-            }
         }
 
     @Test

@@ -33,26 +33,18 @@ class Dishes {
         class Archive(
             val parent: Id,
         )
-
-        @Resource("with-translations")
-        class WithTranslations(
-            val parent: Id,
-        )
     }
 }
 
 class DishApi(
     private val client: HttpClient = httpClient,
 ) {
-    suspend fun getDishById(id: Int): DishDto = client.get(Dishes.Id(id = id)).body()
-
     suspend fun getAllDishes(
         page: Int = 0,
         size: Int = 20,
     ): PagingResponse<DishDto> = client.get(Dishes.List(page = page, size = size)).body()
 
-    suspend fun getDishByIdWithTranslations(id: Int): DishWithTranslationsDto =
-        client.get(Dishes.Id.WithTranslations(parent = Dishes.Id(id = id))).body()
+    suspend fun getDishById(id: Int): DishWithTranslationsDto = client.get(Dishes.Id(id = id)).body()
 
     suspend fun createDish(newDish: DishCreateDto): DishWithTranslationsDto =
         client.post(Dishes()) {

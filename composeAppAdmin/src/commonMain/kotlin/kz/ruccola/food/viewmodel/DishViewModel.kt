@@ -46,7 +46,7 @@ class DishViewModel : ViewModel() {
                     uiState.update { it.copy(selectedDish = null, isLoading = false, error = null) }
                     return@launch
                 }
-                val dish = dishApi.getDishByIdWithTranslations(id)
+                val dish = dishApi.getDishById(id)
                 uiState.update {
                     it.copy(
                         selectedDish = dish,

@@ -45,6 +45,7 @@ import food.composeappcustomer.generated.resources.meal_dinner
 import food.composeappcustomer.generated.resources.meal_lunch
 import food.composeappcustomer.generated.resources.no_dishes
 import food.composeappcustomer.generated.resources.tab_schedule
+import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.formatDate
 import kz.ruccola.food.localization.LocalLocale
@@ -61,13 +62,13 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
     val currentLocale = LocalLocale.current
 
     // Local navigation to dish details
-    var selectedDishId by remember { mutableStateOf<Int?>(null) }
+    var selectedDish by remember { mutableStateOf<DishDto?>(null) }
 
     // Dish details view
-    selectedDishId?.let { dishId ->
+    selectedDish?.let { dish ->
         DishDetailsScreen(
-            dishId = dishId,
-            onBack = { selectedDishId = null },
+            dish = dish,
+            onBack = { selectedDish = null },
         )
         return
     }
@@ -163,7 +164,7 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
                                         textAlign = TextAlign.End,
                                     )
                                 },
-                                modifier = Modifier.clickable(onClick = { selectedDishId = d.dish.id }),
+                                modifier = Modifier.clickable(onClick = { selectedDish = d.dish }),
                             )
                         }
                     }

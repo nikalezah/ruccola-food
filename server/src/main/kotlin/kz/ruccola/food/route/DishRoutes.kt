@@ -19,21 +19,13 @@ import kz.ruccola.food.withRole
 fun Route.configureDishRoutes() {
     val dishService = DishService()
 
-    get<Dishes.Id> { dish ->
-        val d = dishService.findById(dish.id, call.language) ?: run {
-            call.respond(HttpStatusCode.NotFound, "Dish not found")
-            return@get
-        }
-        call.respond(d)
-    }
-
     withRole(Role.ADMIN) {
         get<Dishes.List> { dishes ->
             call.respond(dishService.getAll(dishes.page, dishes.size, call.language))
         }
 
-        get<Dishes.Id.WithTranslations> { dish ->
-            val d = dishService.findByIdWithTranslations(dish.parent.id) ?: run {
+        get<Dishes.Id> { dish ->
+            val d = dishService.findByIdWithTranslations(dish.id) ?: run {
                 call.respond(HttpStatusCode.NotFound, "Dish not found")
                 return@get
             }
