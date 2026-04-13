@@ -1,6 +1,5 @@
 package kz.ruccola.food.service
 
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
@@ -54,15 +53,6 @@ class DishService {
             DishTranslations.selectAll().where { condition }.count() > 0
         }
 
-    suspend fun findById(
-        id: Int,
-        language: Language,
-    ): DishDto? =
-        dbQuery {
-            val dish = Dishes.selectAll().where { Dishes.id eq id }.firstOrNull()
-            if (dish == null) null else toDto(dish, language)
-        }
-
     suspend fun findByIdWithTranslations(id: Int): DishWithTranslationsDto? =
         dbQuery {
             Dishes.selectAll().where { Dishes.id eq id }.singleOrNull()?.let { toDtoWithTranslations(it) }
@@ -91,27 +81,9 @@ class DishService {
                 it[Dishes.updatedAt] = now()
             }.value
 
-            Language.entries.forEach { lang ->
-                translations[lang]?.let { translation ->
-                    DishTranslations.insert {
-                        it[DishTranslations.dishId] = dishId
-                        it[DishTranslations.language] = lang.name
-                        it[DishTranslations.name] = translation.name
-                        it[DishTranslations.description] = translation.description
-                    }
-                }
-            }
+            insertTranslations(dishId, translations)
+            insertImages(dishId, imageFileIds)
 
-            if (imageFileIds.isNotEmpty()) {
-                imageFileIds.forEachIndexed { i, id ->
-                    DishImages.insert {
-                        it[DishImages.dishId] = dishId
-                        it[DishImages.fileId] = EntityID(id, Files)
-                        it[DishImages.position] = i
-                        it[DishImages.createdAt] = now()
-                    }
-                }
-            }
             toDtoWithTranslations(Dishes.selectAll().where { Dishes.id eq dishId }.single())
         }
 
@@ -121,39 +93,18 @@ class DishService {
         imageFileIds: List<Int>?,
     ): DishWithTranslationsDto? =
         dbQuery {
-            val dish = Dishes.selectAll().where { Dishes.id eq id }.firstOrNull()
-                ?: return@dbQuery null
-
+            Dishes.selectAll().where { Dishes.id eq id }.singleOrNull() ?: return@dbQuery null
             Dishes.update({ Dishes.id eq id }) {
                 it[Dishes.updatedAt] = now()
             }
-
             translations?.let { transMap ->
                 DishTranslations.deleteWhere { DishTranslations.dishId eq id }
-                Language.entries.forEach { lang ->
-                    transMap[lang]?.let { translation ->
-                        DishTranslations.insert {
-                            it[DishTranslations.dishId] = id
-                            it[DishTranslations.language] = lang.name
-                            it[DishTranslations.name] = translation.name
-                            it[DishTranslations.description] = translation.description
-                        }
-                    }
-                }
+                insertTranslations(id, transMap)
             }
-
             imageFileIds?.let { newImages ->
                 DishImages.deleteWhere { DishImages.dishId eq id }
-                newImages.forEachIndexed { i, imageFileId ->
-                    DishImages.insert {
-                        it[DishImages.dishId] = id
-                        it[DishImages.fileId] = EntityID(imageFileId, Files)
-                        it[DishImages.position] = i
-                        it[DishImages.createdAt] = now()
-                    }
-                }
+                insertImages(id, newImages)
             }
-
             toDtoWithTranslations(Dishes.selectAll().where { Dishes.id eq id }.single())
         }
 
@@ -192,11 +143,7 @@ class DishService {
             row[Dishes.archived],
             row[Dishes.createdAt],
             row[Dishes.updatedAt],
-            (DishImages innerJoin Files).selectAll()
-                .where { DishImages.dishId eq dishId }
-                .orderBy(DishImages.position to SortOrder.ASC, DishImages.id to SortOrder.ASC)
-                .map(::toDishImageDto)
-                .toList(),
+            getImages(dishId),
         )
     }
 
@@ -208,12 +155,45 @@ class DishService {
             row[Dishes.archived],
             row[Dishes.createdAt],
             row[Dishes.updatedAt],
-            (DishImages innerJoin Files).selectAll()
-                .where { DishImages.dishId eq dishId }
-                .orderBy(DishImages.position to SortOrder.ASC, DishImages.id to SortOrder.ASC)
-                .map(::toDishImageDto)
-                .toList(),
+            getImages(dishId),
         )
+    }
+
+    private suspend fun getImages(dishId: Int): List<DishImageDto> =
+        (DishImages innerJoin Files).selectAll()
+            .where { DishImages.dishId eq dishId }
+            .orderBy(DishImages.position to SortOrder.ASC, DishImages.id to SortOrder.ASC)
+            .map(::toDishImageDto)
+            .toList()
+
+    private suspend fun insertTranslations(
+        dishId: Int,
+        translations: Map<Language, DishTranslation>,
+    ) {
+        Language.entries.forEach { lang ->
+            translations[lang]?.let { translation ->
+                DishTranslations.insert {
+                    it[DishTranslations.dishId] = dishId
+                    it[DishTranslations.language] = lang.name
+                    it[DishTranslations.name] = translation.name
+                    it[DishTranslations.description] = translation.description
+                }
+            }
+        }
+    }
+
+    private suspend fun insertImages(
+        dishId: Int,
+        imageFileIds: List<Int>,
+    ) {
+        imageFileIds.forEachIndexed { i, id ->
+            DishImages.insert {
+                it[DishImages.dishId] = dishId
+                it[DishImages.fileId] = EntityID(id, Files)
+                it[DishImages.position] = i
+                it[DishImages.createdAt] = now()
+            }
+        }
     }
 
     fun toDishImageDto(row: ResultRow): DishImageDto =
