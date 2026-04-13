@@ -46,6 +46,77 @@ class DishRoutesTest {
     }
 
     @Test
+    fun testGetDishByIdApi() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            var dishId = 0
+
+            suspendTransaction {
+                Dishes.deleteAll()
+                DishTranslations.deleteAll()
+                dishId = Dishes.insertAndGetId {
+                    it[archived] = false
+                }.value
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = when (lang) {
+                            Language.EN -> "Pasta Carbonara"
+                            Language.RU -> "Паста Карбонара"
+                            Language.KK -> "Паста Карбонара"
+                        }
+                        it[DishTranslations.description] = when (lang) {
+                            Language.EN -> "Classic Italian pasta"
+                            Language.RU -> "Классическая итальянская паста"
+                            Language.KK -> "Классикалық итальяндық паста"
+                        }
+                    }
+                }
+            }
+
+            client.get("/api/dishes/$dishId") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+
+                    val responseText = bodyAsText()
+                    val jsonObject = Json.parseToJsonElement(responseText).jsonObject
+
+                    assertEquals(dishId, jsonObject["id"]?.jsonPrimitive?.int)
+                    assertEquals(false, jsonObject["archived"]?.jsonPrimitive?.boolean)
+                    assertTrue(jsonObject.containsKey("createdAt"))
+                    assertTrue(jsonObject.containsKey("updatedAt"))
+                    assertTrue(jsonObject.containsKey("images"))
+
+                    val translations = jsonObject["translations"]!!.jsonObject
+                    assertEquals("Pasta Carbonara", translations["EN"]!!.jsonObject["name"]!!.jsonPrimitive.content)
+                    assertEquals(
+                        "Classic Italian pasta",
+                        translations["EN"]!!.jsonObject["description"]!!.jsonPrimitive.content,
+                    )
+                    assertEquals("Паста Карбонара", translations["RU"]!!.jsonObject["name"]!!.jsonPrimitive.content)
+                    assertEquals("Паста Карбонара", translations["KK"]!!.jsonObject["name"]!!.jsonPrimitive.content)
+                }
+        }
+
+    @Test
+    fun testGetDishByIdNotFound() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            suspendTransaction {
+                Dishes.deleteAll()
+                DishTranslations.deleteAll()
+            }
+
+            client.get("/api/dishes/9999") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.NotFound, status)
+                    val responseText = bodyAsText()
+                    assertTrue(responseText.contains("Dish not found"))
+                }
+        }
+
+    @Test
     fun testGetDishesApi() =
         testApp { client ->
             val token = client.loginAdmin()
