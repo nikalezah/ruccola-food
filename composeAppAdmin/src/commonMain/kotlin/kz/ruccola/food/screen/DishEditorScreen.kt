@@ -82,7 +82,7 @@ fun DishEditorScreen(
         if (!uiState.isBusy && capturedPreviousIsBusy && uiState.error == null) {
             onClose()
         }
-        if (capturedPreviousDish == null && uiState.dish != null) {
+        if (initialDish == null && capturedPreviousDish == null && uiState.dish != null) {
             onClose()
         }
         previousIsBusy = uiState.isBusy
