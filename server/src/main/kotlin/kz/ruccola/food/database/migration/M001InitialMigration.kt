@@ -64,9 +64,9 @@ class M001InitialMigration : Migration {
                 """
                 ALTER TABLE dish_translations ADD CONSTRAINT chk_dish_translations_name_format
                 CHECK (
-                  (language = 'EN' AND name ~ '${Language.EN.dishNamePattern}') OR
-                  (language = 'RU' AND name ~ '${Language.RU.dishNamePattern}') OR
-                  (language = 'KK' AND name ~ '${Language.KK.dishNamePattern}')
+                  (language = '${Language.EN.name}' AND name ~ '${Language.EN.dishNamePattern}') OR
+                  (language = '${Language.RU.name}' AND name ~ '${Language.RU.dishNamePattern}') OR
+                  (language = '${Language.KK.name}' AND name ~ '${Language.KK.dishNamePattern}')
                 );
                 """.trimIndent(),
             )
