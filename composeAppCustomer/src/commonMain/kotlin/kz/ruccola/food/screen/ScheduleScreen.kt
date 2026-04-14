@@ -160,7 +160,7 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel { ScheduleViewModel(
                                 supportingContent = { SingleLineText(d.dish.description) },
                                 trailingContent = {
                                     Text(
-                                        "${d.meal.time}\n${d.meal.toLocalizedString().replaceFirst(' ', '\n')}",
+                                        "${d.meal.time}\n${d.meal.toLocalizedString()}",
                                         textAlign = TextAlign.End,
                                     )
                                 },

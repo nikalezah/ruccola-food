@@ -40,9 +40,9 @@
     <string name="loading">Жүктелуде...</string>
     <string name="no_dishes">Тағамдар жоқ</string>
     <string name="meal_breakfast">Таңғы ас</string>
-    <string name="meal_brunch">Екінші таңғы ас</string>
+    <string name="meal_brunch">Таңғы ас-2</string>
     <string name="meal_lunch">Түскі ас</string>
-    <string name="meal_afternoon_snack">Бесін ас</string>
+    <string name="meal_afternoon_snack">Тіскебасар</string>
     <string name="meal_dinner">Кешкі ас</string>
     <string name="chat_placeholder">Хабарламаңызды енгізіңіз</string>
     <string name="chat_empty">Хабарламалар жоқ</string>

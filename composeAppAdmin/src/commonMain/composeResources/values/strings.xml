@@ -30,7 +30,7 @@
 
     <!-- Meal types -->
     <string name="meal_breakfast">Завтрак</string>
-    <string name="meal_brunch">Второй завтрак</string>
+    <string name="meal_brunch">Завтрак-2</string>
     <string name="meal_lunch">Обед</string>
     <string name="meal_afternoon_snack">Полдник</string>
     <string name="meal_dinner">Ужин</string>

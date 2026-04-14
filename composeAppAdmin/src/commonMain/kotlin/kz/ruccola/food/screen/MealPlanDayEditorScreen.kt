@@ -253,7 +253,7 @@ fun MealPlanDayEditorScreen(
                                         }"
                                     }
                                     Text(
-                                        "${timeText}\n${d.meal.toLocalizedString().replaceFirst(' ', '\n')}",
+                                        "${timeText}\n${d.meal.toLocalizedString()}",
                                         textAlign = TextAlign.End,
                                         style = MaterialTheme.typography.labelMedium,
                                     )

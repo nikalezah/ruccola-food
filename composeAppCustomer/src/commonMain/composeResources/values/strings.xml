@@ -42,7 +42,7 @@
     <string name="meal_breakfast">Breakfast</string>
     <string name="meal_brunch">Brunch</string>
     <string name="meal_lunch">Lunch</string>
-    <string name="meal_afternoon_snack">Afternoon snack</string>
+    <string name="meal_afternoon_snack">Snack</string>
     <string name="meal_dinner">Dinner</string>
     <string name="chat_placeholder">Enter message</string>
     <string name="chat_empty">No messages yet</string>
