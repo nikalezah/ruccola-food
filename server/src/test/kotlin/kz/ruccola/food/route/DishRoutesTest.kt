@@ -348,6 +348,11 @@ class DishRoutesTest {
                     assertEquals(HttpStatusCode.OK, status)
                 }
 
+            client.post("/api/dishes/$dishId/archive") { authHeader(token) }
+                .apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                }
+
             suspendTransaction {
                 val dish = Dishes.selectAll().where { Dishes.id eq dishId }.singleOrNull()
                 assertNotNull(dish)
@@ -427,6 +432,142 @@ class DishRoutesTest {
                 assertEquals(2, images.size)
                 val firstUrl = images[0].jsonObject["url"]!!.jsonPrimitive.content
                 assertEquals("/files/2.jpg", firstUrl)
+            }
+        }
+
+    @Test
+    fun testCreateDishEmptyName() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            suspendTransaction {
+                Dishes.deleteAll()
+                DishTranslations.deleteAll()
+            }
+
+            val newDish = DishCreateDto(
+                translations = mapOf(
+                    Language.EN to DishTranslation("", "Some description"),
+                    Language.RU to DishTranslation("Блюдо", "Описание"),
+                    Language.KK to DishTranslation("Тағам", "Сипаттама"),
+                ),
+            )
+
+            client.post("/api/dishes") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(newDish)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+                val responseText = bodyAsText()
+                assertTrue(responseText.contains("Name cannot be empty"))
+            }
+        }
+
+    @Test
+    fun testCreateDishInvalidNameFormat() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            suspendTransaction {
+                Dishes.deleteAll()
+                DishTranslations.deleteAll()
+            }
+
+            val newDish = DishCreateDto(
+                translations = mapOf(
+                    Language.EN to DishTranslation("Pizza123", "Invalid name"),
+                    Language.RU to DishTranslation("Пицца", "Описание"),
+                    Language.KK to DishTranslation("Пицца", "Сипаттама"),
+                ),
+            )
+
+            client.post("/api/dishes") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(newDish)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+                val responseText = bodyAsText()
+                assertTrue(responseText.contains("Invalid name format"))
+            }
+        }
+
+    @Test
+    fun testCreateDishDuplicateName() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            suspendTransaction {
+                Dishes.deleteAll()
+                DishTranslations.deleteAll()
+                val dishId = Dishes.insertAndGetId {
+                    it[archived] = false
+                }.value
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = when (lang) {
+                            Language.EN -> "Unique Dish"
+                            Language.RU -> "Уникальное блюдо"
+                            Language.KK -> "Бірегей тағам"
+                        }
+                        it[DishTranslations.description] = "Description"
+                    }
+                }
+            }
+
+            val newDish = DishCreateDto(
+                translations = mapOf(
+                    Language.EN to DishTranslation("Unique Dish", "Another description"),
+                    Language.RU to DishTranslation("Другое блюдо", "Описание"),
+                    Language.KK to DishTranslation("Басқа тағам", "Сипаттама"),
+                ),
+            )
+
+            client.post("/api/dishes") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(newDish)
+            }.apply {
+                assertEquals(HttpStatusCode.Conflict, status)
+                val responseText = bodyAsText()
+                assertTrue(responseText.contains("already exists"))
+            }
+        }
+
+    @Test
+    fun testUpdateDishNoFieldsProvided() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            var dishId = 0
+
+            suspendTransaction {
+                Dishes.deleteAll()
+                DishTranslations.deleteAll()
+                dishId = Dishes.insertAndGetId {
+                    it[archived] = false
+                }.value
+                Language.entries.forEach { lang ->
+                    DishTranslations.insert {
+                        it[DishTranslations.dishId] = dishId
+                        it[DishTranslations.language] = lang.name
+                        it[DishTranslations.name] = when (lang) {
+                            Language.EN -> "Test Dish"
+                            Language.RU -> "Тест блюдо"
+                            Language.KK -> "Тест тағам"
+                        }
+                        it[DishTranslations.description] = "Description"
+                    }
+                }
+            }
+
+            client.put("/api/dishes/$dishId") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(DishUpdateDto())
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+                val responseText = bodyAsText()
+                assertTrue(responseText.contains("At least one field"))
             }
         }
 }
