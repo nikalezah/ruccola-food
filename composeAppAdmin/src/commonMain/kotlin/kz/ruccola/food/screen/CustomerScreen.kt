@@ -11,14 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -36,14 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
-import food.composeappadmin.generated.resources.chat_open
 import food.composeappadmin.generated.resources.error_prefix
 import food.composeappadmin.generated.resources.label_calories
 import food.composeappadmin.generated.resources.no_customers_found
 import food.composeappadmin.generated.resources.retry
 import food.composeappadmin.generated.resources.tab_customers
 import kz.ruccola.food.api.CustomerDetailsDto
-import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.viewmodel.CustomersViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -137,6 +131,7 @@ fun CustomerScreen(
                                         }",
                                     )
                                 },
+                                /*
                                 trailingContent = {
                                     val onClick = {
                                         selectedChatCustomer = c
@@ -156,6 +151,7 @@ fun CustomerScreen(
                                         chatButton()
                                     }
                                 },
+                                 */
                             )
                         }
                     }

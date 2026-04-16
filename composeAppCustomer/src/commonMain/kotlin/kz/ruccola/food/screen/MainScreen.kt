@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import food.composeappcustomer.generated.resources.Res
-import food.composeappcustomer.generated.resources.tab_chat
 import food.composeappcustomer.generated.resources.tab_profile
 import food.composeappcustomer.generated.resources.tab_schedule
 import food.composeappcustomer.generated.resources.tab_subscription
@@ -45,12 +44,14 @@ fun MainScreen(
                             Icons.Outlined.DinnerDining,
                             stringResource(Res.string.tab_schedule),
                         ),
+                        /*
                         LabeledNavigationTab(
                             Icons.Filled.Chat,
                             Icons.Outlined.Chat,
                             stringResource(Res.string.tab_chat),
                             showBadge = hasUnreadChat,
                         ),
+                         */
                         LabeledNavigationTab(
                             Icons.Filled.Settings,
                             Icons.Outlined.Settings,
@@ -77,18 +78,20 @@ fun MainScreen(
                     ScheduleScreen()
                 }
 
+                /*
                 1 -> {
                     ChatListScreen(
                         onChatOpenChanged = { isChatOpen = it },
                         onUnreadChanged = { hasUnreadChat = it },
                     )
                 }
+                 */
 
-                2 -> {
+                1 -> {
                     SubscriptionScreen()
                 }
 
-                3 -> {
+                2 -> {
                     val profileLanguage = when {
                         language.startsWith("ru") -> "ru"
                         language.startsWith("kk") -> "kk"
