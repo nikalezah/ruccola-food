@@ -166,11 +166,11 @@ fun ProfileScreen(
                         stringResource(Res.string.language_section_title),
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    val languages = listOf("English", "Русский", "Қазақ")
+                    val languages = listOf("Қазақ", "Русский", "English")
                     val initialIndex = when (currentLanguage) {
-                        "en" -> 0
+                        "kk" -> 0
                         "ru" -> 1
-                        "kk" -> 2
+                        "en" -> 2
                         else -> 1
                     }
                     ToggleButtonsRow(
@@ -178,9 +178,9 @@ fun ProfileScreen(
                         initialIndex,
                         onSelectedIndexChange = { i ->
                             val newLang = when (i) {
-                                0 -> "en"
+                                0 -> "kk"
                                 1 -> "ru"
-                                2 -> "kk"
+                                2 -> "en"
                                 else -> "ru"
                             }
                             onLanguageChanged(newLang)
