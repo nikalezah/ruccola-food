@@ -139,11 +139,8 @@ fun ProfileScreen(
 
                     Spacer(Modifier.height(16.dp))
                     Text(stringResource(Res.string.theme_section_title), style = MaterialTheme.typography.titleMedium)
-                    val themeIndex = when (themePreference) {
-                        ThemePreference.SYSTEM -> 0
-                        ThemePreference.LIGHT -> 1
-                        ThemePreference.DARK -> 2
-                    }
+                    val themes = listOf(ThemePreference.SYSTEM, ThemePreference.LIGHT, ThemePreference.DARK)
+                    val themeIndex = themes.indexOf(themePreference)
                     ToggleButtonsRow(
                         listOf(
                             stringResource(Res.string.theme_system),
@@ -151,14 +148,7 @@ fun ProfileScreen(
                             stringResource(Res.string.theme_dark),
                         ),
                         themeIndex,
-                        onSelectedIndexChange = { i ->
-                            val newPreference = when (i) {
-                                1 -> ThemePreference.LIGHT
-                                2 -> ThemePreference.DARK
-                                else -> ThemePreference.SYSTEM
-                            }
-                            onThemePreferenceChanged(newPreference)
-                        },
+                        onSelectedIndexChange = { onThemePreferenceChanged(themes[it]) },
                     )
 
                     Spacer(Modifier.height(16.dp))
@@ -166,25 +156,12 @@ fun ProfileScreen(
                         stringResource(Res.string.language_section_title),
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    val languages = listOf("Қазақ", "Русский", "English")
-                    val initialIndex = when (currentLanguage) {
-                        "kk" -> 0
-                        "ru" -> 1
-                        "en" -> 2
-                        else -> 1
-                    }
+                    val languageCodes = listOf("kk", "ru", "en")
+                    val initialIndex = languageCodes.indexOf(currentLanguage)
                     ToggleButtonsRow(
-                        languages,
+                        listOf("Қазақ", "Русский", "English"),
                         initialIndex,
-                        onSelectedIndexChange = { i ->
-                            val newLang = when (i) {
-                                0 -> "kk"
-                                1 -> "ru"
-                                2 -> "en"
-                                else -> "ru"
-                            }
-                            onLanguageChanged(newLang)
-                        },
+                        onSelectedIndexChange = { onLanguageChanged(languageCodes[it]) },
                     )
 
                     Spacer(Modifier.height(16.dp))
