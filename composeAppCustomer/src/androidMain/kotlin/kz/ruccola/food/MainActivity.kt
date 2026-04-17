@@ -1,5 +1,6 @@
 package kz.ruccola.food
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlinx.coroutines.launch
 import kz.ruccola.food.api.LanguageProvider
@@ -91,6 +93,10 @@ class MainActivity : ComponentActivity() {
                         scope.launch {
                             AppPreferences.setThemePreference(context, newPreference.storageValue())
                         }
+                    },
+                    onOpenWhatsApp = {
+                        val intent = Intent(Intent.ACTION_VIEW, "https://wa.me/77059847909".toUri())
+                        context.startActivity(intent)
                     },
                 )
             }

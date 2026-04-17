@@ -29,6 +29,7 @@ fun App(
     onLogout: () -> Unit,
     onLanguageChanged: (String) -> Unit,
     onThemePreferenceChanged: (ThemePreference) -> Unit,
+    onOpenWhatsApp: () -> Unit = {},
 ) {
     val colorScheme = when (themePreference) {
         ThemePreference.LIGHT -> GreenLightColorScheme
@@ -60,6 +61,7 @@ fun App(
                         onLogout = onLogout,
                         onLanguageChanged = onLanguageChanged,
                         onThemePreferenceChanged = onThemePreferenceChanged,
+                        onOpenWhatsApp = onOpenWhatsApp,
                     )
                 }
             }

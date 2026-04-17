@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.address
 import food.composeappcustomer.generated.resources.cancel
+import food.composeappcustomer.generated.resources.contact_support
 import food.composeappcustomer.generated.resources.edit_personal_info_title
 import food.composeappcustomer.generated.resources.error_prefix
 import food.composeappcustomer.generated.resources.first_name
@@ -67,6 +68,7 @@ fun ProfileScreen(
     currentLanguage: String,
     themePreference: ThemePreference,
     onThemePreferenceChanged: (ThemePreference) -> Unit,
+    onOpenWhatsApp: () -> Unit = {},
     viewModel: ProfileViewModel = viewModel { ProfileViewModel() },
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -163,6 +165,13 @@ fun ProfileScreen(
                         initialIndex,
                         onSelectedIndexChange = { onLanguageChanged(languageCodes[it]) },
                     )
+
+                    Spacer(Modifier.height(16.dp))
+                    TextButton(onClick = onOpenWhatsApp) {
+                        Icon(Icons.Outlined.ContactSupport, contentDescription = null)
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(stringResource(Res.string.contact_support))
+                    }
 
                     Spacer(Modifier.height(16.dp))
                     LogoutButton()

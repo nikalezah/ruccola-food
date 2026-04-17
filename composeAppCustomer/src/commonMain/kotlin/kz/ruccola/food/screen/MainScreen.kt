@@ -28,6 +28,7 @@ fun MainScreen(
     onLogout: () -> Unit,
     onLanguageChanged: (String) -> Unit,
     onThemePreferenceChanged: (ThemePreference) -> Unit,
+    onOpenWhatsApp: () -> Unit,
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var isChatOpen by remember { mutableStateOf(false) }
@@ -103,6 +104,7 @@ fun MainScreen(
                         currentLanguage = profileLanguage,
                         themePreference = themePreference,
                         onThemePreferenceChanged = onThemePreferenceChanged,
+                        onOpenWhatsApp = onOpenWhatsApp,
                     )
                 }
             }

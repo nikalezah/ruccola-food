@@ -83,6 +83,9 @@ fun main() {
                     themePreference = newPreference
                     window.localStorage.setItem("customer.theme", newPreference.storageValue())
                 },
+                onOpenWhatsApp = {
+                    window.open("https://wa.me/77059847909", "_blank")
+                },
             )
         }
     }

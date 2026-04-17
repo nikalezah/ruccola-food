@@ -18,6 +18,8 @@ import food.shared.generated.resources.ic_chat_filled
 import food.shared.generated.resources.ic_chat_outlined
 import food.shared.generated.resources.ic_check
 import food.shared.generated.resources.ic_close
+import food.shared.generated.resources.ic_contact_support_filled
+import food.shared.generated.resources.ic_contact_support_outlined
 import food.shared.generated.resources.ic_delete_filled
 import food.shared.generated.resources.ic_delete_outlined
 import food.shared.generated.resources.ic_dinner_dining_filled
@@ -59,6 +61,7 @@ object Icons {
         val Chat: ImageVector @Composable get() = vectorResource(Res.drawable.ic_chat_filled)
         val Check: ImageVector @Composable get() = vectorResource(Res.drawable.ic_check)
         val Close: ImageVector @Composable get() = vectorResource(Res.drawable.ic_close)
+        val ContactSupport: ImageVector @Composable get() = vectorResource(Res.drawable.ic_contact_support_filled)
         val Delete: ImageVector @Composable get() = vectorResource(Res.drawable.ic_delete_filled)
         val DinnerDining: ImageVector @Composable get() = vectorResource(Res.drawable.ic_dinner_dining_filled)
         val Edit: ImageVector @Composable get() = vectorResource(Res.drawable.ic_edit_filled)
@@ -88,6 +91,7 @@ object Icons {
         val Chat: ImageVector @Composable get() = vectorResource(Res.drawable.ic_chat_outlined)
         val Check: ImageVector @Composable get() = vectorResource(Res.drawable.ic_check)
         val Close: ImageVector @Composable get() = vectorResource(Res.drawable.ic_close)
+        val ContactSupport: ImageVector @Composable get() = vectorResource(Res.drawable.ic_contact_support_outlined)
         val Delete: ImageVector @Composable get() = vectorResource(Res.drawable.ic_delete_outlined)
         val DinnerDining: ImageVector @Composable get() = vectorResource(Res.drawable.ic_dinner_dining_outlined)
         val Edit: ImageVector @Composable get() = vectorResource(Res.drawable.ic_edit_outlined)
