@@ -1,10 +1,8 @@
 # Stage 1: Build
 FROM gradle:jdk25 AS build
-COPY gradlew /home/gradle/
-COPY gradle /home/gradle/gradle
-COPY server /home/gradle/src
+COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
-RUN chmod +x ../gradlew && ../gradlew :server:installDist --no-daemon
+RUN chmod +x gradlew && ./gradlew :server:installDist --no-daemon
 
 # Stage 2: Run
 FROM eclipse-temurin:25-jre-noble
