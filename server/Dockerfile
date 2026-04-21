@@ -1,6 +1,6 @@
 # Stage 1: Build
 FROM gradle:jdk25 AS build
-COPY --chown=gradle:gradle .. /home/gradle/src
+COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN chmod +x gradlew && ./gradlew :server:installDist --no-daemon
 
