@@ -8,7 +8,6 @@ RUN chmod +x gradlew && ./gradlew :server:installDist --no-daemon
 FROM eclipse-temurin:25-jre-noble
 EXPOSE 8080
 RUN mkdir /app
-RUN mkdir -p /server/files
 COPY --from=build /home/gradle/src/server/build/install/server /app
 WORKDIR /app/bin
 ENTRYPOINT ["./server"]
