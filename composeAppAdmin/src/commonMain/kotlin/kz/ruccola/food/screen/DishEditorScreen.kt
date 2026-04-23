@@ -59,7 +59,7 @@ fun DishEditorScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var imageEditorVisible by remember { mutableStateOf(false) }
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(1) }
 
     val languageTabs = Language.entries.sortedByDescending { it.ordinal }.toTypedArray()
     val languageNames: Map<Language, String> = mapOf(
