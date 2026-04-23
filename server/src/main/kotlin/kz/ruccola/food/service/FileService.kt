@@ -43,7 +43,7 @@ class FileService {
                 part.contentType?.toString() ?: NioFiles.probeContentType(target.toPath()) ?: "application/octet-stream"
             Files.insertReturning {
                 it[filename] = target.name
-                it[path] = target.absolutePath
+                it[path] = dir.toPath().relativize(target.toPath()).toString()
                 it[mimeType] = mime
                 it[size] = bytes.size.toLong()
                 it[createdAt] = now()
@@ -58,7 +58,7 @@ class FileService {
                 ?.get(Files.path)
                 ?: return@dbQuery false
             try {
-                File(path).takeIf { it.exists() }?.delete()
+                File(AppConfig.storagePath, path).takeIf { it.exists() }?.delete()
                 Files.deleteWhere { Files.id eq fileId }
                 true
             } catch (_: Exception) {
