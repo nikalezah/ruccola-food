@@ -2,7 +2,7 @@
 FROM gradle:jdk25 AS build
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
-RUN sed -i "s|http://localhost:8080|ruccola-food.railway.internal|g" shared/src/webMain/kotlin/kz/ruccola/food/BaseUrl.web.kt
+RUN sed -i 's|http://localhost:8080|https://ruccola-food-production.up.railway.app|g' shared/src/webMain/kotlin/kz/ruccola/food/BaseUrl.web.kt
 ENV GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false"
 RUN chmod +x gradlew && ./gradlew :composeAppCustomer:jsBrowserDevelopmentDistribution --no-daemon --no-configuration-cache \
     -Pkotlin.incremental=false
