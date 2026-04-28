@@ -59,7 +59,7 @@ fun ImagePager(
                 modifier = Modifier
                     .padding(16.dp)
                     .size(40.dp)
-                    .align(Alignment.TopStart)
+                    .align(Alignment.BottomStart)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = CircleShape,
