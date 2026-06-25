@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+        android:width="108dp"
+        android:height="108dp"
+        android:viewportWidth="108"
+        android:viewportHeight="108">
     <path
-            android:fillColor="#fefefe"
+            android:fillColor="#2b2a29"
             android:pathData="M0,0h108v108h-108z"/>
 
     <!-- for some reason this background drawable isn't shown -->
     <!-- when the app is starting without an additional path with different color -->
     <path
-        android:fillColor="#00000000"
-        android:pathData="M0,0L8,8"
-        android:strokeWidth="0.8"
-        android:strokeColor="#33000000"/>
+            android:fillColor="#00000000"
+            android:pathData="M0,0L8,8"
+            android:strokeWidth="0.8"
+            android:strokeColor="#33FFFFFF"/>
 
 </vector>

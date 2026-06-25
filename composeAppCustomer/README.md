@@ -41,7 +41,8 @@ The implementation follows a shared MVVM pattern in `commonMain`:
 
 Platform-specific code:
 
-- Android: `androidMain` contains `MainActivity`, `AppLocaleManager`, and `AppPreferences`
+- Android: `androidAppCustomer` contains `MainActivity` and app resources; `androidMain` contains `AppLocaleManager` and
+  `AppPreferences`
 - Web: `webMain` contains web-specific entry points
 
 ## Key Features
@@ -58,7 +59,7 @@ Platform-specific code:
 ### Android
 
 ```shell
-./gradlew :composeAppCustomer:assembleDebug
+./gradlew :androidAppCustomer:assembleDebug
 ```
 
 ### Web (Wasm)

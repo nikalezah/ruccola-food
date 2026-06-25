@@ -30,6 +30,8 @@ dependencyResolutionManagement {
     }
 }
 
+include(":androidAppAdmin")
+include(":androidAppCustomer")
 include(":composeAppAdmin")
 include(":composeAppCustomer")
 include(":server")

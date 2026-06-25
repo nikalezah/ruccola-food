@@ -1,7 +1,8 @@
 This is a Kotlin Multiplatform project targeting Android, Web, and Server with separate Admin and Customer apps.
 
-* `/composeAppAdmin/src` is the Admin app (Android + Web).
-* `/composeAppCustomer/src` is the Customer app (Android + Web).
+* `/androidAppAdmin` and `/androidAppCustomer` are the Android application entry points (AGP 9).
+* `/composeAppAdmin/src` is the Admin KMP library (Android target + Web).
+* `/composeAppCustomer/src` is the Customer KMP library (Android target + Web).
 * `/server/src/main/kotlin` is for the Ktor server application.
 * `/shared/src` is for code shared between all targets in the project. The most important subfolder is
   `/shared/src/commonMain/kotlin`. You can add platform-specific code under the corresponding source sets.
@@ -13,13 +14,13 @@ in your IDE's toolbar or build them directly from the terminal:
 
 - on macOS/Linux
   ```shell
-  ./gradlew :composeAppAdmin:assembleDebug
-  ./gradlew :composeAppCustomer:assembleDebug
+  ./gradlew :androidAppAdmin:assembleDebug
+  ./gradlew :androidAppCustomer:assembleDebug
   ```
 - on Windows
   ```shell
-  .\gradlew.bat :composeAppAdmin:assembleDebug
-  .\gradlew.bat :composeAppCustomer:assembleDebug
+  .\gradlew.bat :androidAppAdmin:assembleDebug
+  .\gradlew.bat :androidAppCustomer:assembleDebug
   ```
 
 ### Build and Run Server

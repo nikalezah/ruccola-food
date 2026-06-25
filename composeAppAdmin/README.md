@@ -49,7 +49,8 @@ The implementation follows a shared MVVM pattern in `commonMain`:
 
 Platform-specific code:
 
-- Android: `androidMain` contains `MainActivity` and platform utilities
+- Android: `androidAppAdmin` contains `MainActivity` and app resources; `androidMain` contains platform utilities and
+  `ImagePicker`
 - Web: `webMain` contains web-specific entry points
 
 ## Key Features
@@ -67,7 +68,7 @@ Platform-specific code:
 ### Android
 
 ```shell
-./gradlew :composeAppAdmin:assembleDebug
+./gradlew :androidAppAdmin:assembleDebug
 ```
 
 ### Web (Wasm)
