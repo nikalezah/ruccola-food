@@ -21,7 +21,7 @@ services:
   admin-web:
     build:
       context: .
-      dockerfile: composeAppAdmin/Dockerfile
+      dockerfile: app/admin/webApp/Dockerfile
     container_name: ruccola-food-admin-web
     ports:
       - "8081:80"
@@ -30,7 +30,7 @@ services:
   customer-web:
     build:
       context: .
-      dockerfile: composeAppCustomer/Dockerfile
+      dockerfile: app/customer/webApp/Dockerfile
     container_name: ruccola-food-customer-web
     ports:
       - "8082:80"

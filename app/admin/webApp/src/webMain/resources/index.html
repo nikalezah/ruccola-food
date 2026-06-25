@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Админ-панель сервиса правильного питания">
+    <title>Ruccola Food Admin</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #fafafa;
+        }
+
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Loading indicator */
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .spinner-icon {
+            width: 56px;
+            height: 56px;
+            animation: pulse 1.8s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="root">
+    <div id="loading">
+        <img class="spinner-icon" src="icon.svg" alt="Loading">
+    </div>
+</div>
+
+<!-- Service Worker Registration (disabled on localhost to avoid dev reload loops) -->
+<script>
+    (function () {
+        const isLocalhost = window.location.hostname === 'localhost'
+            || window.location.hostname === '127.0.0.1'
+            || window.location.hostname.endsWith('.local');
+
+        if ('serviceWorker' in navigator && !isLocalhost) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered:', reg))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        } else if ('serviceWorker' in navigator) {
+            // Ensure no stale service worker controls the page in development
+            navigator.serviceWorker.getRegistrations()
+                .then(regs => regs.forEach(r => r.unregister()))
+                .catch(() => {
+                });
+            // Optional: clear caches for this origin during development
+            if (window.caches && caches.keys) {
+                caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {
+                });
+            }
+            console.log('Service Worker not registered on localhost (development mode).');
+        }
+    })();
+</script>
+
+<!-- Kotlin/JS Application -->
+<script src="admin.js"></script>
+</body>
+</html>
+

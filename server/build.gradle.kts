@@ -23,8 +23,9 @@ application {
 }
 
 dependencies {
-    implementation(projects.shared)
+    implementation(projects.core)
     implementation(libs.ktor.server.core)
+    implementation(libs.ktor.resources)
     implementation(libs.ktor.server.resources)
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.call.logging)

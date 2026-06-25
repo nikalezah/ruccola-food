@@ -30,9 +30,12 @@ dependencyResolutionManagement {
     }
 }
 
-include(":androidAppAdmin")
-include(":androidAppCustomer")
-include(":composeAppAdmin")
-include(":composeAppCustomer")
+include(":app:admin:androidApp")
+include(":app:admin:shared")
+include(":app:admin:webApp")
+include(":app:common")
+include(":app:customer:androidApp")
+include(":app:customer:shared")
+include(":app:customer:webApp")
+include(":core")
 include(":server")
-include(":shared")
