@@ -4,7 +4,8 @@ This document describes the multiplatform Admin app for managing the food servic
 
 ## Overview
 
-The Admin app is a Kotlin Multiplatform application targeting Android and Web. It provides administrative functionality
+The Admin app is a Kotlin Multiplatform application targeting Android, Web, and Desktop. It provides administrative
+functionality
 for managing dishes, meal plans, customers, and chat communications.
 
 ## Screens

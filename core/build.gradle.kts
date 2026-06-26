@@ -58,6 +58,9 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.cio)
+        }
         named("webMain") {
             dependencies {
                 implementation(libs.ktor.client.core)

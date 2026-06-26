@@ -1,9 +1,11 @@
-This is a Kotlin Multiplatform project targeting Android, Web, and Server with separate Admin and Customer apps.
+This is a Kotlin Multiplatform project targeting Android, Web, Desktop, and Server with separate Admin and Customer
+apps.
 
 * `/app/admin/androidApp` and `/app/customer/androidApp` are the Android application entry points (AGP 9).
-* `/app/admin/shared/src` is the Admin KMP library used by Android and Web.
+* `/app/admin/desktopApp/src` and `/app/customer/desktopApp/src` are the Desktop application entry points.
+* `/app/admin/shared/src` is the Admin KMP library used by Android, Web, and Desktop.
 * `/app/admin/webApp/src` is the Admin Web application entry point.
-* `/app/customer/shared/src` is the Customer KMP library used by Android and Web.
+* `/app/customer/shared/src` is the Customer KMP library used by Android, Web, and Desktop.
 * `/app/customer/webApp/src` is the Customer Web application entry point.
 * `/app/common/src` is for Compose/UI code shared by the Admin and Customer apps.
 * `/server/src/main/kotlin` is for the Ktor server application.
@@ -68,6 +70,22 @@ in your IDE's toolbar or run them directly from the terminal:
       .\gradlew.bat :app:admin:webApp:jsBrowserDevelopmentRun
       .\gradlew.bat :app:customer:webApp:jsBrowserDevelopmentRun
       ```
+
+### Build and Run Desktop Applications
+
+To build and run the development version of the desktop apps, use the run configuration from the run widget
+in your IDE's toolbar or run them directly from the terminal:
+
+- on macOS/Linux
+  ```shell
+  ./gradlew :app:admin:desktopApp:run
+  ./gradlew :app:customer:desktopApp:run
+  ```
+- on Windows
+  ```shell
+  .\gradlew.bat :app:admin:desktopApp:run
+  .\gradlew.bat :app:customer:desktopApp:run
+  ```
 
 ---
 

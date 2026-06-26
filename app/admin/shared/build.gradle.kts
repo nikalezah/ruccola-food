@@ -33,6 +33,8 @@ kotlin {
         }
     }
 
+    jvm()
+
     js {
         browser()
     }
@@ -73,6 +75,12 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.contentNegotiation)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.serialization.json)
         }
         named("webMain") {
             dependencies {

@@ -4,7 +4,8 @@ This document describes the multiplatform Customer app for the food service.
 
 ## Overview
 
-The Customer app is a Kotlin Multiplatform application targeting Android and Web. It allows customers to view meal
+The Customer app is a Kotlin Multiplatform application targeting Android, Web, and Desktop. It allows customers to view
+meal
 schedules, view dish details, chat with administrators, and manage their profiles.
 
 ## Screens
@@ -49,7 +50,7 @@ Platform-specific code:
 
 - User authentication and registration
 - Daily meal schedule viewing
-- Dish details with image carousel
+- Dish details with the image carousel
 - Real-time chat with administrators
 - User profile management
 - Localization support
