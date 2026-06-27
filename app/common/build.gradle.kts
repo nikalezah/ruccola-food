@@ -14,6 +14,10 @@ plugins {
 kotlin {
     applyDefaultHierarchyTemplate {
         common {
+            group("native") {
+                withJvm()
+                withIos()
+            }
             group("web") {
                 withJs()
                 withWasmJs()
@@ -34,6 +38,11 @@ kotlin {
     }
 
     jvm()
+
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64(),
+    )
 
     js {
         browser()
@@ -65,6 +74,16 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.darwin)
+        }
+        named("nativeMain") {
+            dependencies {
+                implementation(libs.ktor.client.core)
+            }
         }
         named("webMain") {
             dependencies {

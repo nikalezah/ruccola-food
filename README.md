@@ -1,11 +1,12 @@
-This is a Kotlin Multiplatform project targeting Android, Web, Desktop, and Server with separate Admin and Customer
+This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, and Server with separate Admin and Customer
 apps.
 
 * `/app/admin/androidApp` and `/app/customer/androidApp` are the Android application entry points (AGP 9).
+* `/app/admin/iosApp` and `/app/customer/iosApp` are the iOS application entry points (Xcode).
 * `/app/admin/desktopApp/src` and `/app/customer/desktopApp/src` are the Desktop application entry points.
-* `/app/admin/shared/src` is the Admin KMP library used by Android, Web, and Desktop.
+* `/app/admin/shared/src` is the Admin KMP library used by Android, iOS, Web, and Desktop.
 * `/app/admin/webApp/src` is the Admin Web application entry point.
-* `/app/customer/shared/src` is the Customer KMP library used by Android, Web, and Desktop.
+* `/app/customer/shared/src` is the Customer KMP library used by Android, iOS, Web, and Desktop.
 * `/app/customer/webApp/src` is the Customer Web application entry point.
 * `/app/common/src` is for Compose/UI code shared by the Admin and Customer apps.
 * `/server/src/main/kotlin` is for the Ktor server application.
@@ -86,6 +87,18 @@ in your IDE's toolbar or run them directly from the terminal:
   .\gradlew.bat :app:admin:desktopApp:run
   .\gradlew.bat :app:customer:desktopApp:run
   ```
+
+### Build and Run iOS Applications
+
+iOS apps require macOS with Xcode installed. Open the Xcode project, select a simulator or device, and run.
+
+- Admin: open `app/admin/iosApp/iosApp.xcodeproj` in Xcode
+- Customer: open `app/customer/iosApp/iosApp.xcodeproj` in Xcode
+
+Before the first run, set your development team in `Configuration/Config.xcconfig` if needed.
+
+The Xcode build invokes Gradle to compile the shared Kotlin framework (`AdminShared` or `CustomerShared`).
+`BASE_URL` is `http://localhost:8080` for the iOS Simulator; on a physical device, use your machine's LAN IP instead.
 
 ---
 

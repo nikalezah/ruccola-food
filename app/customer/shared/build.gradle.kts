@@ -14,6 +14,10 @@ plugins {
 kotlin {
     applyDefaultHierarchyTemplate {
         common {
+            group("native") {
+                withJvm()
+                withIos()
+            }
             group("web") {
                 withJs()
                 withWasmJs()
@@ -34,6 +38,16 @@ kotlin {
     }
 
     jvm()
+
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64(),
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "CustomerShared"
+            isStatic = true
+        }
+    }
 
     js {
         browser()
@@ -80,6 +94,12 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.serialization.json)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.contentNegotiation)
+            implementation(libs.ktor.client.darwin)
             implementation(libs.ktor.serialization.json)
         }
         named("webMain") {
