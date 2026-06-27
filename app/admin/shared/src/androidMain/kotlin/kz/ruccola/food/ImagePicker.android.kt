@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
-import kz.ruccola.food.viewmodel.DishImagesViewModel
+import kz.ruccola.food.feature.dish.DishImagesViewModel
 
 @Composable
 actual fun provideImagePicker(): (DishImagesViewModel) -> Unit {

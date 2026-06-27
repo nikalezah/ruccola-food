@@ -1,4 +1,5 @@
 <resources>
+    <string name="retry">Retry</string>
     <string name="tab_schedule">Schedule</string>
     <string name="tab_chat">Messages</string>
     <string name="tab_subscription">Subscription</string>

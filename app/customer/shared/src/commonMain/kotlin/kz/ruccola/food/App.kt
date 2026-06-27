@@ -10,13 +10,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import kz.ruccola.food.feature.MainScreen
+import kz.ruccola.food.feature.auth.LoginScreen
+import kz.ruccola.food.feature.auth.RegisterScreen
 import kz.ruccola.food.localization.LocalLocale
-import kz.ruccola.food.screen.LoginScreen
-import kz.ruccola.food.screen.MainScreen
-import kz.ruccola.food.screen.RegisterScreen
-import kz.ruccola.food.theme.GreenDarkColorScheme
-import kz.ruccola.food.theme.GreenLightColorScheme
+import kz.ruccola.food.navigation.AuthRoute
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.theme.resolveColorScheme
 
 @Composable
 fun App(
@@ -31,27 +31,23 @@ fun App(
     onThemePreferenceChanged: (ThemePreference) -> Unit,
     onOpenWhatsApp: () -> Unit = {},
 ) {
-    val colorScheme = when (themePreference) {
-        ThemePreference.LIGHT -> GreenLightColorScheme
-        ThemePreference.DARK -> GreenDarkColorScheme
-        ThemePreference.SYSTEM -> if (isSystemDark) GreenDarkColorScheme else GreenLightColorScheme
-    }
+    val colorScheme = resolveColorScheme(themePreference, isSystemDark)
 
     CompositionLocalProvider(LocalLocale provides language) {
         MaterialTheme(colorScheme = colorScheme) {
             Surface(modifier = Modifier.fillMaxSize()) {
-                var authScreen by remember { mutableStateOf("login") }
+                var authRoute by remember { mutableStateOf(AuthRoute.Login) }
 
                 if (token == null) {
-                    when (authScreen) {
-                        "register" -> RegisterScreen(
+                    when (authRoute) {
+                        AuthRoute.Register -> RegisterScreen(
                             onRegistered = { resp -> onRegister(resp.token) },
-                            onBackToLogin = { authScreen = "login" },
+                            onBackToLogin = { authRoute = AuthRoute.Login },
                         )
 
-                        else -> LoginScreen(
+                        AuthRoute.Login -> LoginScreen(
                             onLoggedIn = { resp -> onLogin(resp.token) },
-                            onGoToRegister = { authScreen = "register" },
+                            onGoToRegister = { authRoute = AuthRoute.Register },
                         )
                     }
                 } else {

@@ -2,7 +2,6 @@ package kz.ruccola.food.customer
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,11 +12,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kz.ruccola.food.App
-import kz.ruccola.food.SessionViewModelStoreOwner
+import kz.ruccola.food.AppSessionProvider
 import kz.ruccola.food.api.LanguageProvider
 import kz.ruccola.food.api.TokenProvider
+import kz.ruccola.food.rememberAppSession
 import kz.ruccola.food.theme.ThemePreference
 import java.awt.Desktop
 import java.net.URI
@@ -44,12 +43,7 @@ fun CustomerApp() {
     }
     val isSystemDark = isSystemInDarkTheme()
 
-    var sessionOwner by remember { mutableStateOf(SessionViewModelStoreOwner()) }
-
-    fun resetSession() {
-        sessionOwner.clear()
-        sessionOwner = SessionViewModelStoreOwner()
-    }
+    val (sessionOwner, resetSession) = rememberAppSession()
 
     LaunchedEffect(token) {
         TokenProvider.token = token
@@ -69,7 +63,7 @@ fun CustomerApp() {
         }
     }
 
-    CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) {
+    AppSessionProvider(sessionOwner) {
         App(
             token = token,
             language = language,

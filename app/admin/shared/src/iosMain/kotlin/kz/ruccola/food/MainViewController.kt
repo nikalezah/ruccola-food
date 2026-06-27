@@ -1,7 +1,6 @@
 package kz.ruccola.food
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -9,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.ComposeUIViewController
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kz.ruccola.food.api.LanguageProvider
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
@@ -26,12 +24,7 @@ fun AdminApp() {
         mutableStateOf(ThemePreference.fromStorage(IosPreferences.get("admin.theme")))
     }
 
-    var sessionOwner by remember { mutableStateOf(SessionViewModelStoreOwner()) }
-
-    fun resetSession() {
-        sessionOwner.clear()
-        sessionOwner = SessionViewModelStoreOwner()
-    }
+    val (sessionOwner, resetSession) = rememberAppSession()
 
     LaunchedEffect(token) {
         TokenProvider.token = token
@@ -49,7 +42,7 @@ fun AdminApp() {
         }
     }
 
-    CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) {
+    AppSessionProvider(sessionOwner) {
         App(
             role = role,
             token = token,

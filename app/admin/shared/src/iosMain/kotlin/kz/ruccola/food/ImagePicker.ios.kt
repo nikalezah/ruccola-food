@@ -6,7 +6,7 @@ import androidx.compose.ui.interop.LocalUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import kz.ruccola.food.viewmodel.DishImagesViewModel
+import kz.ruccola.food.feature.dish.DishImagesViewModel
 import platform.Foundation.NSData
 import platform.Foundation.NSURL
 import platform.Foundation.dataWithContentsOfURL

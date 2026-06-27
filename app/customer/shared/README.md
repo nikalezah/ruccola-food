@@ -1,59 +1,41 @@
 # Customer Application
 
-This document describes the multiplatform Customer app for the food service.
+Kotlin Multiplatform customer app (Android, iOS, Web, Desktop).
 
-## Overview
+## Package structure
 
-The Customer app is a Kotlin Multiplatform application targeting Android, Web, and Desktop. It allows customers to view
-meal
-schedules, view dish details, chat with administrators, and manage their profiles.
+```
+kz.ruccola.food/
+  App.kt
+  navigation/          CustomerTab, AuthRoute (re-exports common AuthRoute)
+  feature/
+    MainScreen.kt                              # package feature (single-file)
+    auth/          LoginScreen, RegisterScreen, RegisterViewModel
+    schedule/      ScheduleScreen, DishDetailsScreen, ScheduleViewModel
+    subscription/  SubscriptionScreen, SubscriptionContent, SubscriptionViewModel, …
+    profile/       ProfileScreen, ProfileContent, ProfileViewModel, …
+    chat/          ChatListScreen, ChatScreen, ChatViewModel (dormant)
+```
 
-## Screens
-
-| Screen              | Description                  |
-|---------------------|------------------------------|
-| `LoginScreen`       | User authentication          |
-| `RegisterScreen`    | New user registration        |
-| `MainScreen`        | Main navigation hub          |
-| `ScheduleScreen`    | View daily meal schedule     |
-| `DishDetailsScreen` | View dish details and images |
-| `ChatListScreen`    | List of chat conversations   |
-| `ChatScreen`        | Chat with administrators     |
-| `ProfileScreen`     | User profile and preferences |
-
-## ViewModels
-
-All ViewModels follow the MVVM pattern and communicate with shared APIs from the `core` module.
-
-- `LoginViewModel` - Handles authentication state
-- `RegisterViewModel` - Handles registration flow
-- `ScheduleViewModel` - Manages meal schedule display
-- `DishViewModel` - Manages dish details loading
-- `ChatViewModel` - Manages chat state and messages
-- `ProfileViewModel` - Manages user profile
+Shared UI and auth live in `app/common` (`LoginViewModel`, `LoginForm`, `ThemePicker`, `AsyncContent`, …).
 
 ## Architecture
 
-The implementation follows a shared MVVM pattern in `commonMain`:
+- MVVM: ViewModels use `StateFlow`, constructor injection with `factory()`
+- Navigation: `CustomerTab` enum + `AuthRoute` for login/register
+- Session: `rememberAppSession()` + `AppSessionProvider` in platform entry points
+- Localization: `LocalLocale` + per-app string resources (EN/RU/KK)
 
-1. **Model**: Data layer uses shared API classes (`AuthApi`, `DayApi`, `ChatApi`, etc.)
-2. **View**: Shared Composable screens in `commonMain`
-3. **ViewModel**: Shared ViewModels managing UI state via `StateFlow`
+## Chat (dormant)
 
-Platform-specific code:
+`feature/chat/` is implemented but disabled in the shell. To re-enable:
 
-- Android: `app/customer/androidApp` contains `MainActivity` and app resources; `androidMain` contains
-  `AppLocaleManager` and `AppPreferences`
-- Web: `app/customer/webApp` contains web-specific entry points
+1. In `navigation/CustomerTab.kt` — uncomment `Chat` enum entry
+2. In `feature/MainScreen.kt` — uncomment the `LabeledNavigationTab` for chat and the `when` branch with
+   `ChatListScreen`
+3. Adjust `showBottomBar` logic if tab indices change
 
-## Key Features
-
-- User authentication and registration
-- Daily meal schedule viewing
-- Dish details with the image carousel
-- Real-time chat with administrators
-- User profile management
-- Localization support
+`isChatOpen`, `hasUnreadChat`, and related state are kept in `MainScreen` for quick restore.
 
 ## Build and Run
 

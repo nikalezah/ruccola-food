@@ -8,7 +8,9 @@ apps.
 * `/app/admin/webApp/src` is the Admin Web application entry point.
 * `/app/customer/shared/src` is the Customer KMP library used by Android, iOS, Web, and Desktop.
 * `/app/customer/webApp/src` is the Customer Web application entry point.
-* `/app/common/src` is for Compose/UI code shared by the Admin and Customer apps.
+* `/app/common/src` is shared Compose/UI, theme, auth (`LoginViewModel`), and composable primitives used by both apps.
+* Admin and customer shared code use `feature/` packages (multi-file domains in `feature/<name>/`, single screens in
+  `feature/`).
 * `/server/src/main/kotlin` is for the Ktor server application.
 * `/core/src` is for API contracts, models, and platform-neutral code shared between apps and server. The most
   important subfolder is `/core/src/commonMain/kotlin`. You can add platform-specific code under the corresponding

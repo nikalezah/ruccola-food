@@ -1,68 +1,39 @@
 # Admin Application
 
-This document describes the multiplatform Admin app for managing the food service.
+Kotlin Multiplatform admin app (Android, iOS, Web, Desktop).
 
-## Overview
+## Package structure
 
-The Admin app is a Kotlin Multiplatform application targeting Android, Web, and Desktop. It provides administrative
-functionality
-for managing dishes, meal plans, customers, and chat communications.
+```
+kz.ruccola.food/
+  App.kt, ImagePicker.kt
+  navigation/          AdminTab, MealPlanDaysRoute
+  feature/
+    MainScreen.kt, LoginScreen.kt, SettingsScreen.kt   # package feature (single-file)
+    plan/              PlanScreen, PlanContent, PlanViewModel, …
+    dish/              DishScreen, DishEditorScreen, …
+    mealplanday/       MealPlanDayScreen, MealPlanDayEditorScreen, …
+    day/               DayScreen, DayViewModel
+    customer/          CustomerScreen, CustomerDetailsScreen, CustomersViewModel
+    chat/              ChatScreen, ChatViewModel (dormant)
+```
 
-## Screens
-
-| Screen                    | Description                                                      |
-|---------------------------|------------------------------------------------------------------|
-| `LoginScreen`             | User authentication                                              |
-| `MainScreen`              | Main navigation hub                                              |
-| `SettingsScreen`          | App settings and preferences                                     |
-| `DishScreen`              | List and manage dishes with swipe-to-archive and pull-to-refresh |
-| `DishEditorScreen`        | Create/edit dish details                                         |
-| `DishImagesEditorScreen`  | Manage dish images                                               |
-| `MealPlanDayScreen`       | View and manage meal plan days                                   |
-| `MealPlanDayEditorScreen` | Edit meal plan day dishes                                        |
-| `DayScreen`               | View and manage days                                             |
-| `PlanScreen`              | View and manage plans                                            |
-| `CustomerScreen`          | List customers                                                   |
-| `CustomerDetailsScreen`   | View customer details                                            |
-| `ChatScreen`              | Chat with customers                                              |
-
-## ViewModels
-
-All ViewModels follow the MVVM pattern and communicate with shared APIs from the `core` module.
-
-- `LoginViewModel` - Handles authentication state
-- `DishViewModel` - Manages dish list and operations
-- `DishEditorViewModel` - Manages dish editing state
-- `DishImagesViewModel` - Manages dish image operations
-- `MealPlanDayViewModel` - Manages meal plan day operations
-- `DayViewModel` - Manages day operations
-- `PlanViewModel` - Manages plan operations
-- `CustomersViewModel` - Manages customer list
-- `ChatViewModel` - Manages chat state
+Shared UI and auth live in `app/common` (`LoginViewModel`, `LoginForm`, `ThemePicker`, `AsyncContent`, …).
 
 ## Architecture
 
-The implementation follows a shared MVVM pattern in `commonMain`:
+- MVVM: ViewModels use `StateFlow`, constructor injection with `factory()`
+- Navigation: `AdminTab` enum + local overlay state (no Navigation library)
+- Session: `rememberAppSession()` + `AppSessionProvider` in platform entry points
 
-1. **Model**: Data layer uses shared API classes (`DishApi`, `PlanApi`, etc.)
-2. **View**: Shared Composable screens in `commonMain`
-3. **ViewModel**: Shared ViewModels managing UI state via `StateFlow`
+## Chat (dormant)
 
-Platform-specific code:
+`feature/chat/` is implemented but disabled in the shell. To re-enable:
 
-- Android: `app/admin/androidApp` contains `MainActivity` and app resources; `androidMain` contains platform utilities
-  and `ImagePicker`
-- Web: `app/admin/webApp` contains web-specific entry points; `webMain` keeps web actuals required by shared code
+1. In `feature/customer/CustomerScreen.kt` — uncomment the `trailingContent` chat button block
+2. In `feature/MainScreen.kt` — uncomment chat-related tab badge / `onChatOpenChanged` wiring if needed
 
-## Key Features
-
-- Dish management with images
-- Meal plan day scheduling with dish assignment
-- Day management with dish tracking
-- Plan management
-- Customer management and details
-- Real-time chat with customers
-- Settings and preferences
+Chat overlay and state variables are preserved in commented/active form for quick restore.
 
 ## Build and Run
 

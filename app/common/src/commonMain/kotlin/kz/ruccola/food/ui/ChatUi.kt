@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kz.ruccola.food.api.MessageDto
 import kz.ruccola.food.formatDateTime
+import kz.ruccola.food.localization.LocalLocale
+import kz.ruccola.food.localization.localeTagForFormatting
 
 @Composable
 fun ChatUi(
@@ -51,7 +53,7 @@ fun ChatUi(
     isLoading: Boolean,
     inputEnabled: Boolean,
     sendEnabled: Boolean,
-    locale: String,
+    locale: String = localeTagForFormatting(LocalLocale.current),
     modifier: Modifier = Modifier,
     maxBodyLength: Int = 1000,
 ) {

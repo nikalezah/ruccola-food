@@ -2,7 +2,7 @@ package kz.ruccola.food
 
 import androidx.compose.runtime.Composable
 import kotlinx.browser.document
-import kz.ruccola.food.viewmodel.DishImagesViewModel
+import kz.ruccola.food.feature.dish.DishImagesViewModel
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
 import org.khronos.webgl.get

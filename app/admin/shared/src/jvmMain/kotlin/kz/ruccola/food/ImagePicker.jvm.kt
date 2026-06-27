@@ -1,7 +1,7 @@
 package kz.ruccola.food
 
 import androidx.compose.runtime.Composable
-import kz.ruccola.food.viewmodel.DishImagesViewModel
+import kz.ruccola.food.feature.dish.DishImagesViewModel
 import java.io.File
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
