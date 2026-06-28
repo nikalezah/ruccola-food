@@ -4,11 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -16,9 +19,11 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,10 +41,16 @@ import food.composeappadmin.generated.resources.error_prefix
 import food.composeappadmin.generated.resources.label_calories
 import food.composeappadmin.generated.resources.no_customers_found
 import food.composeappadmin.generated.resources.retry
+import food.composeappadmin.generated.resources.select_customer_hint
 import food.composeappadmin.generated.resources.tab_customers
 import kz.ruccola.food.api.CustomerDetailsDto
 import kz.ruccola.food.feature.chat.ChatScreen
+import kz.ruccola.food.ui.EmptyDetailPane
+import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.LocalWindowWidthClass
+import kz.ruccola.food.ui.ResponsiveContainer
 import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.ui.WindowWidthClass
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +65,8 @@ fun CustomerScreen(
     var selectedChatCustomer by remember { mutableStateOf<CustomerDetailsDto?>(null) }
     var selectedChatId by remember { mutableStateOf<Int?>(null) }
     var selectedCustomerDetails by remember { mutableStateOf<CustomerDetailsDto?>(null) }
+
+    val twoPane = LocalWindowWidthClass.current == WindowWidthClass.Expanded
 
     LaunchedEffect(Unit) {
         viewModel.loadCustomers()
@@ -81,86 +94,52 @@ fun CustomerScreen(
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            when {
-                uiState.isLoading && uiState.customers.isEmpty() -> {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                }
-
-                uiState.error != null -> {
-                    Column(
-                        Modifier.align(Alignment.Center).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            stringResource(Res.string.error_prefix, uiState.error ?: "[?]"),
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Button(onClick = { viewModel.loadCustomers() }) { Text(stringResource(Res.string.retry)) }
-                    }
-                }
-
-                uiState.customers.isEmpty() && !uiState.isLoading -> {
-                    Column(
-                        Modifier.align(Alignment.Center).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(stringResource(Res.string.no_customers_found))
-                    }
-                }
-
-                selectedChatCustomer == null && selectedCustomerDetails == null -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(8.dp),
-                    ) {
-                        items(uiState.customers) { c ->
-                            val chat = uiState.chats[c.id]
-                            val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
-                            ListItem(
-                                modifier = Modifier.fillMaxWidth().clickable { selectedCustomerDetails = c },
-                                headlineContent = { Text("${c.firstName} ${c.lastName}") },
-                                supportingContent = {
-                                    SingleLineText(
-                                        "${c.address} - ${
-                                            stringResource(
-                                                Res.string.label_calories,
-                                                c.plan?.calories?.toString() ?: "-",
-                                            )
-                                        }",
-                                    )
-                                },
-                                /*
-                                trailingContent = {
-                                    val onClick = {
-                                        selectedChatCustomer = c
-                                        selectedChatId = uiState.chats[c.id]?.id
-                                    }
-                                    val chatButton: @Composable () -> Unit = {
-                                        IconButton(onClick = onClick) {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Chat,
-                                                contentDescription = stringResource(Res.string.chat_open),
-                                            )
-                                        }
-                                    }
-                                    if (isUnread) {
-                                        BadgedBox(badge = { Badge { Text("1") } }) { chatButton() }
-                                    } else {
-                                        chatButton()
-                                    }
-                                },
-                                 */
-                            )
+        if (twoPane) {
+            Row(Modifier.fillMaxSize().padding(padding)) {
+                CustomersList(
+                    uiState = uiState,
+                    selectedCustomer = selectedCustomerDetails,
+                    onSelect = { selectedCustomerDetails = it },
+                    onRetry = { viewModel.loadCustomers() },
+                    modifier = Modifier.widthIn(max = 400.dp).fillMaxHeight(),
+                )
+                VerticalDivider()
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                    val customer = selectedCustomerDetails
+                    if (customer != null) {
+                        ResponsiveContainer(maxContentWidth = 640.dp) {
+                            Column(Modifier.fillMaxSize()) {
+                                Text(
+                                    text = "${customer.firstName} ${customer.lastName}",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                                )
+                                CustomerDetailsContent(
+                                    customer = customer,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            }
                         }
+                    } else {
+                        EmptyDetailPane(
+                            icon = Icons.Outlined.Groups,
+                            text = stringResource(Res.string.select_customer_hint),
+                        )
                     }
                 }
             }
+        } else {
+            CustomersList(
+                uiState = uiState,
+                selectedCustomer = null,
+                onSelect = { selectedCustomerDetails = it },
+                onRetry = { viewModel.loadCustomers() },
+                modifier = Modifier.fillMaxSize().padding(padding),
+            )
         }
     }
 
-    if (selectedCustomerDetails != null) {
+    if (!twoPane && selectedCustomerDetails != null) {
         CustomerDetailsScreen(
             customer = selectedCustomerDetails!!,
             onBack = { selectedCustomerDetails = null },
@@ -179,3 +158,80 @@ fun CustomerScreen(
         )
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomersList(
+    uiState: CustomersUiState,
+    selectedCustomer: CustomerDetailsDto?,
+    onSelect: (CustomerDetailsDto) -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier) {
+        when {
+            uiState.isLoading && uiState.customers.isEmpty() -> {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+
+            uiState.error != null -> {
+                Column(
+                    Modifier.align(Alignment.Center).padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        stringResource(Res.string.error_prefix, uiState.error ?: "[?]"),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Button(onClick = onRetry) { Text(stringResource(Res.string.retry)) }
+                }
+            }
+
+            uiState.customers.isEmpty() && !uiState.isLoading -> {
+                Column(
+                    Modifier.align(Alignment.Center).padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(stringResource(Res.string.no_customers_found))
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp),
+                ) {
+                    items(uiState.customers) { c ->
+                        ListItem(
+                            modifier = Modifier.fillMaxWidth().clickable { onSelect(c) },
+                            headlineContent = { Text("${c.firstName} ${c.lastName}") },
+                            supportingContent = {
+                                SingleLineText(
+                                    "${c.address} - ${
+                                        stringResource(
+                                            Res.string.label_calories,
+                                            c.plan?.calories?.toString() ?: "-",
+                                        )
+                                    }",
+                                )
+                            },
+                            colors = listItemColorsFor(selected = selectedCustomer?.id == c.id),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun listItemColorsFor(selected: Boolean) =
+    if (selected) {
+        ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        )
+    } else {
+        ListItemDefaults.colors()
+    }

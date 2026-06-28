@@ -44,6 +44,7 @@ import food.composeappadmin.generated.resources.triggering_midnight
 import kz.ruccola.food.api.DayDto
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.PullToRefresh
+import kz.ruccola.food.ui.ResponsiveContainer
 import kz.ruccola.food.ui.SingleLineText
 import org.jetbrains.compose.resources.stringResource
 
@@ -56,8 +57,9 @@ fun DayScreen(onClose: () -> Unit) {
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
-    Scaffold(
-        topBar = {
+    ResponsiveContainer(maxContentWidth = 720.dp) {
+        Scaffold(
+            topBar = {
             TopAppBar(
                 title = { Text(stringResource(Res.string.screen_history_title)) },
                 navigationIcon = {
@@ -137,6 +139,7 @@ fun DayScreen(onClose: () -> Unit) {
                 }
             }
         }
+    }
     }
 }
 

@@ -1,10 +1,8 @@
 package kz.ruccola.food.feature
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,8 +18,8 @@ import kz.ruccola.food.feature.schedule.ScheduleScreen
 import kz.ruccola.food.feature.subscription.SubscriptionScreen
 import kz.ruccola.food.navigation.CustomerTab
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.AdaptiveNavigationScaffold
 import kz.ruccola.food.ui.Icons
-import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
 import org.jetbrains.compose.resources.stringResource
 
@@ -50,44 +48,38 @@ fun MainScreen(
     val selectedTabIndex = bottomNavTabs.indexOf(selectedTab)
     val showBottomBar = !(selectedTabIndex == 1 && isChatOpen)
 
-    Scaffold(
-        bottomBar = {
-            if (showBottomBar) {
-                LabeledNavigationBar(
-                    tabs = listOf(
-                        LabeledNavigationTab(
-                            Icons.Filled.DinnerDining,
-                            Icons.Outlined.DinnerDining,
-                            stringResource(Res.string.tab_schedule),
-                        ),
-                        /*
-                        LabeledNavigationTab(
-                            Icons.Filled.Chat,
-                            Icons.Outlined.Chat,
-                            stringResource(Res.string.tab_chat),
-                            showBadge = hasUnreadChat,
-                        ),
-                         */
-                        LabeledNavigationTab(
-                            Icons.Filled.Settings,
-                            Icons.Outlined.Settings,
-                            stringResource(Res.string.tab_subscription),
-                        ),
-                        LabeledNavigationTab(
-                            Icons.Filled.ManageAccounts,
-                            Icons.Outlined.ManageAccounts,
-                            stringResource(Res.string.tab_profile),
-                        ),
-                    ),
-                    selected = { selectedTabIndex },
-                    onSelect = { tab ->
-                        selectedTab = bottomNavTabs[tab]
-                        if (tab != 1) isChatOpen = false
-                    },
-                )
-            }
+    AdaptiveNavigationScaffold(
+        tabs = listOf(
+            LabeledNavigationTab(
+                Icons.Filled.DinnerDining,
+                Icons.Outlined.DinnerDining,
+                stringResource(Res.string.tab_schedule),
+            ),
+            /*
+            LabeledNavigationTab(
+                Icons.Filled.Chat,
+                Icons.Outlined.Chat,
+                stringResource(Res.string.tab_chat),
+                showBadge = hasUnreadChat,
+            ),
+             */
+            LabeledNavigationTab(
+                Icons.Filled.Settings,
+                Icons.Outlined.Settings,
+                stringResource(Res.string.tab_subscription),
+            ),
+            LabeledNavigationTab(
+                Icons.Filled.ManageAccounts,
+                Icons.Outlined.ManageAccounts,
+                stringResource(Res.string.tab_profile),
+            ),
+        ),
+        selected = { selectedTabIndex },
+        onSelect = { tab ->
+            selectedTab = bottomNavTabs[tab]
+            if (tab != 1) isChatOpen = false
         },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        showNavigation = showBottomBar,
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
             when (selectedTab) {

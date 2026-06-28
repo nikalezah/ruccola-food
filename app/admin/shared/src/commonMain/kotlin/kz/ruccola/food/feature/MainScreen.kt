@@ -1,10 +1,8 @@
 package kz.ruccola.food.feature
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +23,9 @@ import kz.ruccola.food.feature.plan.PlanScreen
 import kz.ruccola.food.navigation.AdminTab
 import kz.ruccola.food.navigation.MealPlanDaysRoute
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.AdaptiveNavigationScaffold
 import kz.ruccola.food.ui.BackHandler
 import kz.ruccola.food.ui.Icons
-import kz.ruccola.food.ui.LabeledNavigationBar
 import kz.ruccola.food.ui.LabeledNavigationTab
 import org.jetbrains.compose.resources.stringResource
 
@@ -41,44 +39,38 @@ fun MainScreen(
     var isChatOpen by remember { mutableStateOf(false) }
     var hasUnreadChats by remember { mutableStateOf(false) }
 
-    Scaffold(
-        bottomBar = {
-            if (!isChatOpen) {
-                LabeledNavigationBar(
-                    tabs = listOf(
-                        LabeledNavigationTab(
-                            Icons.Filled.PriceChange,
-                            Icons.Outlined.PriceChange,
-                            stringResource(Res.string.tab_plans),
-                        ),
-                        LabeledNavigationTab(
-                            Icons.Filled.DinnerDining,
-                            Icons.Outlined.DinnerDining,
-                            stringResource(Res.string.tab_dishes),
-                        ),
-                        LabeledNavigationTab(
-                            Icons.Filled.CalendarMonth,
-                            Icons.Outlined.CalendarMonth,
-                            stringResource(Res.string.tab_meal_plan_days),
-                        ),
-                        LabeledNavigationTab(
-                            Icons.Filled.Groups,
-                            Icons.Outlined.Groups,
-                            stringResource(Res.string.tab_customers),
-                            showBadge = hasUnreadChats,
-                        ),
-                        LabeledNavigationTab(
-                            Icons.Filled.Settings,
-                            Icons.Outlined.Settings,
-                            stringResource(Res.string.tab_settings),
-                        ),
-                    ),
-                    selected = { AdminTab.entries.indexOf(selectedTab) },
-                    onSelect = { selectedTab = AdminTab.entries[it] },
-                )
-            }
-        },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    AdaptiveNavigationScaffold(
+        tabs = listOf(
+            LabeledNavigationTab(
+                Icons.Filled.PriceChange,
+                Icons.Outlined.PriceChange,
+                stringResource(Res.string.tab_plans),
+            ),
+            LabeledNavigationTab(
+                Icons.Filled.DinnerDining,
+                Icons.Outlined.DinnerDining,
+                stringResource(Res.string.tab_dishes),
+            ),
+            LabeledNavigationTab(
+                Icons.Filled.CalendarMonth,
+                Icons.Outlined.CalendarMonth,
+                stringResource(Res.string.tab_meal_plan_days),
+            ),
+            LabeledNavigationTab(
+                Icons.Filled.Groups,
+                Icons.Outlined.Groups,
+                stringResource(Res.string.tab_customers),
+                showBadge = hasUnreadChats,
+            ),
+            LabeledNavigationTab(
+                Icons.Filled.Settings,
+                Icons.Outlined.Settings,
+                stringResource(Res.string.tab_settings),
+            ),
+        ),
+        selected = { AdminTab.entries.indexOf(selectedTab) },
+        onSelect = { selectedTab = AdminTab.entries[it] },
+        showNavigation = !isChatOpen,
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
             var mealPlanDaysRoute by remember(selectedTab) { mutableStateOf(MealPlanDaysRoute.List) }

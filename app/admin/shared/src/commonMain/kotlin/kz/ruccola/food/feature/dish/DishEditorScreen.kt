@@ -46,6 +46,7 @@ import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.localization.Language
 import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.ResponsiveContainer
 import kz.ruccola.food.ui.SquareImagesCarousel200
 import org.jetbrains.compose.resources.stringResource
 
@@ -92,8 +93,9 @@ fun DishEditorScreen(
         previousDish = uiState.dish
     }
 
-    Scaffold(
-        topBar = {
+    ResponsiveContainer(maxContentWidth = 640.dp) {
+        Scaffold(
+            topBar = {
             TopAppBar(
                 title = {
                     Text(stringResource(if (uiState.dish == null) Res.string.new_dish else Res.string.edit_dish))
@@ -168,6 +170,7 @@ fun DishEditorScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
+    }
     }
 
     if (imageEditorVisible && uiState.dish != null) {

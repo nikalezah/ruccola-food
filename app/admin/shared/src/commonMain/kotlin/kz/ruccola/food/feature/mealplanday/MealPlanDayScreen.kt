@@ -23,12 +23,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
 import food.composeappadmin.generated.resources.screen_history_title
 import food.composeappadmin.generated.resources.tab_schedule
 import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.ResponsiveContainer
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -54,85 +56,6 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
         return originalIds != workingIds
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.tab_schedule)) },
-                navigationIcon = {
-                    IconButton(onClick = onHistoryClick) {
-                        Icon(
-                            Icons.Filled.History,
-                            contentDescription = stringResource(Res.string.screen_history_title),
-                        )
-                    }
-                },
-                actions = {
-                    FilledIconToggleButton(
-                        checked = reorderMode,
-                        onCheckedChange = { checked ->
-                            if (reorderMode) {
-                                if (isOrderChanged()) {
-                                    vm.reorder(workingList.map { it.id })
-                                }
-                            }
-                            reorderMode = checked
-                        },
-                        modifier = Modifier.size(
-                            IconButtonDefaults.smallContainerSize(
-                                widthOption = IconButtonDefaults.IconButtonWidthOption.Wide,
-                            ),
-                        ),
-                    ) {
-                        if (reorderMode) {
-                            Icon(Icons.Filled.Check, contentDescription = "Done")
-                        } else {
-                            Icon(Icons.Filled.SwapVert, contentDescription = "Reorder")
-                        }
-                    }
-                },
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    nextSerial = (state.items.maxOfOrNull { it.serial } ?: 0) + 1
-                    editingDay = null
-                    showEditor = true
-                },
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
-            }
-        },
-    ) { padding ->
-        MealPlanDayContent(
-            state = state,
-            workingList = workingList,
-            reorderMode = reorderMode,
-            onRefresh = { vm.loadAll() },
-            onItemClick = { day ->
-                editingDay = day
-                showEditor = true
-            },
-            onDelete = { vm.delete(it) },
-            onMakeCurrent = { vm.setCurrent(it) },
-            onMoveUp = { day ->
-                val idx = workingList.indexOf(day)
-                if (idx > 0) {
-                    workingList.removeAt(idx)
-                    workingList.add(idx - 1, day)
-                }
-            },
-            onMoveDown = { day ->
-                val idx = workingList.indexOf(day)
-                if (idx < workingList.size - 1) {
-                    workingList.removeAt(idx)
-                    workingList.add(idx + 1, day)
-                }
-            },
-            modifier = Modifier.fillMaxSize().padding(padding),
-        )
-    }
-
     if (showEditor) {
         MealPlanDayEditorScreen(
             mealPlanDay = editingDay,
@@ -143,5 +66,86 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                 vm.loadAll()
             },
         )
+    } else {
+        ResponsiveContainer(maxContentWidth = 720.dp) {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { Text(stringResource(Res.string.tab_schedule)) },
+                        navigationIcon = {
+                            IconButton(onClick = onHistoryClick) {
+                                Icon(
+                                    Icons.Filled.History,
+                                    contentDescription = stringResource(Res.string.screen_history_title),
+                                )
+                            }
+                        },
+                        actions = {
+                            FilledIconToggleButton(
+                                checked = reorderMode,
+                                onCheckedChange = { checked ->
+                                    if (reorderMode) {
+                                        if (isOrderChanged()) {
+                                            vm.reorder(workingList.map { it.id })
+                                        }
+                                    }
+                                    reorderMode = checked
+                                },
+                                modifier = Modifier.size(
+                                    IconButtonDefaults.smallContainerSize(
+                                        widthOption = IconButtonDefaults.IconButtonWidthOption.Wide,
+                                    ),
+                                ),
+                            ) {
+                                if (reorderMode) {
+                                    Icon(Icons.Filled.Check, contentDescription = "Done")
+                                } else {
+                                    Icon(Icons.Filled.SwapVert, contentDescription = "Reorder")
+                                }
+                            }
+                        },
+                    )
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {
+                            nextSerial = (state.items.maxOfOrNull { it.serial } ?: 0) + 1
+                            editingDay = null
+                            showEditor = true
+                        },
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "Add")
+                    }
+                },
+            ) { padding ->
+                MealPlanDayContent(
+                    state = state,
+                    workingList = workingList,
+                    reorderMode = reorderMode,
+                    onRefresh = { vm.loadAll() },
+                    onItemClick = { day ->
+                        editingDay = day
+                        showEditor = true
+                    },
+                    onDelete = { vm.delete(it) },
+                    onMakeCurrent = { vm.setCurrent(it) },
+                    onMoveUp = { day ->
+                        val idx = workingList.indexOf(day)
+                        if (idx > 0) {
+                            workingList.removeAt(idx)
+                            workingList.add(idx - 1, day)
+                        }
+                    },
+                    onMoveDown = { day ->
+                        val idx = workingList.indexOf(day)
+                        if (idx < workingList.size - 1) {
+                            workingList.removeAt(idx)
+                            workingList.add(idx + 1, day)
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                )
+            }
+        }
     }
 }

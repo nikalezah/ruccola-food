@@ -53,6 +53,7 @@ import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.Icons
 import kz.ruccola.food.ui.PullToRefresh
+import kz.ruccola.food.ui.ResponsiveContainer
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import org.jetbrains.compose.resources.stringResource
@@ -69,17 +70,24 @@ fun DishScreen() {
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
-    Scaffold(
-        topBar = {
-            if (!editorVisible) {
-                CenterAlignedTopAppBar(
+    if (editorVisible) {
+        DishEditorScreen(
+            initialDish = selectedDish.selectedDish,
+            onClose = {
+                editorVisible = false
+                dishes.refresh()
+            },
+        )
+    } else {
+        ResponsiveContainer(maxContentWidth = 720.dp) {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
                     title = { Text(stringResource(Res.string.tab_dishes)) },
                 )
-            }
-        },
-        floatingActionButton = {
-            if (!editorVisible) {
-                FloatingActionButton(
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
                     onClick = {
                         viewModel.clearSelectedDish()
                         editorVisible = true
@@ -87,16 +95,15 @@ fun DishScreen() {
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
                 }
-            }
-        },
-    ) { paddingValues ->
-        PullToRefresh(
-            isRefreshing = dishes.loadState.refresh is LoadState.Loading,
-            onRefresh = { dishes.refresh() },
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
-            state = ptrState,
-        ) {
-            when {
+                },
+            ) { paddingValues ->
+                PullToRefresh(
+                    isRefreshing = dishes.loadState.refresh is LoadState.Loading,
+                    onRefresh = { dishes.refresh() },
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    state = ptrState,
+                ) {
+                    when {
                 dishes.loadState.refresh is LoadState.Error -> {
                     val error = (dishes.loadState.refresh as LoadState.Error).error
                     Column(
@@ -174,17 +181,9 @@ fun DishScreen() {
                         }
                     }
                 }
+                    }
+                }
             }
-        }
-
-        if (editorVisible) {
-            DishEditorScreen(
-                initialDish = selectedDish.selectedDish,
-                onClose = {
-                    editorVisible = false
-                    dishes.refresh()
-                },
-            )
         }
     }
 }

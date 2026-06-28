@@ -4,6 +4,7 @@
     <string name="tab_dishes">Блюда</string>
     <string name="tab_meal_plan_days">Расписание</string>
     <string name="tab_customers">Клиенты</string>
+    <string name="select_customer_hint">Выберите клиента, чтобы увидеть подробности</string>
     <string name="tab_settings">Настройки</string>
 
     <!-- Chats -->

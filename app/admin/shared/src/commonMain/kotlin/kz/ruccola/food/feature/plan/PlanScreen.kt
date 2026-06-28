@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappadmin.generated.resources.Res
 import food.composeappadmin.generated.resources.add
@@ -24,6 +25,7 @@ import kz.ruccola.food.api.PlanDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.ResponsiveContainer
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,40 +39,42 @@ fun PlanScreen() {
     var prefillCalories by remember { mutableStateOf<PlanCalories?>(null) }
     var prefillDays by remember { mutableStateOf<PlanDays?>(null) }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.tab_plans)) },
+    ResponsiveContainer(maxContentWidth = 900.dp) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(stringResource(Res.string.tab_plans)) },
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = {
+                    editingPlan = null
+                    prefillCalories = null
+                    prefillDays = null
+                    showEditor = true
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
+                }
+            },
+        ) { padding ->
+            PlanContent(
+                state = state,
+                onRefresh = { vm.loadAll() },
+                onCellClick = { plan ->
+                    prefillCalories = null
+                    prefillDays = null
+                    editingPlan = plan
+                    showEditor = true
+                },
+                onEmptyCellClick = { cal, d ->
+                    editingPlan = null
+                    prefillCalories = cal
+                    prefillDays = d
+                    showEditor = true
+                },
+                modifier = Modifier.fillMaxSize().padding(padding),
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {
-                editingPlan = null
-                prefillCalories = null
-                prefillDays = null
-                showEditor = true
-            }) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
-            }
-        },
-    ) { padding ->
-        PlanContent(
-            state = state,
-            onRefresh = { vm.loadAll() },
-            onCellClick = { plan ->
-                prefillCalories = null
-                prefillDays = null
-                editingPlan = plan
-                showEditor = true
-            },
-            onEmptyCellClick = { cal, d ->
-                editingPlan = null
-                prefillCalories = cal
-                prefillDays = d
-                showEditor = true
-            },
-            modifier = Modifier.fillMaxSize().padding(padding),
-        )
+        }
     }
 
     LaunchedEffect(state.isSaved) {

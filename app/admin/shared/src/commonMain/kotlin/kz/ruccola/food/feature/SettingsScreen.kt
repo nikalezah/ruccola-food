@@ -22,6 +22,7 @@ import food.composeappadmin.generated.resources.theme_section_title
 import food.composeappadmin.generated.resources.theme_system
 import kotlinx.coroutines.launch
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.ResponsiveContainer
 import kz.ruccola.food.ui.settings.LogoutButton
 import kz.ruccola.food.ui.settings.ThemePicker
 import org.jetbrains.compose.resources.stringResource
@@ -35,32 +36,34 @@ fun SettingsScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.screen_settings_title)) },
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            ThemePicker(
-                themePreference = themePreference,
-                onThemePreferenceChange = onThemePreferenceChange,
-                sectionTitle = stringResource(Res.string.theme_section_title),
-                systemLabel = stringResource(Res.string.theme_system),
-                lightLabel = stringResource(Res.string.theme_light),
-                darkLabel = stringResource(Res.string.theme_dark),
-            )
+    ResponsiveContainer(maxContentWidth = 640.dp) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(stringResource(Res.string.screen_settings_title)) },
+                )
+            },
+        ) { padding ->
+            Column(
+                modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                ThemePicker(
+                    themePreference = themePreference,
+                    onThemePreferenceChange = onThemePreferenceChange,
+                    sectionTitle = stringResource(Res.string.theme_section_title),
+                    systemLabel = stringResource(Res.string.theme_system),
+                    lightLabel = stringResource(Res.string.theme_light),
+                    darkLabel = stringResource(Res.string.theme_dark),
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
 
-            LogoutButton(
-                onClick = { scope.launch { onLoggedOut() } },
-                label = stringResource(Res.string.log_out),
-            )
+                LogoutButton(
+                    onClick = { scope.launch { onLoggedOut() } },
+                    label = stringResource(Res.string.log_out),
+                )
+            }
         }
     }
 }

@@ -71,6 +71,7 @@ import kz.ruccola.food.ui.ApplyIconButton
 import kz.ruccola.food.ui.AsyncImage
 import kz.ruccola.food.ui.FabMenu
 import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.ResponsiveContainer
 import kz.ruccola.food.ui.SingleLineText
 import kz.ruccola.food.ui.SwipeToRemove
 import org.jetbrains.compose.resources.stringResource
@@ -116,8 +117,9 @@ fun MealPlanDayEditorScreen(
         onClose()
     }
 
-    Scaffold(
-        topBar = {
+    ResponsiveContainer(maxContentWidth = 640.dp) {
+        Scaffold(
+            topBar = {
             TopAppBar(
                 title = {
                     val serial = mealPlanDay?.serial ?: nextSerial
@@ -263,6 +265,7 @@ fun MealPlanDayEditorScreen(
                 }
             }
         }
+    }
     }
 }
 

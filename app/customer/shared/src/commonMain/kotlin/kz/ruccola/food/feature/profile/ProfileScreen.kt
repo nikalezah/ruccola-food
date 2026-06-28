@@ -1,5 +1,6 @@
 package kz.ruccola.food.feature.profile
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,10 +11,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import food.composeappcustomer.generated.resources.Res
 import food.composeappcustomer.generated.resources.tab_profile
 import kz.ruccola.food.theme.ThemePreference
+import kz.ruccola.food.ui.ResponsiveContainer
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,24 +36,26 @@ fun ProfileScreen(
         viewModel.loadProfile()
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.tab_profile)) },
+    ResponsiveContainer(maxContentWidth = 640.dp) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(stringResource(Res.string.tab_profile)) },
+                )
+            },
+        ) { padding ->
+            ProfileContent(
+                uiState = uiState,
+                currentLanguage = currentLanguage,
+                themePreference = themePreference,
+                onLanguageChanged = onLanguageChanged,
+                onThemePreferenceChanged = onThemePreferenceChanged,
+                onOpenWhatsApp = onOpenWhatsApp,
+                onLogout = { viewModel.logout(onLoggedOut) },
+                onEditClick = { viewModel.setEditing(true) },
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxSize().padding(padding),
             )
-        },
-    ) { padding ->
-        ProfileContent(
-            uiState = uiState,
-            currentLanguage = currentLanguage,
-            themePreference = themePreference,
-            onLanguageChanged = onLanguageChanged,
-            onThemePreferenceChanged = onThemePreferenceChanged,
-            onOpenWhatsApp = onOpenWhatsApp,
-            onLogout = { viewModel.logout(onLoggedOut) },
-            onEditClick = { viewModel.setEditing(true) },
-            viewModel = viewModel,
-            modifier = Modifier.padding(padding),
-        )
+        }
     }
 }

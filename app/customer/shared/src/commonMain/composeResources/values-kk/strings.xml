@@ -1,6 +1,7 @@
 <resources>
     <string name="retry">Қайталау</string>
     <string name="tab_schedule">Кесте</string>
+    <string name="select_dish_hint">Толық ақпаратты көру үшін тағамды таңдаңыз</string>
     <string name="tab_chat">Чат</string>
     <string name="tab_subscription">Жазылым</string>
     <string name="tab_profile">Профиль</string>

@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -20,6 +23,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import food.composeappcustomer.generated.resources.Res
@@ -45,27 +50,34 @@ import food.composeappcustomer.generated.resources.meal_dinner
 import food.composeappcustomer.generated.resources.meal_lunch
 import food.composeappcustomer.generated.resources.no_dishes
 import food.composeappcustomer.generated.resources.retry
+import food.composeappcustomer.generated.resources.select_dish_hint
 import food.composeappcustomer.generated.resources.tab_schedule
 import kz.ruccola.food.api.DishDto
+import kz.ruccola.food.api.ScheduledDayDto
 import kz.ruccola.food.dishImageUrl
 import kz.ruccola.food.formatDate
 import kz.ruccola.food.localization.LocalLocale
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.ui.AsyncImage
+import kz.ruccola.food.ui.EmptyDetailPane
+import kz.ruccola.food.ui.Icons
+import kz.ruccola.food.ui.LocalWindowWidthClass
 import kz.ruccola.food.ui.SingleLineText
+import kz.ruccola.food.ui.WindowWidthClass
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel(factory = ScheduleViewModel.Factory)) {
     val scheduledDays = viewModel.schedule.collectAsLazyPagingItems()
-    val currentLocale = LocalLocale.current
 
     var selectedDish by remember { mutableStateOf<DishDto?>(null) }
+    val twoPane = LocalWindowWidthClass.current == WindowWidthClass.Expanded
 
-    selectedDish?.let { dish ->
+    // On compact / medium windows the detail takes over the whole screen (with its own back button).
+    if (!twoPane && selectedDish != null) {
         DishDetailsScreen(
-            dish = dish,
+            dish = selectedDish!!,
             onBack = { selectedDish = null },
         )
         return
@@ -78,6 +90,47 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel(factory = ScheduleVi
             )
         },
     ) { padding ->
+        if (twoPane) {
+            Row(Modifier.fillMaxSize().padding(padding)) {
+                ScheduleList(
+                    scheduledDays = scheduledDays,
+                    onDishClick = { selectedDish = it },
+                    modifier = Modifier.widthIn(max = 400.dp).fillMaxHeight(),
+                )
+                VerticalDivider()
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                    val dish = selectedDish
+                    if (dish != null) {
+                        DishDetailsScreen(
+                            dish = dish,
+                            onBack = { selectedDish = null },
+                        )
+                    } else {
+                        EmptyDetailPane(
+                            icon = Icons.Outlined.DinnerDining,
+                            text = stringResource(Res.string.select_dish_hint),
+                        )
+                    }
+                }
+            }
+        } else {
+            ScheduleList(
+                scheduledDays = scheduledDays,
+                onDishClick = { selectedDish = it },
+                modifier = Modifier.fillMaxSize().padding(padding),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScheduleList(
+    scheduledDays: LazyPagingItems<ScheduledDayDto>,
+    onDishClick: (DishDto) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val currentLocale = LocalLocale.current
+    Box(modifier) {
         when {
             scheduledDays.loadState.refresh is LoadState.Error -> Column(
                 modifier = Modifier.fillMaxSize()
@@ -113,7 +166,7 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel(factory = ScheduleVi
             }
 
             else -> LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(8.dp),
             ) {
                 items(
@@ -161,7 +214,7 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel(factory = ScheduleVi
                                         textAlign = TextAlign.End,
                                     )
                                 },
-                                modifier = Modifier.clickable(onClick = { selectedDish = d.dish }),
+                                modifier = Modifier.clickable(onClick = { onDishClick(d.dish) }),
                             )
                         }
                     }
