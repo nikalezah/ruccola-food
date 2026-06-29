@@ -1,8 +1,3 @@
-rootProject.name = "food"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-includeBuild("gradle/plugins")
-
 pluginManagement {
     repositories {
         google {
@@ -13,7 +8,6 @@ pluginManagement {
             }
         }
         mavenCentral()
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
         gradlePluginPortal()
     }
 }
@@ -28,18 +22,13 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+        gradlePluginPortal()
+    }
+    versionCatalogs {
+        create("libs") {
+            from(files("../libs.versions.toml"))
+        }
     }
 }
 
-include(":app:admin:androidApp")
-include(":app:admin:desktopApp")
-include(":app:admin:shared")
-include(":app:admin:webApp")
-include(":app:common")
-include(":app:customer:androidApp")
-include(":app:customer:desktopApp")
-include(":app:customer:shared")
-include(":app:customer:webApp")
-include(":core")
-include(":server")
+rootProject.name = "food-gradle-plugins"
