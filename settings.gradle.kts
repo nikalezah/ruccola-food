@@ -1,8 +1,6 @@
 rootProject.name = "food"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-includeBuild("gradle/plugins")
-
 pluginManagement {
     repositories {
         google {

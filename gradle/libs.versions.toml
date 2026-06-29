@@ -82,6 +82,63 @@ kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
+[bundles]
+compose-ui = [
+    "compose-runtime",
+    "compose-foundation",
+    "compose-animation",
+    "compose-material3",
+    "compose-ui",
+    "compose-components-resources",
+]
+lifecycle-compose = [
+    "androidx-lifecycle-viewmodelCompose",
+    "androidx-lifecycle-runtimeCompose",
+]
+paging = [
+    "androidx-paging-compose",
+    "androidx-paging-common",
+]
+ktor-client-json = [
+    "ktor-client-core",
+    "ktor-client-contentNegotiation",
+    "ktor-serialization-json",
+]
+ktor-client-android = [
+    "ktor-client-core",
+    "ktor-client-contentNegotiation",
+    "ktor-client-android",
+    "ktor-serialization-json",
+]
+android-compose-library = [
+    "compose-uiToolingPreview",
+    "androidx-activity-compose",
+    "coil-compose",
+    "androidx-appcompat",
+    "androidx-core-ktx",
+    "androidx-datastore-preferences",
+]
+android-compose-app = [
+    "androidx-activity-compose",
+    "compose-runtime",
+    "compose-foundation",
+    "compose-ui",
+    "androidx-lifecycle-viewmodelCompose",
+    "androidx-lifecycle-runtimeCompose",
+    "compose-uiToolingPreview",
+]
+desktop-app = [
+    "compose-runtime",
+    "compose-ui",
+    "androidx-lifecycle-viewmodelCompose",
+    "kotlinx-coroutines-swing",
+]
+web-app = [
+    "compose-runtime",
+    "compose-ui",
+    "androidx-lifecycle-viewmodelCompose",
+]
+
 [plugins]
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
