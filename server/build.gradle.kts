@@ -10,6 +10,7 @@ plugins {
 
 group = "kz.ruccola.food"
 version = "1.0.0"
+
 application {
     mainClass.set("kz.ruccola.food.ApplicationKt")
 

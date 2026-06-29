@@ -120,152 +120,158 @@ fun MealPlanDayEditorScreen(
     ResponsiveContainer(maxContentWidth = 640.dp) {
         Scaffold(
             topBar = {
-            TopAppBar(
-                title = {
-                    val serial = mealPlanDay?.serial ?: nextSerial
-                    val titleRes = if (mealPlanDay == null) Res.string.new_day else Res.string.edit_day
-                    Text(stringResource(titleRes, serial.toString()))
-                },
-                subtitle = { Text(stringResource(Res.string.mpd_subtitle)) },
-                navigationIcon = {
-                    IconButton(onClick = { if (!state.isSaving) onClose() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
-                    }
-                },
-                actions = {
-                    ApplyIconButton(
-                        onClick = { save() },
-                        enabled = initialized && !state.isSaving && hasChanges,
-                        contentDescription = stringResource(Res.string.save),
-                    )
-                },
-            )
-        },
-        floatingActionButton = {
-            if (initialized) {
-                var showPickerForMeal by remember { mutableStateOf<Meal?>(null) }
-                FabMenu(
-                    Meal.entries.map { meal ->
-                        val label = meal.toLocalizedString()
-                        Triple(null, label) { showPickerForMeal = meal }
+                TopAppBar(
+                    title = {
+                        val serial = mealPlanDay?.serial ?: nextSerial
+                        val titleRes = if (mealPlanDay == null) Res.string.new_day else Res.string.edit_day
+                        Text(stringResource(titleRes, serial.toString()))
+                    },
+                    subtitle = { Text(stringResource(Res.string.mpd_subtitle)) },
+                    navigationIcon = {
+                        IconButton(onClick = { if (!state.isSaving) onClose() }) {
+                            Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        }
+                    },
+                    actions = {
+                        ApplyIconButton(
+                            onClick = { save() },
+                            enabled = initialized && !state.isSaving && hasChanges,
+                            contentDescription = stringResource(Res.string.save),
+                        )
                     },
                 )
+            },
+            floatingActionButton = {
+                if (initialized) {
+                    var showPickerForMeal by remember { mutableStateOf<Meal?>(null) }
+                    FabMenu(
+                        Meal.entries.map { meal ->
+                            val label = meal.toLocalizedString()
+                            Triple(null, label) { showPickerForMeal = meal }
+                        },
+                    )
 
-                if (showPickerForMeal != null) {
-                    val mealToPick = showPickerForMeal!!
+                    if (showPickerForMeal != null) {
+                        val mealToPick = showPickerForMeal!!
 
-                    AlertDialog(
-                        onDismissRequest = { showPickerForMeal = null },
-                        title = { Text(stringResource(Res.string.pick_dish_for, mealToPick.toLocalizedString())) },
-                        text = {
-                            Box(modifier = Modifier.sizeIn(minWidth = 300.dp, maxWidth = 500.dp, maxHeight = 400.dp)) {
-                                if (pagedDishes.loadState.refresh is LoadState.Loading) {
-                                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                                } else {
-                                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        items(
-                                            count = pagedDishes.itemCount,
-                                            key = pagedDishes.itemKey { it.id },
-                                        ) { index ->
-                                            val dish = pagedDishes[index] ?: return@items
-                                            OutlinedCard(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                onClick = {
-                                                    val meal = showPickerForMeal ?: return@OutlinedCard
-                                                    val idx = localDishes.indexOfFirst { it.dish.id == dish.id }
-                                                    if (idx >= 0) {
-                                                        localDishes[idx] = localDishes[idx].copy(meal = meal)
-                                                    } else {
-                                                        localDishes.add(DishWithMealDto(dish, meal))
-                                                    }
-                                                    localDishIdToMeal[dish.id] = meal
-                                                    showPickerForMeal = null
-                                                },
-                                            ) {
-                                                Row(
-                                                    Modifier.fillMaxWidth().padding(12.dp),
-                                                    verticalAlignment = Alignment.CenterVertically,
+                        AlertDialog(
+                            onDismissRequest = { showPickerForMeal = null },
+                            title = { Text(stringResource(Res.string.pick_dish_for, mealToPick.toLocalizedString())) },
+                            text = {
+                                Box(
+                                    modifier = Modifier.sizeIn(
+                                        minWidth = 300.dp,
+                                        maxWidth = 500.dp,
+                                        maxHeight = 400.dp,
+                                    ),
+                                ) {
+                                    if (pagedDishes.loadState.refresh is LoadState.Loading) {
+                                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                                    } else {
+                                        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            items(
+                                                count = pagedDishes.itemCount,
+                                                key = pagedDishes.itemKey { it.id },
+                                            ) { index ->
+                                                val dish = pagedDishes[index] ?: return@items
+                                                OutlinedCard(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    onClick = {
+                                                        val meal = showPickerForMeal ?: return@OutlinedCard
+                                                        val idx = localDishes.indexOfFirst { it.dish.id == dish.id }
+                                                        if (idx >= 0) {
+                                                            localDishes[idx] = localDishes[idx].copy(meal = meal)
+                                                        } else {
+                                                            localDishes.add(DishWithMealDto(dish, meal))
+                                                        }
+                                                        localDishIdToMeal[dish.id] = meal
+                                                        showPickerForMeal = null
+                                                    },
                                                 ) {
-                                                    val img = dish.images.firstOrNull()
-                                                    if (img != null) {
-                                                        AsyncImage(
-                                                            model = dishImageUrl(img.url),
-                                                            contentDescription = null,
-                                                            modifier = Modifier.size(40.dp),
-                                                        )
-                                                        Spacer(Modifier.width(12.dp))
+                                                    Row(
+                                                        Modifier.fillMaxWidth().padding(12.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                    ) {
+                                                        val img = dish.images.firstOrNull()
+                                                        if (img != null) {
+                                                            AsyncImage(
+                                                                model = dishImageUrl(img.url),
+                                                                contentDescription = null,
+                                                                modifier = Modifier.size(40.dp),
+                                                            )
+                                                            Spacer(Modifier.width(12.dp))
+                                                        }
+                                                        Text(dish.name, modifier = Modifier.weight(1f))
                                                     }
-                                                    Text(dish.name, modifier = Modifier.weight(1f))
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
-                        },
-                        confirmButton = {},
-                        dismissButton = {
-                            TextButton(onClick = { showPickerForMeal = null }) {
-                                Text(stringResource(Res.string.cancel))
-                            }
-                        },
-                    )
+                            },
+                            confirmButton = {},
+                            dismissButton = {
+                                TextButton(onClick = { showPickerForMeal = null }) {
+                                    Text(stringResource(Res.string.cancel))
+                                }
+                            },
+                        )
+                    }
                 }
-            }
-        },
-    ) { padding ->
-        val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(scrollState),
-            verticalArrangement = Arrangement.Top,
-        ) {
-            if (state.error != null) {
-                Text(state.error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp))
-                Spacer(Modifier.height(8.dp))
-            }
+            },
+        ) { padding ->
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(scrollState),
+                verticalArrangement = Arrangement.Top,
+            ) {
+                if (state.error != null) {
+                    Text(state.error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp))
+                    Spacer(Modifier.height(8.dp))
+                }
 
-            if (state.isSaving || !initialized) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-            } else {
-                localDishes.forEach { d ->
-                    key(d.dish.id) {
-                        val onDelete: () -> Unit = {
-                            localDishIdToMeal.remove(d.dish.id)
-                            localDishes.removeAll { it.dish.id == d.dish.id }
-                        }
-                        SwipeToRemove(Icons.Filled.Delete, stringResource(Res.string.delete), onDelete) {
-                            ListItem(
-                                leadingContent = {
-                                    val imageUrl = d.dish.images.firstOrNull()?.url
-                                    if (imageUrl != null) {
-                                        AsyncImage(
-                                            model = dishImageUrl(imageUrl),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                if (state.isSaving || !initialized) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+                } else {
+                    localDishes.forEach { d ->
+                        key(d.dish.id) {
+                            val onDelete: () -> Unit = {
+                                localDishIdToMeal.remove(d.dish.id)
+                                localDishes.removeAll { it.dish.id == d.dish.id }
+                            }
+                            SwipeToRemove(Icons.Filled.Delete, stringResource(Res.string.delete), onDelete) {
+                                ListItem(
+                                    leadingContent = {
+                                        val imageUrl = d.dish.images.firstOrNull()?.url
+                                        if (imageUrl != null) {
+                                            AsyncImage(
+                                                model = dishImageUrl(imageUrl),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                                            )
+                                        }
+                                    },
+                                    headlineContent = { SingleLineText(d.dish.name) },
+                                    supportingContent = { SingleLineText(d.dish.description) },
+                                    trailingContent = {
+                                        val timeText = d.meal.time.let {
+                                            "${it.hour.toString().padStart(2, '0')}:${
+                                                it.minute.toString().padStart(2, '0')
+                                            }"
+                                        }
+                                        Text(
+                                            "${timeText}\n${d.meal.toLocalizedString()}",
+                                            textAlign = TextAlign.End,
+                                            style = MaterialTheme.typography.labelMedium,
                                         )
-                                    }
-                                },
-                                headlineContent = { SingleLineText(d.dish.name) },
-                                supportingContent = { SingleLineText(d.dish.description) },
-                                trailingContent = {
-                                    val timeText = d.meal.time.let {
-                                        "${it.hour.toString().padStart(2, '0')}:${
-                                            it.minute.toString().padStart(2, '0')
-                                        }"
-                                    }
-                                    Text(
-                                        "${timeText}\n${d.meal.toLocalizedString()}",
-                                        textAlign = TextAlign.End,
-                                        style = MaterialTheme.typography.labelMedium,
-                                    )
-                                },
-                            )
+                                    },
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-    }
     }
 }
 

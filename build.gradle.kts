@@ -1,6 +1,10 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import com.android.build.api.dsl.ApplicationExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+
+fun jvmTargetOf(version: String): JvmTarget = JvmTarget.valueOf("JVM_$version")
 
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
@@ -29,17 +33,38 @@ subprojects {
         }
     }
 
-    // todo: remove when explicit-backing-fields becomes a standard feature
-    tasks.withType<KotlinCompilationTask<*>>().configureEach {
-        compilerOptions {
-            freeCompilerArgs.addAll(
-                "-Xexplicit-backing-fields",
-                // "-Xreturn-value-checker=full",
-                // "-XXLanguage:+NameBasedDestructuring",
-            )
-        }
-    }
     tasks.withType<KotlinCompile>().configureEach {
         dependsOn("ktlintFormat")
+    }
+
+    afterEvaluate {
+        val androidJava = rootProject.libs.versions.java.android.get()
+        val jvmJava = rootProject.libs.versions.java.jvm.get()
+
+        extensions.findByType<ApplicationExtension>()?.compileOptions {
+            sourceCompatibility = JavaVersion.toVersion(androidJava)
+            targetCompatibility = JavaVersion.toVersion(androidJava)
+        }
+
+        extensions.findByType<KotlinJvmProjectExtension>()?.apply {
+            jvmToolchain(jvmJava.toInt())
+            compilerOptions {
+                jvmTarget.set(jvmTargetOf(jvmJava))
+            }
+        }
+
+        tasks.withType<KotlinCompile>().configureEach {
+            compilerOptions {
+                jvmTarget.set(
+                    when {
+                        name.contains("Jvm", ignoreCase = true) -> jvmTargetOf(jvmJava)
+                        name.contains("Android", ignoreCase = true) -> jvmTargetOf(androidJava)
+                        pluginManager.hasPlugin("com.android.application") -> jvmTargetOf(androidJava)
+                        pluginManager.hasPlugin("org.jetbrains.kotlin.jvm") -> jvmTargetOf(jvmJava)
+                        else -> jvmTargetOf(jvmJava)
+                    },
+                )
+            }
+        }
     }
 }

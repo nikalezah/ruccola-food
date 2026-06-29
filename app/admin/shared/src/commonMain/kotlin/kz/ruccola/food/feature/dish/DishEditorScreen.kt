@@ -96,81 +96,81 @@ fun DishEditorScreen(
     ResponsiveContainer(maxContentWidth = 640.dp) {
         Scaffold(
             topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(if (uiState.dish == null) Res.string.new_dish else Res.string.edit_dish))
-                },
-                navigationIcon = {
-                    IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
-                    }
-                },
-                actions = {
-                    val isNewDish = uiState.dish == null
-                    ApplyIconButton(
-                        onClick = { viewModel.saveDish() },
-                        enabled = allFieldsFilled && !uiState.isBusy && (isNewDish || uiState.hasChanges),
-                    )
-                },
-            )
-        },
-    ) { padding ->
-        val scrollState = rememberScrollState()
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(padding).padding(16.dp)) {
-            if (uiState.error != null) {
-                Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
-                Spacer(Modifier.height(8.dp))
-            }
-
-            SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
-                languageTabs.forEachIndexed { index, lang ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(languageNames[lang] ?: lang.name) },
-                    )
+                TopAppBar(
+                    title = {
+                        Text(stringResource(if (uiState.dish == null) Res.string.new_dish else Res.string.edit_dish))
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { if (!uiState.isBusy) onClose() }) {
+                            Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        }
+                    },
+                    actions = {
+                        val isNewDish = uiState.dish == null
+                        ApplyIconButton(
+                            onClick = { viewModel.saveDish() },
+                            enabled = allFieldsFilled && !uiState.isBusy && (isNewDish || uiState.hasChanges),
+                        )
+                    },
+                )
+            },
+        ) { padding ->
+            val scrollState = rememberScrollState()
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(padding).padding(16.dp)) {
+                if (uiState.error != null) {
+                    Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+                    Spacer(Modifier.height(8.dp))
                 }
-            }
-            Spacer(Modifier.height(12.dp))
 
-            val currentLanguage = languageTabs[selectedTabIndex]
-            OutlinedTextField(
-                value = uiState.translations[currentLanguage]?.name ?: "",
-                onValueChange = { viewModel.onTranslationNameChange(currentLanguage, it) },
-                label = { Text(stringResource(Res.string.name)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = !uiState.isBusy,
-            )
-            Spacer(Modifier.height(12.dp))
-            OutlinedTextField(
-                value = uiState.translations[currentLanguage]?.description ?: "",
-                onValueChange = { viewModel.onTranslationDescriptionChange(currentLanguage, it) },
-                label = { Text(stringResource(Res.string.description)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                enabled = !uiState.isBusy,
-            )
-
-            if (uiState.dish != null) {
-                Spacer(Modifier.height(16.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(Res.string.images), style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.weight(1f))
-                    IconButton(onClick = { imageEditorVisible = true }, enabled = !uiState.isBusy) {
-                        Icon(Icons.Outlined.EditSquare, contentDescription = "Edit images")
+                SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+                    languageTabs.forEachIndexed { index, lang ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = { Text(languageNames[lang] ?: lang.name) },
+                        )
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                SquareImagesCarousel200(imageUrls = uiState.dish?.images?.map { it.url } ?: emptyList())
-            }
+                Spacer(Modifier.height(12.dp))
 
-            if (uiState.isBusy) {
-                Spacer(Modifier.height(16.dp))
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                val currentLanguage = languageTabs[selectedTabIndex]
+                OutlinedTextField(
+                    value = uiState.translations[currentLanguage]?.name ?: "",
+                    onValueChange = { viewModel.onTranslationNameChange(currentLanguage, it) },
+                    label = { Text(stringResource(Res.string.name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    enabled = !uiState.isBusy,
+                )
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = uiState.translations[currentLanguage]?.description ?: "",
+                    onValueChange = { viewModel.onTranslationDescriptionChange(currentLanguage, it) },
+                    label = { Text(stringResource(Res.string.description)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    enabled = !uiState.isBusy,
+                )
+
+                if (uiState.dish != null) {
+                    Spacer(Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(Res.string.images), style = MaterialTheme.typography.titleMedium)
+                        Spacer(Modifier.weight(1f))
+                        IconButton(onClick = { imageEditorVisible = true }, enabled = !uiState.isBusy) {
+                            Icon(Icons.Outlined.EditSquare, contentDescription = "Edit images")
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    SquareImagesCarousel200(imageUrls = uiState.dish?.images?.map { it.url } ?: emptyList())
+                }
+
+                if (uiState.isBusy) {
+                    Spacer(Modifier.height(16.dp))
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
             }
         }
-    }
     }
 
     if (imageEditorVisible && uiState.dish != null) {

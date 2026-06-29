@@ -83,18 +83,18 @@ fun DishScreen() {
             Scaffold(
                 topBar = {
                     CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.tab_dishes)) },
-                )
+                        title = { Text(stringResource(Res.string.tab_dishes)) },
+                    )
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                    onClick = {
-                        viewModel.clearSelectedDish()
-                        editorVisible = true
-                    },
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
-                }
+                        onClick = {
+                            viewModel.clearSelectedDish()
+                            editorVisible = true
+                        },
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
+                    }
                 },
             ) { paddingValues ->
                 PullToRefresh(
@@ -104,83 +104,86 @@ fun DishScreen() {
                     state = ptrState,
                 ) {
                     when {
-                dishes.loadState.refresh is LoadState.Error -> {
-                    val error = (dishes.loadState.refresh as LoadState.Error).error
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            stringResource(Res.string.error_prefix, error.message ?: stringResource(Res.string.error)),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = {
-                                dishes.refresh()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Refresh,
-                                contentDescription = stringResource(Res.string.retry),
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(Res.string.retry))
-                        }
-                    }
-                }
-
-                dishes.itemCount == 0 && dishes.loadState.refresh !is LoadState.Loading -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(stringResource(Res.string.no_items))
-                    }
-                }
-
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize().graphicsLayer {
-                            translationY = ptrState.distanceFraction * thresholdPx
-                        },
-                    ) {
-                        items(
-                            count = dishes.itemCount,
-                            key = dishes.itemKey { it.id },
-                        ) { index ->
-                            val dish = dishes[index]
-                            if (dish != null) {
-                                DishListItem(
-                                    dish = dish,
-                                    onEdit = {
-                                        viewModel.getDishById(dish.id)
-                                        editorVisible = true
-                                    },
-                                    onArchive = {
-                                        viewModel.archiveDish(dish.id)
+                        dishes.loadState.refresh is LoadState.Error -> {
+                            val error = (dishes.loadState.refresh as LoadState.Error).error
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    stringResource(
+                                        Res.string.error_prefix,
+                                        error.message ?: stringResource(Res.string.error),
+                                    ),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(
+                                    onClick = {
                                         dishes.refresh()
                                     },
-                                )
-                            }
-                        }
-
-                        if (dishes.loadState.append is LoadState.Loading) {
-                            item {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                    contentAlignment = Alignment.Center,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                    ),
                                 ) {
-                                    CircularProgressIndicator()
+                                    Icon(
+                                        imageVector = Icons.Filled.Refresh,
+                                        contentDescription = stringResource(Res.string.retry),
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(Res.string.retry))
                                 }
                             }
                         }
-                    }
-                }
+
+                        dishes.itemCount == 0 && dishes.loadState.refresh !is LoadState.Loading -> {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(stringResource(Res.string.no_items))
+                            }
+                        }
+
+                        else -> {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize().graphicsLayer {
+                                    translationY = ptrState.distanceFraction * thresholdPx
+                                },
+                            ) {
+                                items(
+                                    count = dishes.itemCount,
+                                    key = dishes.itemKey { it.id },
+                                ) { index ->
+                                    val dish = dishes[index]
+                                    if (dish != null) {
+                                        DishListItem(
+                                            dish = dish,
+                                            onEdit = {
+                                                viewModel.getDishById(dish.id)
+                                                editorVisible = true
+                                            },
+                                            onArchive = {
+                                                viewModel.archiveDish(dish.id)
+                                                dishes.refresh()
+                                            },
+                                        )
+                                    }
+                                }
+
+                                if (dishes.loadState.append is LoadState.Loading) {
+                                    item {
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

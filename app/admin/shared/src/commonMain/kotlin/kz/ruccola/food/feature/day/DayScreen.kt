@@ -60,86 +60,86 @@ fun DayScreen(onClose: () -> Unit) {
     ResponsiveContainer(maxContentWidth = 720.dp) {
         Scaffold(
             topBar = {
-            TopAppBar(
-                title = { Text(stringResource(Res.string.screen_history_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onClose) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                TopAppBar(
+                    title = { Text(stringResource(Res.string.screen_history_title)) },
+                    navigationIcon = {
+                        IconButton(onClick = onClose) {
+                            Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(Res.string.close))
+                        }
+                    },
+                    actions = {
+                        TextButton(
+                            onClick = { vm.triggerMidnight() },
+                            enabled = !state.isTriggeringMidnight,
+                        ) {
+                            Text("Midnight")
+                        }
+                    },
+                )
+            },
+        ) { padding ->
+            PullToRefresh(
+                isRefreshing = state.isLoading,
+                onRefresh = { vm.loadDays() },
+                modifier = Modifier.fillMaxSize().padding(padding),
+                state = ptrState,
+            ) {
+                when {
+                    state.error != null -> {
+                        Column(
+                            Modifier.align(Alignment.Center).padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.error_prefix, state.error ?: ""),
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Button(onClick = { vm.loadDays() }) { Text(stringResource(Res.string.retry)) }
+                        }
                     }
-                },
-                actions = {
-                    TextButton(
-                        onClick = { vm.triggerMidnight() },
-                        enabled = !state.isTriggeringMidnight,
-                    ) {
-                        Text("Midnight")
-                    }
-                },
-            )
-        },
-    ) { padding ->
-        PullToRefresh(
-            isRefreshing = state.isLoading,
-            onRefresh = { vm.loadDays() },
-            modifier = Modifier.fillMaxSize().padding(padding),
-            state = ptrState,
-        ) {
-            when {
-                state.error != null -> {
-                    Column(
-                        Modifier.align(Alignment.Center).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.error_prefix, state.error ?: ""),
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Button(onClick = { vm.loadDays() }) { Text(stringResource(Res.string.retry)) }
-                    }
-                }
 
-                !state.isLoading && state.days.isEmpty() -> {
-                    Column(
-                        Modifier.align(Alignment.Center).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(stringResource(Res.string.no_days_found))
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            stringResource(Res.string.click_midnight_to_start),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                    !state.isLoading && state.days.isEmpty() -> {
+                        Column(
+                            Modifier.align(Alignment.Center).padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(stringResource(Res.string.no_days_found))
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                stringResource(Res.string.click_midnight_to_start),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
                     }
-                }
 
-                else -> {
-                    LazyColumn(
-                        Modifier.fillMaxSize().padding(16.dp).graphicsLayer {
-                            translationY = ptrState.distanceFraction * thresholdPx
-                        },
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(state.days) { day ->
-                            DayItem(day)
+                    else -> {
+                        LazyColumn(
+                            Modifier.fillMaxSize().padding(16.dp).graphicsLayer {
+                                translationY = ptrState.distanceFraction * thresholdPx
+                            },
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            items(state.days) { day ->
+                                DayItem(day)
+                            }
                         }
                     }
                 }
-            }
 
-            if (state.isTriggeringMidnight) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Card {
-                        Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                            Spacer(Modifier.height(16.dp))
-                            Text(stringResource(Res.string.triggering_midnight))
+                if (state.isTriggeringMidnight) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Card {
+                            Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator()
+                                Spacer(Modifier.height(16.dp))
+                                Text(stringResource(Res.string.triggering_midnight))
+                            }
                         }
                     }
                 }
             }
         }
-    }
     }
 }
 

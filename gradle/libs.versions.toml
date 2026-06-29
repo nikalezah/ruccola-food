@@ -1,4 +1,6 @@
 [versions]
+java-android = "17"
+java-jvm = "25"
 dependency-analysis = "3.15.0"
 agp = "9.0.0"
 android-compileSdk = "36"
