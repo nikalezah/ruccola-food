@@ -1,90 +1,76 @@
-# Shared Module
+# Core Module
 
-This document describes the shared Kotlin Multiplatform module used by all applications.
+Shared Kotlin Multiplatform library used by client apps and aligned with the server API. Contains
+HTTP clients, request/response DTOs, domain enums, and platform-neutral utilities — no UI code.
 
-## Overview
+## Source sets
 
-The shared module provides common code, API clients, UI components, and theming across all targets: Android, Web (
-JS/Wasm), JVM (server), and platform-specific implementations.
-
-## Source Sets
-
-| Source Set    | Description                      |
+| Source set    | Description                      |
 |---------------|----------------------------------|
 | `commonMain`  | Shared code for all platforms    |
 | `androidMain` | Android-specific implementations |
 | `webMain`     | Shared web code (JS + Wasm)      |
 | `jsMain`      | JavaScript-specific code         |
 | `wasmJsMain`  | Wasm-specific code               |
-| `jvmMain`     | JVM/server-specific code         |
+| `jvmMain`     | JVM-specific code                |
 
-## API Clients
+The primary code lives under `src/commonMain/kotlin`. Add platform-specific code under the
+corresponding source set when needed.
 
-HTTP clients for communicating with the server backend:
+## API clients
 
-- `AuthApi` - Authentication endpoints
-- `DishApi` - Dish CRUD operations
-- `CustomerApi` - Customer management
-- `DayApi` - Day and daily dish operations
-- `MealPlanDayApi` - Meal plan day operations
-- `PlanApi` - Plan management
-- `ChatApi` - Chat messaging
-- `FileApi` - File upload/download
+Typed Ktor HTTP clients for the REST API (all paths are prefixed with `/api/`):
 
-The shared `HttpClient` configures the Ktor HTTP client with JSON serialization and authentication.
+| Client           | Responsibility                                       |
+|------------------|------------------------------------------------------|
+| `AuthApi`        | Registration, login, and session                     |
+| `DishApi`        | Dish CRUD and image management                       |
+| `CustomerApi`    | Customer profile, preferences, and plan subscription |
+| `DayApi`         | Calendar schedule and daily dish assignments         |
+| `MealPlanDayApi` | Meal plan day templates and rotation                 |
+| `PlanApi`        | Subscription plan management                         |
+| `ChatApi`        | Chat threads and messages                            |
+| `FileApi`        | File upload and download                             |
 
-## Data Models
+`HttpClient` configures the shared Ktor client with JSON serialization and bearer-token
+authentication.
 
-Shared data transfer objects and models:
+## Data models
 
-- `DishWithMealDto` - Dish with associated meal information
-- `PlanDays` - Plan day associations
-- `PlanCalories` - Calorie information
-- `Meal` - Meal type enum
+### Domain enums and value types (`model/`)
 
-## UI Components
+- `Meal` — meal slot in a day (breakfast, brunch, lunch, afternoon snack, dinner) with a default time
+- `PlanCalories` — allowed calorie tiers for subscription plans
+- `PlanDays` — allowed billing-period lengths for subscription plans
 
-Reusable Compose Multiplatform components:
+### API DTOs (`api/`)
 
-- `LabeledNavigationBar` - Bottom navigation with labels
-- `PullToRefresh` - Pull-to-refresh container
-- `ChatUi` - Chat message UI components
-- `AsyncImage` - Async image loading with Coil
-- `SwipeToRemove` - Swipe-to-dismiss container
-- `SquareImagesCarousel200` - Image carousel (200dp)
-- `HorizontalUncontainedCarousel` - Horizontal carousel
-- `ToggleButtonsRow` - Toggle button group
-- `FabMenu` - Floating action button menu
-- `BackHandler` - Back button handler
-- `SingleLineText` - Single-line text component
-- `ApplyIconButton` - Styled icon button
+DTOs are co-located with their API client. Key types include:
 
-## Theming
+- `DishDto`, `DishWithMealDto`, `DishWithTranslationsDto` — dish catalog
+- `MealPlanDayDto` — meal plan day template with assigned dishes
+- `DayDto` — calendar day with assigned dishes
+- `PlanDto` — subscription plan
+- `CustomerDto`, `CustomerPlanDetailsDto`, `ScheduledDayDto` — customer and schedule
+- `ChatDto`, `MessageDto` — chat messaging
+- `AuthResponseDto`, `UserDto` — authentication
 
-Custom Material 3 color schemes:
-
-- `GreenLightColorScheme` - Light green theme
-- `GreenDarkColorScheme` - Dark green theme
-- `BaselineLightColorScheme` - Baseline light theme
-- `BaselineDarkColorScheme` - Baseline dark theme
-- `ThemePreference` - Theme preference management
+`PagingResponse<T>` wraps paginated list endpoints.
 
 ## Utilities
 
-- `DateUtils` - Date formatting and manipulation
-- `DishUiUtils` - Dish-related UI utilities
-- `Constants` - Application constants
-- `BaseUrl` - API base URL configuration
-- `Locale` - Localization support
-- `ApiPagingSource` - Paging source for API data
+| Symbol            | Purpose                                      |
+|-------------------|----------------------------------------------|
+| `BaseUrl`         | API base URL per platform                    |
+| `Constants`       | Shared application constants                 |
+| `Language`        | Supported content languages (EN, RU, KK)     |
+| `ApiPagingSource` | Paging source adapter for API list endpoints |
 
 ## Dependencies
 
-Key dependencies:
-
-- Compose Multiplatform (runtime, foundation, material3, animation)
-- Ktor Client (core, resources, content negotiation, auth)
+- Ktor Client (core, content negotiation, auth, resources)
 - kotlinx.serialization
 - kotlinx.datetime
-- Coil (image loading, Android only)
 - AndroidX Paging (common)
+
+UI components, theming, and Compose-specific utilities live in [app/common](../app/common/README.md).

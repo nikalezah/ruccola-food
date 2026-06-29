@@ -1,110 +1,69 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, and Server with separate Admin and Customer
-apps.
+# Ruccola Food
 
-* `/app/admin/androidApp` and `/app/customer/androidApp` are the Android application entry points (AGP 9).
-* `/app/admin/iosApp` and `/app/customer/iosApp` are the iOS application entry points (Xcode).
-* `/app/admin/desktopApp/src` and `/app/customer/desktopApp/src` are the Desktop application entry points.
-* `/app/admin/shared/src` is the Admin KMP library used by Android, iOS, Web, and Desktop.
-* `/app/admin/webApp/src` is the Admin Web application entry point.
-* `/app/customer/shared/src` is the Customer KMP library used by Android, iOS, Web, and Desktop.
-* `/app/customer/webApp/src` is the Customer Web application entry point.
-* `/app/common/src` is shared Compose/UI, theme, auth (`LoginViewModel`), and composable primitives used by both apps.
-* Admin and customer shared code use `feature/` packages (multi-file domains in `feature/<name>/`, single screens in
-  `feature/`).
-* `/server/src/main/kotlin` is for the Ktor server application.
-* `/core/src` is for API contracts, models, and platform-neutral code shared between apps and server. The most
-  important subfolder is `/core/src/commonMain/kotlin`. You can add platform-specific code under the corresponding
-  source sets.
+A meal subscription and delivery management platform. Staff configure menus and subscription
+offerings; customers subscribe to a plan and follow their personal meal schedule.
 
-### Build and Run Android Applications
+Built as a Kotlin Multiplatform monorepo: a shared backend, a shared API contract layer, and two
+client applications (Admin and Customer) for Android, iOS, Web, and Desktop.
 
-To build and run the development version of the Android apps, use the run configuration from the run widget
-in your IDE's toolbar or build them directly from the terminal:
+## How it works
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :app:admin:androidApp:assembleDebug
-  ./gradlew :app:customer:androidApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :app:admin:androidApp:assembleDebug
-  .\gradlew.bat :app:customer:androidApp:assembleDebug
-  ```
+### Dishes
 
-### Build and Run Server
+The dish catalog stores meals with localized names (English, Russian, Kazakh), images, and metadata.
+Dishes are the building blocks for every menu.
 
-To build and run the development version of the server, use the run configuration from the run widget
-in your IDE's toolbar or run it directly from the terminal:
+### Meal plan days
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :server:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :server:run
-  ```
+A **meal plan day** is a reusable daily template: a numbered slot in a rotating cycle (day 1, day 2,
+…). Each template assigns dishes to meal times — breakfast, brunch, lunch, afternoon snack, and
+dinner. Exactly one meal plan day is marked **current** at a time; the cycle advances to the next
+serial when staff roll the plan forward.
 
-### Build and Run Web Applications
+### Days (schedule)
 
-To build and run the development version of the web apps, use the run configuration from the run widget
-in your IDE's toolbar or run them directly from the terminal:
+A **day** is a calendar date with the dishes that will be delivered on that date. Staff copy dishes
+from a meal plan day onto specific dates to build the delivery schedule. Customers see this schedule
+in their app.
 
-- for the Wasm target (faster, modern browsers):
-    - on macOS/Linux
-      ```shell
-      ./gradlew :app:admin:webApp:wasmJsBrowserDevelopmentRun
-      ./gradlew :app:customer:webApp:wasmJsBrowserDevelopmentRun
-      ```
-    - on Windows
-      ```shell
-      .\gradlew.bat :app:admin:webApp:wasmJsBrowserDevelopmentRun
-      .\gradlew.bat :app:customer:webApp:wasmJsBrowserDevelopmentRun
-      ```
-- for the JS target (slower, supports older browsers):
-    - on macOS/Linux
-      ```shell
-      ./gradlew :app:admin:webApp:jsBrowserDevelopmentRun
-      ./gradlew :app:customer:webApp:jsBrowserDevelopmentRun
-      ```
-    - on Windows
-      ```shell
-      .\gradlew.bat :app:admin:webApp:jsBrowserDevelopmentRun
-      .\gradlew.bat :app:customer:webApp:jsBrowserDevelopmentRun
-      ```
+### Plans
 
-### Build and Run Desktop Applications
+A **plan** is a subscription product defined by a calorie tier, a billing period (number of days),
+and a price per day. Customers choose a plan when subscribing.
 
-To build and run the development version of the desktop apps, use the run configuration from the run widget
-in your IDE's toolbar or run them directly from the terminal:
+### Customers
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :app:admin:desktopApp:run
-  ./gradlew :app:customer:desktopApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :app:admin:desktopApp:run
-  .\gradlew.bat :app:customer:desktopApp:run
-  ```
+A **customer** is an end user with a profile, delivery preferences, and an active (or historical)
+plan assignment. Staff manage customers from the admin app; customers register and manage their own
+account from the customer app.
 
-### Build and Run iOS Applications
+### Chat
 
-iOS apps require macOS with Xcode installed. Open the Xcode project, select a simulator or device, and run.
+Each customer can have a chat thread with staff for support. Messaging is implemented on the server
+and in both apps, but the UI entry points are currently disabled (see app READMEs for how to
+re-enable).
 
-- Admin: open `app/admin/iosApp/iosApp.xcodeproj` in Xcode
-- Customer: open `app/customer/iosApp/iosApp.xcodeproj` in Xcode
+### Files
 
-Before the first run, set your development team in `Configuration/Config.xcconfig` if needed.
+Dish images and other uploads are stored on the server and referenced by URL.
 
-The Xcode build invokes Gradle to compile the shared Kotlin framework (`AdminShared` or `CustomerShared`).
-`BASE_URL` is `http://localhost:8080` for the iOS Simulator; on a physical device, use your machine's LAN IP instead.
+## Applications
 
----
+| Application  | Role                                                                                    |
+|--------------|-----------------------------------------------------------------------------------------|
+| **Admin**    | Manage dishes, meal plan days, the delivery schedule, subscription plans, and customers |
+| **Customer** | Register, subscribe to a plan, view the meal schedule, and manage profile settings      |
 
-Learn more about Kotlin Multiplatform, Compose Multiplatform, and Kotlin/Wasm:
-- https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html
-- https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform
-- https://kotl.in/wasm/
+Both apps share authentication, theming, and UI primitives from a common module and talk to the same
+REST API.
+
+## Documentation
+
+| Module                                               | Description                                                           |
+|------------------------------------------------------|-----------------------------------------------------------------------|
+| [core](core/README.md)                               | Shared API contracts, DTOs, HTTP clients, and platform-neutral models |
+| [server](server/README.md)                           | Ktor backend, database, REST API, and deployment                      |
+| [app](app/README.md)                                 | Client applications overview and project layout                       |
+| [app/common](app/common/README.md)                   | Shared Compose UI, theming, auth, and adaptive layouts                |
+| [app/admin/shared](app/admin/shared/README.md)       | Admin application — features, architecture, and build                 |
+| [app/customer/shared](app/customer/shared/README.md) | Customer application — features, architecture, and build              |
