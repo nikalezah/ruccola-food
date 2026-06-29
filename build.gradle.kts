@@ -55,15 +55,10 @@ subprojects {
 
         tasks.withType<KotlinCompile>().configureEach {
             compilerOptions {
-                jvmTarget.set(
-                    when {
-                        name.contains("Jvm", ignoreCase = true) -> jvmTargetOf(jvmJava)
-                        name.contains("Android", ignoreCase = true) -> jvmTargetOf(androidJava)
-                        pluginManager.hasPlugin("com.android.application") -> jvmTargetOf(androidJava)
-                        pluginManager.hasPlugin("org.jetbrains.kotlin.jvm") -> jvmTargetOf(jvmJava)
-                        else -> jvmTargetOf(jvmJava)
-                    },
-                )
+                val isAndroid =
+                    name.contains("Android", ignoreCase = true) ||
+                        pluginManager.hasPlugin("com.android.application")
+                jvmTarget.set(if (isAndroid) jvmTargetOf(androidJava) else jvmTargetOf(jvmJava))
             }
         }
     }
