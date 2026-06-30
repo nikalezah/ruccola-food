@@ -15,9 +15,10 @@ import io.ktor.server.config.ApplicationConfig
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.authHeader
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.loginAdmin
+import kz.ruccola.food.registerCustomer
 import kz.ruccola.food.testApp
 import java.io.File
 import kotlin.test.BeforeTest
@@ -26,14 +27,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class FileRoutesTest {
+class FileRoutesTest : RouteIntegrationTest() {
     private val storagePath = ApplicationConfig("application-test.conf").property("ktor.storage.path").getString()
 
     @BeforeTest
     fun cleanUploadsDir() {
-        // Initialize a test database to ensure routes have DB access
-        initializeTestDatabase()
-        // Ensure the files directory is clean before each test run to avoid filename collisions
         val dir = File(storagePath)
         if (dir.exists()) {
             dir.listFiles()?.forEach { it.delete() }
@@ -47,7 +45,6 @@ class FileRoutesTest {
         testApp { client ->
             val token = client.loginAdmin()
 
-            // Upload a file via multipart
             val filename = "test.txt"
             val contentBytes = "hello world".toByteArray()
 
@@ -94,22 +91,16 @@ class FileRoutesTest {
             assertEquals(contentBytes.size.toLong(), size)
             assertEquals("text/plain", mime)
 
-            // Verify file exists on disk
             val diskFile = File(storagePath, returnedFilename)
             assertTrue(diskFile.exists(), "Uploaded file should exist on disk")
             assertEquals(contentBytes.size.toLong(), diskFile.length())
 
-            // Delete the file via API
             val deleteResponse = client.delete("/api/files/$id") { authHeader(token) }
             assertEquals(HttpStatusCode.OK, deleteResponse.status)
 
-            // After deletion, the file should not exist
             assertTrue(!diskFile.exists(), "Uploaded file should be removed from disk after deletion")
 
-            // The second delete should return 404
-            val deleteAgain = client.delete("/api/files/$id") {
-                authHeader(token)
-            }
+            val deleteAgain = client.delete("/api/files/$id") { authHeader(token) }
             assertEquals(HttpStatusCode.NotFound, deleteAgain.status)
         }
 
@@ -118,15 +109,33 @@ class FileRoutesTest {
         testApp { client ->
             val token = client.loginAdmin()
 
-            // POST without a file part returns 400
             val badPost = client.post("/api/files") {
                 authHeader(token)
                 setBody(MultiPartFormDataContent(formData { }))
             }
             assertEquals(HttpStatusCode.BadRequest, badPost.status)
 
-            // DELETE with invalid id returns 400
             val badDelete = client.delete("/api/files/abc") { authHeader(token) }
             assertEquals(HttpStatusCode.BadRequest, badDelete.status)
+        }
+
+    @Test
+    fun testUploadUnauthorized() =
+        testApp { client ->
+            val response = client.post("/api/files") {
+                setBody(MultiPartFormDataContent(formData { }))
+            }
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+    @Test
+    fun testUploadForbiddenForCustomer() =
+        testApp { client ->
+            val token = client.registerCustomer().token
+            val response = client.post("/api/files") {
+                authHeader(token)
+                setBody(MultiPartFormDataContent(formData { }))
+            }
+            assertEquals(HttpStatusCode.Forbidden, response.status)
         }
 }

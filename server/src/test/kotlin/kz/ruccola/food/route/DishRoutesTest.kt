@@ -15,17 +15,18 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishTranslation
 import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.authHeader
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.localization.Language
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.DishTranslations
 import kz.ruccola.food.model.Dishes
 import kz.ruccola.food.model.Files
 import kz.ruccola.food.now
+import kz.ruccola.food.registerCustomer
 import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.deleteAll
@@ -33,18 +34,12 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class DishRoutesTest {
-    @BeforeTest
-    fun setup() {
-        initializeTestDatabase()
-    }
-
+class DishRoutesTest : RouteIntegrationTest() {
     @Test
     fun testGetDishByIdApi() =
         testApp { client ->
@@ -569,5 +564,13 @@ class DishRoutesTest {
                 val responseText = bodyAsText()
                 assertTrue(responseText.contains("At least one field"))
             }
+        }
+
+    @Test
+    fun testCustomerForbiddenToListDishes() =
+        testApp { client ->
+            val token = client.registerCustomer().token
+            client.get("/api/dishes") { authHeader(token) }
+                .apply { assertEquals(HttpStatusCode.Forbidden, status) }
         }
 }

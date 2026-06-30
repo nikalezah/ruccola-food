@@ -15,26 +15,20 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.api.DishCreateDto
 import kz.ruccola.food.api.DishTranslation
 import kz.ruccola.food.api.MealPlanDaySaveDto
 import kz.ruccola.food.api.MealPlanDaysReorderDto
 import kz.ruccola.food.authHeader
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.localization.Language
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.Meal
 import kz.ruccola.food.testApp
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MealPlanDayRoutesTest {
-    @BeforeTest
-    fun setup() {
-        initializeTestDatabase()
-    }
-
+class MealPlanDayRoutesTest : RouteIntegrationTest() {
     @Test
     fun testListSaveDelete() =
         testApp { client ->

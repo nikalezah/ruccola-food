@@ -16,11 +16,11 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.PlanCreateDto
 import kz.ruccola.food.api.PlanUpdateDto
 import kz.ruccola.food.authHeader
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.loginAdmin
 import kz.ruccola.food.model.CustomerPlans
 import kz.ruccola.food.model.PlanCalories
@@ -34,17 +34,11 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class PlanRoutesTest {
-    @BeforeTest
-    fun setup() {
-        initializeTestDatabase()
-    }
-
+class PlanRoutesTest : RouteIntegrationTest() {
     @Test
     fun testCrud() =
         testApp { client ->
@@ -265,6 +259,32 @@ class PlanRoutesTest {
                 assertEquals(1800, obj["calories"]!!.jsonPrimitive.int)
                 assertEquals(2000, obj["pricePerDay"]!!.jsonPrimitive.int)
                 assertEquals(25, obj["days"]!!.jsonPrimitive.int)
+            }
+        }
+
+    @Test
+    fun testCreatePlanNegativePrice() =
+        testApp { client ->
+            val token = client.loginAdmin()
+            client.post("/api/plans") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, -100))
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+            }
+        }
+
+    @Test
+    fun testCustomerForbiddenToCreatePlan() =
+        testApp { client ->
+            val token = client.registerCustomer().token
+            client.post("/api/plans") {
+                authHeader(token)
+                contentType(ContentType.Application.Json)
+                setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000))
+            }.apply {
+                assertEquals(HttpStatusCode.Forbidden, status)
             }
         }
 }

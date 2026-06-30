@@ -8,8 +8,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.authHeader
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.localization.Language
 import kz.ruccola.food.model.DishTranslations
 import kz.ruccola.food.model.Dishes
@@ -21,17 +21,11 @@ import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class CustomerScheduleRoutesTest {
-    @BeforeTest
-    fun setup() {
-        initializeTestDatabase()
-    }
-
+class CustomerScheduleRoutesTest : RouteIntegrationTest() {
     @Test
     fun testCustomerWeekPlanWrapsAndHasSevenItems() =
         testApp { client ->
@@ -126,5 +120,24 @@ class CustomerScheduleRoutesTest {
             val day2Dishes = arr[2].jsonObject["dishes"]!!.jsonArray
             val names2 = day2Dishes.map { it.jsonObject["dish"]!!.jsonObject["name"]!!.jsonPrimitive.content }
             assertTrue(names2.contains("А"))
+        }
+
+    @Test
+    fun testCustomerWeekPlanWithNoMealPlanDays() =
+        testApp { client ->
+            val token = client.registerCustomer().token
+            val pageSize = 7
+            val resp = client.get("/api/customers/schedule") {
+                authHeader(token)
+                parameter("page", 0)
+                parameter("size", pageSize)
+            }
+            assertEquals(HttpStatusCode.OK, resp.status)
+            val json = Json.parseToJsonElement(resp.bodyAsText()).jsonObject
+            val arr = json["items"]!!.jsonArray
+            assertEquals(pageSize, arr.size)
+            arr.forEach { day ->
+                assertEquals(0, day.jsonObject["dishes"]!!.jsonArray.size)
+            }
         }
 }

@@ -9,29 +9,23 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.datetime.LocalDate
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.api.CustomerPlanCreateDto
 import kz.ruccola.food.api.CustomerPlanWithPrefsDto
 import kz.ruccola.food.api.CustomerPrefsDto
 import kz.ruccola.food.api.CustomerPrefsUpdateDto
 import kz.ruccola.food.authHeader
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.model.Plans
 import kz.ruccola.food.registerCustomer
 import kz.ruccola.food.testApp
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class PrefsRoutesTest {
-    @BeforeTest
-    fun setup() {
-        initializeTestDatabase()
-    }
-
+class PrefsRoutesTest : RouteIntegrationTest() {
     @Test
     fun testGetPrefsNoPlan() =
         testApp { client ->

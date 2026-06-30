@@ -48,7 +48,7 @@ suspend fun HttpClient.loginAdmin(): String {
     return json["token"]!!.jsonPrimitive.content
 }
 
-suspend fun HttpClient.registerCustomer(email: String = "jonh@doe.com"): AuthResponseDto {
+suspend fun HttpClient.registerCustomer(email: String = uniqueEmail()): AuthResponseDto {
     val response = post("/api/auth/register") {
         contentType(ContentType.Application.Json)
         setBody(RegisterRequestDto(email, "password", "password", "John", "Doe", "123 Main St"))

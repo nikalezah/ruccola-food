@@ -9,21 +9,15 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kz.ruccola.food.RouteIntegrationTest
 import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.api.RegisterRequestDto
-import kz.ruccola.food.initializeTestDatabase
 import kz.ruccola.food.testApp
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class AuthRoutesTest {
-    @BeforeTest
-    fun setup() {
-        initializeTestDatabase()
-    }
-
+class AuthRoutesTest : RouteIntegrationTest() {
     @Test
     fun testAdminLoginSuccess() =
         testApp { client ->
@@ -53,6 +47,16 @@ class AuthRoutesTest {
         }
 
     @Test
+    fun testLoginUnknownEmail() =
+        testApp { client ->
+            val response = client.post("/api/auth/login") {
+                contentType(ContentType.Application.Json)
+                setBody(LoginRequestDto("nobody@example.com", "secret"))
+            }
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+    @Test
     fun testRegisterAndLoginCustomer() =
         testApp { client ->
             val registerResp = client.post("/api/auth/register") {
@@ -72,5 +76,39 @@ class AuthRoutesTest {
             assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
             val user = json["user"]!!.jsonObject
             assertEquals("CUSTOMER", user["role"]!!.jsonPrimitive.content)
+        }
+
+    @Test
+    fun testRegisterPasswordMismatch() =
+        testApp { client ->
+            val response = client.post("/api/auth/register") {
+                contentType(ContentType.Application.Json)
+                setBody(RegisterRequestDto("a@b.com", "one", "two", "John", "Doe", "123 Main St"))
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun testRegisterBlankAddress() =
+        testApp { client ->
+            val response = client.post("/api/auth/register") {
+                contentType(ContentType.Application.Json)
+                setBody(RegisterRequestDto("a@b.com", "pass", "pass", "John", "Doe", "   "))
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun testRegisterDuplicateEmail() =
+        testApp { client ->
+            val body = RegisterRequestDto("dup@example.com", "pass", "pass", "John", "Doe", "123 Main St")
+            client.post("/api/auth/register") {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }.apply { assertEquals(HttpStatusCode.Created, status) }
+            client.post("/api/auth/register") {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }.apply { assertEquals(HttpStatusCode.Conflict, status) }
         }
 }

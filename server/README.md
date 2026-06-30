@@ -110,10 +110,13 @@ docker compose up --build
 
 ## Tests
 
-Integration tests use the `postgres_test` database (port 5433). Start it before running server
-tests:
+Integration tests use [Testcontainers](https://testcontainers.com/) to start an isolated PostgreSQL
+instance automatically. Docker Desktop must be running (Docker Engine 29+ requires API 1.44; configured
+via [`server/src/test/resources/docker-java.properties`](src/test/resources/docker-java.properties)):
 
 ```shell
-docker compose up postgres_test -d
 ./gradlew :server:test
 ```
+
+The `postgres_test` service in docker-compose is optional and only needed for manual database
+debugging.

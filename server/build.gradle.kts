@@ -50,4 +50,11 @@ dependencies {
     testImplementation(libs.ktor.server.testHost)
     testImplementation(libs.ktor.client.contentNegotiation)
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.postgresql.jdbc)
+}
+
+tasks.test {
+    maxParallelForks = 1
 }

@@ -35,7 +35,6 @@ import kz.ruccola.food.service.JwtService
 import kz.ruccola.food.service.MealPlanDayService
 import kz.ruccola.food.service.UserService
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
-import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import java.io.File
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
@@ -130,22 +129,6 @@ fun Application.configureDatabase() {
         password = password,
     )
     runBlocking {
-        DatabaseMigration.migrate()
-    }
-}
-
-fun initializeTestDatabase() {
-    R2dbcDatabase.connect(
-        url = "r2dbc:postgresql://localhost:5433/food",
-        driver = "postgresql",
-        user = "food",
-        password = "food",
-    )
-    runBlocking {
-        suspendTransaction {
-            exec("DROP SCHEMA IF EXISTS public CASCADE;")
-            exec("CREATE SCHEMA public;")
-        }
         DatabaseMigration.migrate()
     }
 }
