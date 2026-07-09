@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.dp
 /**
  * Caps the width of its [content] to [maxContentWidth] so that "feed" / form style screens don't
  * stretch edge-to-edge on wide windows (a key Material 3 readability guideline). The content is
- * aligned to the start so it stays visually attached to the side navigation rail instead of floating
+ * aligned to the start, so it stays visually attached to the side navigation rail instead of floating
  * in the middle with a large empty gap. On compact widths the cap has no effect, so the content
  * simply fills the available width.
  *
  * Wrap a whole screen `Scaffold` with this (rather than just its inner content) so that the top bar,
- * floating action button and other controls stay next to the content at the same width.
+ * floating action button, and other controls stay next to the content at the same width.
  */
 @Composable
 fun ResponsiveContainer(

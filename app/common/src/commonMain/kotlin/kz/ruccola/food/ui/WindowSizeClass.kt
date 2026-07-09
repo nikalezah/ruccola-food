@@ -10,8 +10,8 @@ import androidx.compose.ui.unit.dp
  *
  * Breakpoints follow the M3 window size class guidelines:
  *  - [Compact]: width < 600dp (phones, narrow windows)
- *  - [Medium]: 600dp..<840dp (small tablets, split windows)
- *  - [Expanded]: >= 840dp (tablets in landscape, desktop, wide browser windows)
+ *  - [Medium]: 600dp <= width < 840dp (small tablets, split windows)
+ *  - [Expanded]: width >= 840dp (tablets in landscape, desktop, wide browser windows)
  */
 enum class WindowWidthClass {
     Compact,
