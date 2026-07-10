@@ -22,8 +22,8 @@ plugins {
 
 subprojects {
     // todo: uncomment when works with all KMP targets
-    // apply(plugin = rootProject.libs.plugins.dependencyAnalysis.get().pluginId)
-    apply(plugin = rootProject.libs.plugins.ktlint.get().pluginId)
+    // pluginManager.apply(rootProject.libs.plugins.dependencyAnalysis.get().pluginId)
+    pluginManager.apply(rootProject.libs.plugins.ktlint.get().pluginId)
 
     configure<KtlintExtension> {
         version.set(rootProject.libs.versions.ktlint.engine)
