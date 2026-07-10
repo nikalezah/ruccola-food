@@ -20,11 +20,8 @@ plugins {
     alias(libs.plugins.ktlint) apply false
 }
 
-subprojects {
-    // todo: uncomment when works with all KMP targets
-    // pluginManager.apply(rootProject.libs.plugins.dependencyAnalysis.get().pluginId)
+allprojects {
     pluginManager.apply(rootProject.libs.plugins.ktlint.get().pluginId)
-
     configure<KtlintExtension> {
         version.set(rootProject.libs.versions.ktlint.engine)
         ignoreFailures.set(true)
@@ -32,6 +29,11 @@ subprojects {
             exclude { it.file.path.contains("${File.separator}build${File.separator}") }
         }
     }
+}
+
+subprojects {
+    // todo: uncomment when works with all KMP targets
+    // pluginManager.apply(rootProject.libs.plugins.dependencyAnalysis.get().pluginId)
 
     tasks.withType<KotlinCompile>().configureEach {
         dependsOn("ktlintFormat")
