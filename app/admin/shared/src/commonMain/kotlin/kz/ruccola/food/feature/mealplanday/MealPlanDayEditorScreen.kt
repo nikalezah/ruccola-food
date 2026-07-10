@@ -78,11 +78,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MealPlanDayEditorScreen(
-    mealPlanDay: MealPlanDayDto?,
-    nextSerial: Int,
-    onClose: () -> Unit,
-) {
+fun MealPlanDayEditorScreen(mealPlanDay: MealPlanDayDto?, nextSerial: Int, onClose: () -> Unit) {
     val vm: MealPlanDayViewModel = viewModel(factory = MealPlanDayViewModel.factory())
     val dishVm: DishViewModel = viewModel(factory = DishViewModel.factory())
     val state by vm.uiState.collectAsState()
@@ -103,14 +99,11 @@ fun MealPlanDayEditorScreen(
         initialized = true
     }
 
-    val initialDishIdToMeal = remember(mealPlanDay?.id) {
-        mealPlanDay?.dishes?.associate { it.dish.id to it.meal } ?: emptyMap()
-    }
-    val initialDishIds = remember(mealPlanDay?.id) {
-        mealPlanDay?.dishes?.map { it.dish.id }?.toSet() ?: emptySet()
-    }
-    val hasChanges = localDishIdToMeal.toMap() != initialDishIdToMeal ||
-        localDishes.map { it.dish.id }.toSet() != initialDishIds
+    val initialDishIdToMeal =
+        remember(mealPlanDay?.id) { mealPlanDay?.dishes?.associate { it.dish.id to it.meal } ?: emptyMap() }
+    val initialDishIds = remember(mealPlanDay?.id) { mealPlanDay?.dishes?.map { it.dish.id }?.toSet() ?: emptySet() }
+    val hasChanges =
+        localDishIdToMeal.toMap() != initialDishIdToMeal || localDishes.map { it.dish.id }.toSet() != initialDishIds
 
     fun save() {
         vm.save(mealPlanDay?.id, localDishIdToMeal.toMap())
@@ -148,7 +141,7 @@ fun MealPlanDayEditorScreen(
                         Meal.entries.map { meal ->
                             val label = meal.toLocalizedString()
                             Triple(null, label) { showPickerForMeal = meal }
-                        },
+                        }
                     )
 
                     if (showPickerForMeal != null) {
@@ -159,11 +152,7 @@ fun MealPlanDayEditorScreen(
                             title = { Text(stringResource(Res.string.pick_dish_for, mealToPick.toLocalizedString())) },
                             text = {
                                 Box(
-                                    modifier = Modifier.sizeIn(
-                                        minWidth = 300.dp,
-                                        maxWidth = 500.dp,
-                                        maxHeight = 400.dp,
-                                    ),
+                                    modifier = Modifier.sizeIn(minWidth = 300.dp, maxWidth = 500.dp, maxHeight = 400.dp)
                                 ) {
                                     if (pagedDishes.loadState.refresh is LoadState.Loading) {
                                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -171,8 +160,7 @@ fun MealPlanDayEditorScreen(
                                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                             items(
                                                 count = pagedDishes.itemCount,
-                                                key = pagedDishes.itemKey { it.id },
-                                            ) { index ->
+                                                key = pagedDishes.itemKey { it.id }) { index ->
                                                 val dish = pagedDishes[index] ?: return@items
                                                 OutlinedCard(
                                                     modifier = Modifier.fillMaxWidth(),
@@ -254,11 +242,12 @@ fun MealPlanDayEditorScreen(
                                     headlineContent = { SingleLineText(d.dish.name) },
                                     supportingContent = { SingleLineText(d.dish.description) },
                                     trailingContent = {
-                                        val timeText = d.meal.time.let {
-                                            "${it.hour.toString().padStart(2, '0')}:${
+                                        val timeText =
+                                            d.meal.time.let {
+                                                "${it.hour.toString().padStart(2, '0')}:${
                                                 it.minute.toString().padStart(2, '0')
                                             }"
-                                        }
+                                            }
                                         Text(
                                             "${timeText}\n${d.meal.toLocalizedString()}",
                                             textAlign = TextAlign.End,

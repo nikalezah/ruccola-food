@@ -40,11 +40,7 @@ import kz.ruccola.food.ui.ToggleButtonsRow
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun SubscriptionContent(
-    uiState: SubscriptionUiState,
-    viewModel: SubscriptionViewModel,
-    modifier: Modifier = Modifier,
-) {
+fun SubscriptionContent(uiState: SubscriptionUiState, viewModel: SubscriptionViewModel, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -62,10 +58,7 @@ fun SubscriptionContent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.5.dp)
-                        Text(
-                            stringResource(Res.string.loading_plan),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                        Text(stringResource(Res.string.loading_plan), style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
@@ -82,19 +75,16 @@ fun SubscriptionContent(
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Text(
-                        stringResource(Res.string.no_plan_selected),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+                    Text(stringResource(Res.string.no_plan_selected), style = MaterialTheme.typography.titleLarge)
                     Text(
                         stringResource(Res.string.no_plan_selected_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(8.dp))
-                    FilledTonalButton(onClick = {
-                        viewModel.setShowPlanDialog(true)
-                    }) { Text(stringResource(Res.string.choose_plan)) }
+                    FilledTonalButton(onClick = { viewModel.setShowPlanDialog(true) }) {
+                        Text(stringResource(Res.string.choose_plan))
+                    }
                 }
             }
 
@@ -117,13 +107,8 @@ fun SubscriptionContent(
 }
 
 @Composable
-private fun DeliveryPreferencesSection(
-    viewModel: SubscriptionViewModel,
-    uiState: SubscriptionUiState,
-) {
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+private fun DeliveryPreferencesSection(viewModel: SubscriptionViewModel, uiState: SubscriptionUiState) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -135,29 +120,22 @@ private fun DeliveryPreferencesSection(
             )
             HorizontalDivider()
             PreferenceSwitchRow(
-                label = if (uiState.morningDelivery) {
-                    stringResource(Res.string.weekend_delivery_morning)
-                } else {
-                    stringResource(Res.string.weekend_delivery_evening)
-                },
+                label =
+                    if (uiState.morningDelivery) {
+                        stringResource(Res.string.weekend_delivery_morning)
+                    } else {
+                        stringResource(Res.string.weekend_delivery_evening)
+                    },
                 checked = uiState.weekendDelivery,
                 onCheckedChange = { viewModel.updateDeliveryPrefs(weekendDelivery = it) },
             )
             HorizontalDivider()
             Spacer(Modifier.height(2.dp))
-            Text(
-                stringResource(Res.string.morning_delivery),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            Text(stringResource(Res.string.morning_delivery), style = MaterialTheme.typography.bodyLarge)
             ToggleButtonsRow(
-                listOf(
-                    stringResource(Res.string.morning),
-                    stringResource(Res.string.evening),
-                ),
+                listOf(stringResource(Res.string.morning), stringResource(Res.string.evening)),
                 if (uiState.morningDelivery) 0 else 1,
-                onSelectedIndexChange = { i ->
-                    viewModel.updateDeliveryPrefs(morningDelivery = i == 0)
-                },
+                onSelectedIndexChange = { i -> viewModel.updateDeliveryPrefs(morningDelivery = i == 0) },
             )
             Spacer(Modifier)
         }
@@ -165,11 +143,7 @@ private fun DeliveryPreferencesSection(
 }
 
 @Composable
-private fun PreferenceSwitchRow(
-    label: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
+private fun PreferenceSwitchRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,

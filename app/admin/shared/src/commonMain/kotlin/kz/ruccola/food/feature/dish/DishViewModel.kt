@@ -19,36 +19,25 @@ import kz.ruccola.food.api.DishDto
 import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.paging.ApiPagingSource
 
-class DishViewModel(
-    private val dishApi: DishApi = DishApi(),
-) : ViewModel() {
+class DishViewModel(private val dishApi: DishApi = DishApi()) : ViewModel() {
     val uiState: StateFlow<DishUiState>
         field = MutableStateFlow(DishUiState())
 
     val dishes: Flow<PagingData<DishDto>> =
         Pager(PagingConfig(pageSize = 20, initialLoadSize = 20)) {
             ApiPagingSource { page, size -> dishApi.getAllDishes(page, size) }
-        }.flow.cachedIn(viewModelScope)
+        }
+            .flow
+            .cachedIn(viewModelScope)
 
     fun getDishById(id: Int) {
         viewModelScope.launch {
             uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val dish = dishApi.getDishById(id)
-                uiState.update {
-                    it.copy(
-                        selectedDish = dish,
-                        isLoading = false,
-                        error = null,
-                    )
-                }
+                uiState.update { it.copy(selectedDish = dish, isLoading = false, error = null) }
             } catch (e: Exception) {
-                uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Error",
-                    )
-                }
+                uiState.update { it.copy(isLoading = false, error = e.message ?: "Error") }
             }
         }
     }
@@ -66,21 +55,15 @@ class DishViewModel(
                     uiState.update { it.copy(isLoading = false, error = "Error") }
                 }
             } catch (e: Exception) {
-                uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Error",
-                    )
-                }
+                uiState.update { it.copy(isLoading = false, error = e.message ?: "Error") }
             }
         }
     }
 
     companion object {
-        fun factory(dishApi: DishApi = DishApi()): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { DishViewModel(dishApi) }
-            }
+        fun factory(dishApi: DishApi = DishApi()): ViewModelProvider.Factory = viewModelFactory {
+            initializer { DishViewModel(dishApi) }
+        }
     }
 }
 

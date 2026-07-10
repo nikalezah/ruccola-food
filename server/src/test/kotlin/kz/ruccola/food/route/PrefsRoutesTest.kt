@@ -27,97 +27,88 @@ import kotlin.test.assertTrue
 
 class PrefsRoutesTest : RouteIntegrationTest() {
     @Test
-    fun testGetPrefsNoPlan() =
-        testApp { client ->
-            val customer = client.registerCustomer("customer1@ruccola.food")
-            val response = client.get("/api/customers/plan") { authHeader(customer.token) }
-            assertEquals(HttpStatusCode.NotFound, response.status)
-        }
+    fun testGetPrefsNoPlan() = testApp { client ->
+        val customer = client.registerCustomer("customer1@ruccola.food")
+        val response = client.get("/api/customers/plan") { authHeader(customer.token) }
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
 
     @Test
-    fun testGetPrefsWithPlan() =
-        testApp { client ->
-            val customer = client.registerCustomer("customer1@ruccola.food")
-            val planId = suspendTransaction {
-                Plans.insertAndGetId {
+    fun testGetPrefsWithPlan() = testApp { client ->
+        val customer = client.registerCustomer("customer1@ruccola.food")
+        val planId = suspendTransaction {
+            Plans.insertAndGetId {
                     it[calories] = 1200
                     it[periodDays] = 7
                     it[pricePerDay] = 2000
-                }.value
             }
-            client.post("/api/customers/plan") {
+                .value
+        }
+        client
+            .post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
-                setBody(
-                    CustomerPlanCreateDto(
-                        planId = planId,
-                        days = 7,
-                        chosenDate = LocalDate(2026, 4, 6),
-                    ),
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.Created, status)
+                setBody(CustomerPlanCreateDto(planId = planId, days = 7, chosenDate = LocalDate(2026, 4, 6)))
             }
-            val response = client.get("/api/customers/plan") { authHeader(customer.token) }
-            assertEquals(HttpStatusCode.OK, response.status)
-            val body = response.body<CustomerPlanWithPrefsDto>()
-            assertFalse(body.prefs.needsCutlery)
-            assertFalse(body.prefs.weekendDelivery)
-            assertFalse(body.prefs.morningDelivery)
-        }
+            .apply { assertEquals(HttpStatusCode.Created, status) }
+        val response = client.get("/api/customers/plan") { authHeader(customer.token) }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.body<CustomerPlanWithPrefsDto>()
+        assertFalse(body.prefs.needsCutlery)
+        assertFalse(body.prefs.weekendDelivery)
+        assertFalse(body.prefs.morningDelivery)
+    }
 
     @Test
-    fun testSaveAllPrefs() =
-        testApp { client ->
-            val customer = client.registerCustomer("customer1@ruccola.food")
-            val response = client.put("/api/customers/prefs") {
-                authHeader(customer.token)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    CustomerPrefsUpdateDto(
-                        needsCutlery = true,
-                        weekendDelivery = true,
-                        morningDelivery = true,
-                    ),
-                )
-            }
-            assertEquals(HttpStatusCode.OK, response.status)
-            val prefs = response.body<CustomerPrefsDto>()
-            assertTrue(prefs.needsCutlery)
-            assertTrue(prefs.weekendDelivery)
-            assertTrue(prefs.morningDelivery)
-        }
-
-    @Test
-    fun testSaveSinglePref() =
-        testApp { client ->
-            val customer = client.registerCustomer("customer1@ruccola.food")
-
+    fun testSaveAllPrefs() = testApp { client ->
+        val customer = client.registerCustomer("customer1@ruccola.food")
+        val response =
             client.put("/api/customers/prefs") {
+                authHeader(customer.token)
+                contentType(ContentType.Application.Json)
+                setBody(CustomerPrefsUpdateDto(needsCutlery = true, weekendDelivery = true, morningDelivery = true))
+            }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val prefs = response.body<CustomerPrefsDto>()
+        assertTrue(prefs.needsCutlery)
+        assertTrue(prefs.weekendDelivery)
+        assertTrue(prefs.morningDelivery)
+    }
+
+    @Test
+    fun testSaveSinglePref() = testApp { client ->
+        val customer = client.registerCustomer("customer1@ruccola.food")
+
+        client
+            .put("/api/customers/prefs") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPrefsUpdateDto(needsCutlery = true))
-            }.apply { assertEquals(HttpStatusCode.OK, status) }
+            }
+            .apply { assertEquals(HttpStatusCode.OK, status) }
 
-            client.put("/api/customers/prefs") {
+        client
+            .put("/api/customers/prefs") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPrefsUpdateDto(morningDelivery = true))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val prefs = body<CustomerPrefsDto>()
                 assertTrue(prefs.needsCutlery)
                 assertFalse(prefs.weekendDelivery)
                 assertTrue(prefs.morningDelivery)
             }
-        }
+    }
 
     @Test
-    fun testPrefsUnauthorized() =
-        testApp { client ->
-            client.put("/api/customers/prefs") {
+    fun testPrefsUnauthorized() = testApp { client ->
+        client
+            .put("/api/customers/prefs") {
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPrefsUpdateDto(needsCutlery = true))
-            }.apply { assertEquals(HttpStatusCode.Unauthorized, status) }
-        }
+            }
+            .apply { assertEquals(HttpStatusCode.Unauthorized, status) }
+    }
 }

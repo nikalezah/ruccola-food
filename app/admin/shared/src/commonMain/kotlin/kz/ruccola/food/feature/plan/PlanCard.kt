@@ -20,16 +20,10 @@ import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 
 @Composable
-fun PlanCard(
-    plan: PlanDto,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun PlanCard(plan: PlanDto, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val periodDays = plan.periodDays.amount
 
-    OutlinedCard(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
-    ) {
+    OutlinedCard(modifier = modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(8.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("${plan.pricePerDay}", style = MaterialTheme.typography.bodySmall)

@@ -16,9 +16,7 @@ import kz.ruccola.food.api.PlanUpdateDto
 import kz.ruccola.food.model.PlanCalories
 import kz.ruccola.food.model.PlanDays
 
-class PlanViewModel(
-    private val api: PlanApi = PlanApi(),
-) : ViewModel() {
+class PlanViewModel(private val api: PlanApi = PlanApi()) : ViewModel() {
     val uiState: StateFlow<PlanUiState>
         field = MutableStateFlow(PlanUiState())
 
@@ -38,11 +36,7 @@ class PlanViewModel(
         }
     }
 
-    fun create(
-        calories: PlanCalories,
-        periodDays: PlanDays,
-        pricePerDay: Int,
-    ) {
+    fun create(calories: PlanCalories, periodDays: PlanDays, pricePerDay: Int) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, error = null, isSaved = false) }
             try {
@@ -55,10 +49,7 @@ class PlanViewModel(
         }
     }
 
-    fun update(
-        id: Int,
-        pricePerDay: Int?,
-    ) {
+    fun update(id: Int, pricePerDay: Int?) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, error = null, isSaved = false) }
             try {
@@ -93,10 +84,9 @@ class PlanViewModel(
     }
 
     companion object {
-        fun factory(api: PlanApi = PlanApi()): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { PlanViewModel(api) }
-            }
+        fun factory(api: PlanApi = PlanApi()): ViewModelProvider.Factory = viewModelFactory {
+            initializer { PlanViewModel(api) }
+        }
     }
 }
 

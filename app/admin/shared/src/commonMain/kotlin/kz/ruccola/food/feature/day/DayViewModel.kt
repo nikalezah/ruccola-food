@@ -12,9 +12,7 @@ import kotlinx.coroutines.launch
 import kz.ruccola.food.api.DayApi
 import kz.ruccola.food.api.DayDto
 
-class DayViewModel(
-    private val api: DayApi = DayApi(),
-) : ViewModel() {
+class DayViewModel(private val api: DayApi = DayApi()) : ViewModel() {
     val uiState: StateFlow<DayUiState>
         field = MutableStateFlow(DayUiState())
 
@@ -49,10 +47,9 @@ class DayViewModel(
     }
 
     companion object {
-        fun factory(api: DayApi = DayApi()): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { DayViewModel(api) }
-            }
+        fun factory(api: DayApi = DayApi()): ViewModelProvider.Factory = viewModelFactory {
+            initializer { DayViewModel(api) }
+        }
     }
 }
 

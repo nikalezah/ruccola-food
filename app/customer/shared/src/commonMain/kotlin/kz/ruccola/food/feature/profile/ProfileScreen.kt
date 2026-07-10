@@ -32,18 +32,10 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadProfile()
-    }
+    LaunchedEffect(Unit) { viewModel.loadProfile() }
 
     ResponsiveContainer(maxContentWidth = 640.dp) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.tab_profile)) },
-                )
-            },
-        ) { padding ->
+        Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_profile)) }) }) { padding ->
             ProfileContent(
                 uiState = uiState,
                 currentLanguage = currentLanguage,

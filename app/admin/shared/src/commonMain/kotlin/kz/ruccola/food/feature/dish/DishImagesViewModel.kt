@@ -14,10 +14,7 @@ import kz.ruccola.food.api.DishUpdateDto
 import kz.ruccola.food.api.DishWithTranslationsDto
 import kz.ruccola.food.api.FileApi
 
-data class DishImageItem(
-    val fileId: Int,
-    val url: String,
-)
+data class DishImageItem(val fileId: Int, val url: String)
 
 data class DishImagesUiState(
     val dish: DishWithTranslationsDto,
@@ -39,21 +36,18 @@ class DishImagesViewModel(
     private val initialWorkingList = initialDish.images.map { DishImageItem(it.fileId, it.url) }
 
     val uiState: StateFlow<DishImagesUiState>
-        field = MutableStateFlow(
+        field =
+        MutableStateFlow(
             DishImagesUiState(
                 dish = initialDish,
                 workingList = initialWorkingList,
                 initialWorkingList = initialWorkingList,
-            ),
+            )
         )
 
     private val initialIds = initialDish.images.map { it.fileId }.toSet()
 
-    fun uploadImage(
-        filename: String,
-        mimeType: String,
-        bytes: ByteArray,
-    ) {
+    fun uploadImage(filename: String, mimeType: String, bytes: ByteArray) {
         if (uiState.value.isBusy) return
         viewModelScope.launch {
             uiState.update { it.copy(isBusy = true, error = null) }
@@ -72,9 +66,7 @@ class DishImagesViewModel(
     }
 
     fun removeImage(item: DishImageItem) {
-        uiState.update { state ->
-            state.copy(workingList = state.workingList - item)
-        }
+        uiState.update { state -> state.copy(workingList = state.workingList - item) }
     }
 
     fun moveUp(index: Int) {
@@ -121,9 +113,8 @@ class DishImagesViewModel(
             initialDish: DishWithTranslationsDto,
             dishApi: DishApi = DishApi(),
             fileApi: FileApi = FileApi(),
-        ): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { DishImagesViewModel(initialDish, dishApi, fileApi) }
-            }
+        ): ViewModelProvider.Factory = viewModelFactory {
+            initializer { DishImagesViewModel(initialDish, dishApi, fileApi) }
+        }
     }
 }

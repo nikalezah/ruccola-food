@@ -17,11 +17,7 @@ data class LabeledNavigationTab(
 )
 
 @Composable
-fun LabeledNavigationBar(
-    tabs: List<LabeledNavigationTab>,
-    selected: () -> Int,
-    onSelect: (Int) -> Unit,
-) {
+fun LabeledNavigationBar(tabs: List<LabeledNavigationTab>, selected: () -> Int, onSelect: (Int) -> Unit) {
     NavigationBar {
         tabs.forEachIndexed { i, tab ->
             NavigationBarItem(
@@ -30,9 +26,7 @@ fun LabeledNavigationBar(
                 icon = {
                     val icon = if (selected() == i) tab.selectedIcon else tab.unselectedIcon
                     if (tab.showBadge) {
-                        BadgedBox(badge = { Badge() }) {
-                            Icon(icon, contentDescription = tab.label)
-                        }
+                        BadgedBox(badge = { Badge() }) { Icon(icon, contentDescription = tab.label) }
                     } else {
                         Icon(icon, contentDescription = tab.label)
                     }

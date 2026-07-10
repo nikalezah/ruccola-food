@@ -75,13 +75,11 @@ fun ChatUi(
 
     Column(modifier = modifier) {
         Box(
-            modifier = Modifier.weight(1f)
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
-                    RoundedCornerShape(12.dp),
-                )
-                .padding(12.dp),
+            modifier =
+                Modifier.weight(1f)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+                    .padding(12.dp)
         ) {
             when {
                 isLoading && messages.isEmpty() -> {
@@ -98,11 +96,7 @@ fun ChatUi(
                 }
 
                 messages.isEmpty() -> {
-                    Text(
-                        text = emptyText,
-                        modifier = Modifier.align(Alignment.Center),
-                        textAlign = TextAlign.Center,
-                    )
+                    Text(text = emptyText, modifier = Modifier.align(Alignment.Center), textAlign = TextAlign.Center)
                 }
 
                 else -> {
@@ -114,33 +108,34 @@ fun ChatUi(
                         items(messages) { message ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = if (message.isMine) {
-                                    Arrangement.End
-                                } else {
-                                    Arrangement.Start
-                                },
+                                horizontalArrangement =
+                                    if (message.isMine) {
+                                        Arrangement.End
+                                    } else {
+                                        Arrangement.Start
+                                    },
                             ) {
                                 Column(
-                                    horizontalAlignment = if (message.isMine) {
-                                        Alignment.End
-                                    } else {
-                                        Alignment.Start
-                                    },
+                                    horizontalAlignment =
+                                        if (message.isMine) {
+                                            Alignment.End
+                                        } else {
+                                            Alignment.Start
+                                        }
                                 ) {
                                     Card(
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = if (message.isMine) {
-                                                MaterialTheme.colorScheme.primaryContainer
-                                            } else {
-                                                MaterialTheme.colorScheme.secondaryContainer
-                                            },
-                                        ),
+                                        colors =
+                                            CardDefaults.cardColors(
+                                                containerColor =
+                                                    if (message.isMine) {
+                                                        MaterialTheme.colorScheme.primaryContainer
+                                                    } else {
+                                                        MaterialTheme.colorScheme.secondaryContainer
+                                                    }
+                                            ),
                                     ) {
-                                        Text(
-                                            text = message.body,
-                                            modifier = Modifier.padding(10.dp),
-                                        )
+                                        Text(text = message.body, modifier = Modifier.padding(10.dp))
                                     }
                                     Text(
                                         text = formatDateTime(message.createdAt, locale),
@@ -166,9 +161,7 @@ fun ChatUi(
                         onMessageBodyChange(value)
                     }
                 },
-                modifier = Modifier
-                    .weight(1f)
-                    .onSizeChanged { inputHeightPx = it.height },
+                modifier = Modifier.weight(1f).onSizeChanged { inputHeightPx = it.height },
                 shape = inputShape,
                 placeholder = { Text(placeholder) },
                 enabled = inputEnabled,

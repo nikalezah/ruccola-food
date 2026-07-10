@@ -58,7 +58,8 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
     val fabFocusRequester = remember { FocusRequester() }
     val itemFocusRequesters = remember(items.size) { List(items.size) { FocusRequester() } }
-    val progress by animateFloatAsState(
+    val progress by
+    animateFloatAsState(
         targetValue = if (fabMenuExpanded) 1f else 0f,
         animationSpec = tween(durationMillis = 200),
         label = "FabMenuProgress",
@@ -67,19 +68,18 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
     BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
 
     Box(
-        modifier = Modifier.onKeyEvent {
-            if (it.type == KeyEventType.KeyDown && it.key == Key.Escape && fabMenuExpanded) {
-                fabMenuExpanded = false
-                true
-            } else {
-                false
+        modifier =
+            Modifier.onKeyEvent {
+                if (it.type == KeyEventType.KeyDown && it.key == Key.Escape && fabMenuExpanded) {
+                    fabMenuExpanded = false
+                    true
+                } else {
+                    false
+                }
             }
-        },
     ) {
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 72.dp),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 72.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.End,
         ) {
@@ -87,12 +87,14 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
                 val delay = i * 30
                 AnimatedVisibility(
                     visible = fabMenuExpanded,
-                    enter = fadeIn(tween(150, delay)) +
-                        slideInVertically(tween(150, delay)) { it / 2 } +
-                        scaleIn(tween(150, delay), initialScale = 0.9f),
-                    exit = fadeOut(tween(120)) +
-                        slideOutVertically(tween(120)) { it / 2 } +
-                        scaleOut(tween(120), targetScale = 0.9f),
+                    enter =
+                        fadeIn(tween(150, delay)) +
+                                slideInVertically(tween(150, delay)) { it / 2 } +
+                                scaleIn(tween(150, delay), initialScale = 0.9f),
+                    exit =
+                        fadeOut(tween(120)) +
+                                slideOutVertically(tween(120)) { it / 2 } +
+                                scaleOut(tween(120), targetScale = 0.9f),
                 ) {
                     val containerColor = MaterialTheme.colorScheme.secondaryContainer
                     Surface(
@@ -100,41 +102,43 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
                             onClick()
                             fabMenuExpanded = false
                         },
-                        modifier = Modifier
-                            .defaultMinSize(minHeight = 48.dp)
-                            .focusRequester(itemFocusRequesters[i])
-                            .focusable()
-                            .semantics {
-                                isTraversalGroup = true
-                                if (i == items.size - 1) {
-                                    customActions = listOf(
-                                        CustomAccessibilityAction(
-                                            label = "Close menu",
-                                            action = {
-                                                fabMenuExpanded = false
-                                                true
-                                            },
-                                        ),
-                                    )
-                                }
-                            }
-                            .then(
-                                if (i == 0) {
-                                    Modifier.onKeyEvent {
-                                        if (
-                                            it.type == KeyEventType.KeyDown &&
-                                            (it.key == Key.DirectionUp || (it.isShiftPressed && it.key == Key.Tab))
-                                        ) {
-                                            fabFocusRequester.requestFocus()
-                                            true
-                                        } else {
-                                            false
-                                        }
+                        modifier =
+                            Modifier.defaultMinSize(minHeight = 48.dp)
+                                .focusRequester(itemFocusRequesters[i])
+                                .focusable()
+                                .semantics {
+                                    isTraversalGroup = true
+                                    if (i == items.size - 1) {
+                                        customActions =
+                                            listOf(
+                                                CustomAccessibilityAction(
+                                                    label = "Close menu",
+                                                    action = {
+                                                        fabMenuExpanded = false
+                                                        true
+                                                    },
+                                                )
+                                            )
                                     }
-                                } else {
-                                    Modifier
-                                },
-                            ),
+                                }
+                                .then(
+                                    if (i == 0) {
+                                        Modifier.onKeyEvent {
+                                            if (
+                                                it.type == KeyEventType.KeyDown &&
+                                                (it.key == Key.DirectionUp ||
+                                                        (it.isShiftPressed && it.key == Key.Tab))
+                                            ) {
+                                                fabFocusRequester.requestFocus()
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    } else {
+                                        Modifier
+                                    }
+                                ),
                         shape = CircleShape,
                         color = containerColor,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -157,15 +161,15 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
         }
 
         FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .semantics {
-                    traversalIndex = -1f
-                    stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
-                    contentDescription = "Toggle menu"
-                }
-                .focusRequester(fabFocusRequester)
-                .focusable(),
+            modifier =
+                Modifier.align(Alignment.BottomEnd)
+                    .semantics {
+                        traversalIndex = -1f
+                        stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
+                        contentDescription = "Toggle menu"
+                    }
+                    .focusRequester(fabFocusRequester)
+                    .focusable(),
             onClick = { fabMenuExpanded = !fabMenuExpanded },
             shape = if (fabMenuExpanded) CircleShape else FloatingActionButtonDefaults.shape,
         ) {
@@ -173,9 +177,7 @@ actual fun FabMenu(items: List<Triple<ImageVector?, String, () -> Unit>>) {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.Close else Icons.Filled.Add,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .graphicsLayer { rotationZ = progress * 180f },
+                    modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = progress * 180f },
                 )
             }
         }

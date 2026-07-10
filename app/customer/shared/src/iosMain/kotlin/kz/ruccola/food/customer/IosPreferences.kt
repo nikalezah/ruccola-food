@@ -7,10 +7,7 @@ object IosPreferences {
 
     fun get(key: String): String? = defaults.stringForKey(key)
 
-    fun set(
-        key: String,
-        value: String,
-    ) {
+    fun set(key: String, value: String) {
         defaults.setObject(value, key)
     }
 

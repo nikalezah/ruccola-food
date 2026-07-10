@@ -23,72 +23,71 @@ import kotlin.test.assertEquals
 
 class ProfileRoutesTest : RouteIntegrationTest() {
     @Test
-    fun testGetProfileWithValidToken() =
-        testApp { client ->
-            val email = "customer1@ruccola.food"
-            val customer = client.registerCustomer(email)
-            client.get("/api/customers/profile") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val json = Json.parseToJsonElement(bodyAsText()).jsonObject
-                    assertEquals(email, json["email"]!!.jsonPrimitive.content)
-                    assertEquals("CUSTOMER", json["role"]!!.jsonPrimitive.content)
-                }
-        }
+    fun testGetProfileWithValidToken() = testApp { client ->
+        val email = "customer1@ruccola.food"
+        val customer = client.registerCustomer(email)
+        client
+            .get("/api/customers/profile") { authHeader(customer.token) }
+            .apply {
+                assertEquals(HttpStatusCode.OK, status)
+                val json = Json.parseToJsonElement(bodyAsText()).jsonObject
+                assertEquals(email, json["email"]!!.jsonPrimitive.content)
+                assertEquals("CUSTOMER", json["role"]!!.jsonPrimitive.content)
+            }
+    }
 
     @Test
-    fun testGetProfileUnauthorized() =
-        testApp { client ->
-            client.get("/api/customers/profile")
-                .apply { assertEquals(HttpStatusCode.Unauthorized, status) }
+    fun testGetProfileUnauthorized() = testApp { client ->
+        client.get("/api/customers/profile").apply { assertEquals(HttpStatusCode.Unauthorized, status) }
 
-            client.get("/api/customers/profile") { authHeader("invalid-token") }
-                .apply { assertEquals(HttpStatusCode.Unauthorized, status) }
-        }
-
-    @Test
-    fun testLogoutEndpoint() =
-        testApp { client ->
-            client.post("/api/auth/logout")
-                .apply { assertEquals(HttpStatusCode.OK, status) }
-        }
+        client
+            .get("/api/customers/profile") { authHeader("invalid-token") }
+            .apply { assertEquals(HttpStatusCode.Unauthorized, status) }
+    }
 
     @Test
-    fun testUpdateProfile() =
-        testApp { client ->
-            val customer = client.registerCustomer()
-            client.put("/api/customers/profile") {
+    fun testLogoutEndpoint() = testApp { client ->
+        client.post("/api/auth/logout").apply { assertEquals(HttpStatusCode.OK, status) }
+    }
+
+    @Test
+    fun testUpdateProfile() = testApp { client ->
+        val customer = client.registerCustomer()
+        client
+            .put("/api/customers/profile") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerUpdateDto(firstName = "Jane", lastName = "Smith", address = "456 Oak Ave"))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val updated = body<CustomerDto>()
                 assertEquals("Jane", updated.firstName)
                 assertEquals("Smith", updated.lastName)
                 assertEquals("456 Oak Ave", updated.address)
             }
-        }
+    }
 
     @Test
-    fun testUpdateProfilePartialPreservesOtherFields() =
-        testApp { client ->
-            val customer = client.registerCustomer()
-            client.put("/api/customers/profile") {
-                authHeader(customer.token)
-                contentType(ContentType.Application.Json)
-                setBody(CustomerUpdateDto(firstName = "Jane", lastName = "Smith", address = "456 Oak Ave"))
-            }
-            client.put("/api/customers/profile") {
+    fun testUpdateProfilePartialPreservesOtherFields() = testApp { client ->
+        val customer = client.registerCustomer()
+        client.put("/api/customers/profile") {
+            authHeader(customer.token)
+            contentType(ContentType.Application.Json)
+            setBody(CustomerUpdateDto(firstName = "Jane", lastName = "Smith", address = "456 Oak Ave"))
+        }
+        client
+            .put("/api/customers/profile") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerUpdateDto(lastName = "Updated"))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val updated = body<CustomerDto>()
                 assertEquals("Jane", updated.firstName)
                 assertEquals("Updated", updated.lastName)
                 assertEquals("456 Oak Ave", updated.address)
             }
-        }
+    }
 }

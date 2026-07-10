@@ -18,38 +18,26 @@ import kotlinx.serialization.Serializable
 @Resource("customers")
 class Customers {
     @Resource("profile")
-    class Profile(
-        val parent: Customers = Customers(),
-    )
+    class Profile(val parent: Customers = Customers())
 
     @Resource("plan")
-    class Plan(
-        val parent: Customers = Customers(),
-    )
+    class Plan(val parent: Customers = Customers())
 
     @Resource("prefs")
-    class Prefs(
-        val parent: Customers = Customers(),
-    )
+    class Prefs(val parent: Customers = Customers())
 
     @Resource("schedule")
-    class Schedule(
-        val parent: Customers = Customers(),
-        val page: Int = 0,
-        val size: Int = 20,
-    )
+    class Schedule(val parent: Customers = Customers(), val page: Int = 0, val size: Int = 20)
 }
 
-class CustomerApi(
-    private val client: HttpClient = httpClient,
-) {
+class CustomerApi(private val client: HttpClient = httpClient) {
     suspend fun getAll(): List<CustomerDetailsDto> = client.get(Customers()).body()
 
     suspend fun get(): CustomerDto {
         val response = client.get(Customers.Profile())
         if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
+            val msg =
+                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null } ?: "HTTP ${response.status.value}"
             throw Exception(msg)
         }
         return response.body()
@@ -58,52 +46,53 @@ class CustomerApi(
     suspend fun getPlanWithPrefs(): CustomerPlanWithPrefsDto {
         val response = client.get(Customers.Plan())
         if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
+            val msg =
+                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null } ?: "HTTP ${response.status.value}"
             throw Exception(msg)
         }
         return response.body()
     }
 
     suspend fun update(payload: CustomerUpdateDto): CustomerDto {
-        val response = client.put(Customers.Profile()) {
-            contentType(ContentType.Application.Json)
-            setBody(payload)
-        }
+        val response =
+            client.put(Customers.Profile()) {
+                contentType(ContentType.Application.Json)
+                setBody(payload)
+            }
         if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
+            val msg =
+                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null } ?: "HTTP ${response.status.value}"
             throw Exception(msg)
         }
         return response.body()
     }
 
     suspend fun saveCustomerPlan(newCustomerPlan: CustomerPlanCreateDto): CustomerPlanDetailsDto {
-        val response = client.post(Customers.Plan()) {
-            contentType(ContentType.Application.Json)
-            setBody(newCustomerPlan)
-        }
+        val response =
+            client.post(Customers.Plan()) {
+                contentType(ContentType.Application.Json)
+                setBody(newCustomerPlan)
+            }
         if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
+            val msg =
+                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null } ?: "HTTP ${response.status.value}"
             throw Exception(msg)
         }
         return response.body()
     }
 
-    suspend fun getSchedule(
-        page: Int = 0,
-        size: Int = 20,
-    ): PagingResponse<ScheduledDayDto> = client.get(Customers.Schedule(page = page, size = size)).body()
+    suspend fun getSchedule(page: Int = 0, size: Int = 20): PagingResponse<ScheduledDayDto> =
+        client.get(Customers.Schedule(page = page, size = size)).body()
 
     suspend fun saveDeliveryPrefs(prefs: CustomerPrefsUpdateDto): CustomerPrefsDto {
-        val response = client.put(Customers.Prefs()) {
-            contentType(ContentType.Application.Json)
-            setBody(prefs)
-        }
+        val response =
+            client.put(Customers.Prefs()) {
+                contentType(ContentType.Application.Json)
+                setBody(prefs)
+            }
         if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
+            val msg =
+                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null } ?: "HTTP ${response.status.value}"
             throw Exception(msg)
         }
         return response.body()
@@ -136,17 +125,10 @@ data class CustomerDetailsDto(
 )
 
 @Serializable
-data class CustomerUpdateDto(
-    val firstName: String? = null,
-    val lastName: String? = null,
-    val address: String? = null,
-)
+data class CustomerUpdateDto(val firstName: String? = null, val lastName: String? = null, val address: String? = null)
 
 @Serializable
-data class CustomerPlanWithPrefsDto(
-    val plan: CustomerPlanDetailsDto,
-    val prefs: CustomerPrefsDto,
-)
+data class CustomerPlanWithPrefsDto(val plan: CustomerPlanDetailsDto, val prefs: CustomerPrefsDto)
 
 @Serializable
 data class CustomerPlanDetailsDto(
@@ -155,30 +137,21 @@ data class CustomerPlanDetailsDto(
     val calories: Int,
     val pricePerDay: Int,
     val days: Int,
-    @Serializable(with = LocalDateIso8601Serializer::class)
-    val chosenDate: LocalDate,
+    @Serializable(with = LocalDateIso8601Serializer::class) val chosenDate: LocalDate,
 )
 
 @Serializable
 data class CustomerPlanCreateDto(
     val planId: Int,
     val days: Int,
-    @Serializable(with = LocalDateIso8601Serializer::class)
-    val chosenDate: LocalDate,
+    @Serializable(with = LocalDateIso8601Serializer::class) val chosenDate: LocalDate,
 )
 
 @Serializable
-data class ScheduledDayDto(
-    val date: LocalDate,
-    val dishes: List<DishWithMealDto>,
-)
+data class ScheduledDayDto(val date: LocalDate, val dishes: List<DishWithMealDto>)
 
 @Serializable
-data class CustomerPrefsDto(
-    val needsCutlery: Boolean,
-    val weekendDelivery: Boolean,
-    val morningDelivery: Boolean,
-)
+data class CustomerPrefsDto(val needsCutlery: Boolean, val weekendDelivery: Boolean, val morningDelivery: Boolean)
 
 @Serializable
 data class CustomerPrefsUpdateDto(

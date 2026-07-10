@@ -52,29 +52,23 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DishEditorScreen(
-    initialDish: DishWithTranslationsDto?,
-    onClose: () -> Unit,
-) {
-    val viewModel: DishEditorViewModel = viewModel(
-        key = initialDish?.id?.toString(),
-        factory = DishEditorViewModel.factory(initialDish),
-    )
+fun DishEditorScreen(initialDish: DishWithTranslationsDto?, onClose: () -> Unit) {
+    val viewModel: DishEditorViewModel =
+        viewModel(key = initialDish?.id?.toString(), factory = DishEditorViewModel.factory(initialDish))
     val uiState by viewModel.uiState.collectAsState()
 
     var imageEditorVisible by remember { mutableStateOf(false) }
     var selectedTabIndex by remember { mutableIntStateOf(1) }
 
     val languageTabs = Language.entries.sortedByDescending { it.ordinal }.toTypedArray()
-    val languageNames: Map<Language, String> = mapOf(
-        Language.KK to stringResource(Res.string.language_kk),
-        Language.RU to stringResource(Res.string.language_ru),
-        Language.EN to stringResource(Res.string.language_en),
-    )
+    val languageNames: Map<Language, String> =
+        mapOf(
+            Language.KK to stringResource(Res.string.language_kk),
+            Language.RU to stringResource(Res.string.language_ru),
+            Language.EN to stringResource(Res.string.language_en),
+        )
 
-    val allFieldsFilled = Language.entries.all { lang ->
-        uiState.translations[lang]?.name?.isNotBlank() == true
-    }
+    val allFieldsFilled = Language.entries.all { lang -> uiState.translations[lang]?.name?.isNotBlank() == true }
 
     var previousIsBusy by remember { mutableStateOf(false) }
     var previousDish by remember { mutableStateOf(uiState.dish) }
@@ -113,7 +107,7 @@ fun DishEditorScreen(
                         )
                     },
                 )
-            },
+            }
         ) { padding ->
             val scrollState = rememberScrollState()
             Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(padding).padding(16.dp)) {

@@ -30,88 +30,65 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 class DayService {
     val dishService = DishService()
 
-    suspend fun findByDate(date: LocalDate): DayDto? =
-        dbQuery {
-            Days.selectAll().where { Days.date eq date }.firstOrNull()?.let(::toDto)
-        }
+    suspend fun findByDate(date: LocalDate): DayDto? = dbQuery {
+        Days.selectAll().where { Days.date eq date }.firstOrNull()?.let(::toDto)
+    }
 
-    suspend fun copyMealPlanDishesToDate(
-        mealPlanDayId: Int,
-        date: LocalDate,
-    ): Result<DayDto> =
-        dbQuery {
-            val mpdId = MealPlanDays.select(MealPlanDays.id)
+    suspend fun copyMealPlanDishesToDate(mealPlanDayId: Int, date: LocalDate): Result<DayDto> = dbQuery {
+        val mpdId =
+            MealPlanDays.select(MealPlanDays.id)
                 .where { MealPlanDays.id eq mealPlanDayId }
                 .singleOrNull()
-                ?.get(MealPlanDays.id)
-                ?: return@dbQuery Result.failure(NoSuchElementException("MealPlanDay not found"))
+                ?.get(MealPlanDays.id) ?: return@dbQuery Result.failure(NoSuchElementException("MealPlanDay not found"))
 
-            val dayDto = Days.selectAll().where { Days.date eq date }.firstOrNull()?.let(::toDto)
+        val dayDto =
+            Days.selectAll().where { Days.date eq date }.firstOrNull()?.let(::toDto)
                 ?: Days.insertReturning { it[Days.date] = date }.first().let(::toDto)
 
-            // load dish ids with meals from the meal plan
-            val rows = MealPlanDayDishes
-                .selectAll()
-                .apply { andWhere { MealPlanDayDishes.mealPlanDayId eq mpdId } }
-                .toList()
-            // insert triplets idempotently
-            rows.forEach { row ->
-                val dId = row[MealPlanDayDishes.dishId].value
-                val mealStr = row[MealPlanDayDishes.meal]
-                try {
-                    DayDishes.insert {
-                        it[DayDishes.dayId] = dayDto.id
-                        it[DayDishes.dishId] = EntityID(dId, Dishes)
-                        it[DayDishes.meal] = mealStr
-                    }
-                } catch (_: Exception) {
+        // load dish ids with meals from the meal plan
+        val rows =
+            MealPlanDayDishes.selectAll().apply { andWhere { MealPlanDayDishes.mealPlanDayId eq mpdId } }.toList()
+        // insert triplets idempotently
+        rows.forEach { row ->
+            val dId = row[MealPlanDayDishes.dishId].value
+            val mealStr = row[MealPlanDayDishes.meal]
+            try {
+                DayDishes.insert {
+                    it[DayDishes.dayId] = dayDto.id
+                    it[DayDishes.dishId] = EntityID(dId, Dishes)
+                    it[DayDishes.meal] = mealStr
                 }
+            } catch (_: Exception) {
             }
-            Result.success(dayDto)
         }
+        Result.success(dayDto)
+    }
 
-    suspend fun getAllDays(language: Language): List<DayDto> =
-        dbQuery {
-            val days = Days.selectAll()
-                .orderBy(Days.date to SortOrder.ASC)
-                .map(::toDto)
-                .toList()
+    suspend fun getAllDays(language: Language): List<DayDto> = dbQuery {
+        val days = Days.selectAll().orderBy(Days.date to SortOrder.ASC).map(::toDto).toList()
 
-            val dayIds = days.map { it.id }
+        val dayIds = days.map { it.id }
 
-            val dishRows = (DayDishes innerJoin Dishes).selectAll()
-                .where { DayDishes.dayId inList dayIds }
-                .toList()
+        val dishRows = (DayDishes innerJoin Dishes).selectAll().where { DayDishes.dayId inList dayIds }.toList()
 
-            val dishesByDayId = mutableMapOf<Int, MutableList<DishWithMealDto>>()
+        val dishesByDayId = mutableMapOf<Int, MutableList<DishWithMealDto>>()
 
-            for (row in dishRows) {
-                val dayId = row[DayDishes.dayId].value
-                val dish = dishService.toDto(row, language)
-                val mealStr = row[DayDishes.meal]
-                val meal = runCatching { Meal.valueOf(mealStr) }.getOrNull()
-                if (meal != null) {
-                    dishesByDayId.getOrPut(dayId) { mutableListOf() }.add(DishWithMealDto(dish, meal))
-                }
-            }
-
-            days.map { day ->
-                day.copy(dishes = dishesByDayId[day.id] ?: emptyList())
+        for (row in dishRows) {
+            val dayId = row[DayDishes.dayId].value
+            val dish = dishService.toDto(row, language)
+            val mealStr = row[DayDishes.meal]
+            val meal = runCatching { Meal.valueOf(mealStr) }.getOrNull()
+            if (meal != null) {
+                dishesByDayId.getOrPut(dayId) { mutableListOf() }.add(DishWithMealDto(dish, meal))
             }
         }
 
-    suspend fun getLatestDate(): LocalDate? =
-        dbQuery {
-            Days.selectAll()
-                .orderBy(Days.date to SortOrder.DESC)
-                .limit(1)
-                .firstOrNull()
-                ?.get(Days.date)
-        }
+        days.map { day -> day.copy(dishes = dishesByDayId[day.id] ?: emptyList()) }
+    }
 
-    fun toDto(row: ResultRow): DayDto =
-        DayDto(
-            id = row[Days.id].value,
-            date = row[Days.date],
-        )
+    suspend fun getLatestDate(): LocalDate? = dbQuery {
+        Days.selectAll().orderBy(Days.date to SortOrder.DESC).limit(1).firstOrNull()?.get(Days.date)
+    }
+
+    fun toDto(row: ResultRow): DayDto = DayDto(id = row[Days.id].value, date = row[Days.date])
 }

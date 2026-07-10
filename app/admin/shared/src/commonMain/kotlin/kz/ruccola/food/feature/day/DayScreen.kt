@@ -68,15 +68,12 @@ fun DayScreen(onClose: () -> Unit) {
                         }
                     },
                     actions = {
-                        TextButton(
-                            onClick = { vm.triggerMidnight() },
-                            enabled = !state.isTriggeringMidnight,
-                        ) {
+                        TextButton(onClick = { vm.triggerMidnight() }, enabled = !state.isTriggeringMidnight) {
                             Text("Midnight")
                         }
                     },
                 )
-            },
+            }
         ) { padding ->
             PullToRefresh(
                 isRefreshing = state.isLoading,
@@ -120,9 +117,7 @@ fun DayScreen(onClose: () -> Unit) {
                             },
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            items(state.days) { day ->
-                                DayItem(day)
-                            }
+                            items(state.days) { day -> DayItem(day) }
                         }
                     }
                 }

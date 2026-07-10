@@ -3,8 +3,7 @@ package kz.ruccola.food.theme
 enum class ThemePreference {
     SYSTEM,
     LIGHT,
-    DARK,
-    ;
+    DARK;
 
     companion object {
         fun fromStorage(value: String?): ThemePreference =

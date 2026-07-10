@@ -18,11 +18,7 @@ import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Image
 
 @Composable
-actual fun AsyncImage(
-    model: String,
-    contentDescription: String?,
-    modifier: Modifier,
-) {
+actual fun AsyncImage(model: String, contentDescription: String?, modifier: Modifier) {
     var bitmap by remember(model) { mutableStateOf(imageCache[model]) }
 
     LaunchedEffect(model) {
@@ -41,11 +37,7 @@ actual fun AsyncImage(
     }
 
     if (bitmap != null) {
-        Image(
-            bitmap = bitmap!!,
-            contentDescription = contentDescription,
-            modifier = modifier,
-        )
+        Image(bitmap = bitmap!!, contentDescription = contentDescription, modifier = modifier)
     } else {
         Spacer(modifier = modifier)
     }

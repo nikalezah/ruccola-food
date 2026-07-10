@@ -40,15 +40,17 @@ fun App(
 
                 if (token == null) {
                     when (authRoute) {
-                        AuthRoute.Register -> RegisterScreen(
-                            onRegistered = { resp -> onRegister(resp.token) },
-                            onBackToLogin = { authRoute = AuthRoute.Login },
-                        )
+                        AuthRoute.Register ->
+                            RegisterScreen(
+                                onRegistered = { resp -> onRegister(resp.token) },
+                                onBackToLogin = { authRoute = AuthRoute.Login },
+                            )
 
-                        AuthRoute.Login -> LoginScreen(
-                            onLoggedIn = { resp -> onLogin(resp.token) },
-                            onGoToRegister = { authRoute = AuthRoute.Register },
-                        )
+                        AuthRoute.Login ->
+                            LoginScreen(
+                                onLoggedIn = { resp -> onLogin(resp.token) },
+                                onGoToRegister = { authRoute = AuthRoute.Register },
+                            )
                     }
                 } else {
                     MainScreen(

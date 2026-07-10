@@ -27,16 +27,10 @@ fun Route.configureCustomerRoutes() {
     val customerService = CustomerService()
     val mpdService = MealPlanDayService()
 
-    withRole(Role.ADMIN) {
-        get<Customers> {
-            call.respond(customerService.findAllWithDetails())
-        }
-    }
+    withRole(Role.ADMIN) { get<Customers> { call.respond(customerService.findAllWithDetails()) } }
 
     withRole(Role.CUSTOMER) {
-        get<Customers.Profile> {
-            call.respond(customerService.findById(call.user.id)!!)
-        }
+        get<Customers.Profile> { call.respond(customerService.findById(call.user.id)!!) }
 
         put<Customers.Profile> {
             val req = call.receive<CustomerUpdateDto>()
@@ -101,15 +95,13 @@ fun Route.configureCustomerRoutes() {
                         totalCount = schedule.size.toLong(),
                         page = schedule.page,
                         size = schedule.size,
-                    ),
+                    )
                 )
                 return@get
             }
             val ordered = all.sortedBy { it.serial }
-            val startIndex = start
-                ?.let { s -> ordered.indexOfFirst { it.id == s.id } }
-                .takeIf { it != null && it >= 0 }
-                ?: 0
+            val startIndex =
+                start?.let { s -> ordered.indexOfFirst { it.id == s.id } }.takeIf { it != null && it >= 0 } ?: 0
 
             var idx = startIndex
             repeat(schedule.size) { i ->
@@ -124,7 +116,7 @@ fun Route.configureCustomerRoutes() {
                     totalCount = schedule.size.toLong(),
                     page = schedule.page,
                     size = schedule.size,
-                ),
+                )
             )
         }
     }

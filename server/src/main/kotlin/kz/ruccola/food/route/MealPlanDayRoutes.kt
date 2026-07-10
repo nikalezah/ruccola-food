@@ -31,12 +31,13 @@ fun Route.configureMealPlanDayRoutes() {
             result.fold(
                 onSuccess = { call.respond(it) },
                 onFailure = {
-                    val status = when (it) {
-                        is NoSuchElementException -> HttpStatusCode.NotFound
-                        is IllegalArgumentException -> HttpStatusCode.BadRequest
-                        is IllegalStateException -> HttpStatusCode.Conflict
-                        else -> HttpStatusCode.InternalServerError
-                    }
+                    val status =
+                        when (it) {
+                            is NoSuchElementException -> HttpStatusCode.NotFound
+                            is IllegalArgumentException -> HttpStatusCode.BadRequest
+                            is IllegalStateException -> HttpStatusCode.Conflict
+                            else -> HttpStatusCode.InternalServerError
+                        }
                     call.respond(status, it.message ?: "Error updating meal plan day")
                 },
             )
@@ -69,11 +70,12 @@ fun Route.configureMealPlanDayRoutes() {
             result.fold(
                 onSuccess = { call.respond(HttpStatusCode.OK) },
                 onFailure = { e ->
-                    val status = when (e) {
-                        is IllegalArgumentException -> HttpStatusCode.BadRequest
-                        is NoSuchElementException -> HttpStatusCode.NotFound
-                        else -> HttpStatusCode.InternalServerError
-                    }
+                    val status =
+                        when (e) {
+                            is IllegalArgumentException -> HttpStatusCode.BadRequest
+                            is NoSuchElementException -> HttpStatusCode.NotFound
+                            else -> HttpStatusCode.InternalServerError
+                        }
                     call.respond(status, e.message ?: "Error applying new order")
                 },
             )

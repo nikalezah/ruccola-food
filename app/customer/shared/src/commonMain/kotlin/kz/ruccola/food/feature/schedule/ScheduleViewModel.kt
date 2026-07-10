@@ -14,17 +14,15 @@ import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.ScheduledDayDto
 import kz.ruccola.food.paging.ApiPagingSource
 
-class ScheduleViewModel(
-    private val api: CustomerApi = CustomerApi(),
-) : ViewModel() {
+class ScheduleViewModel(private val api: CustomerApi = CustomerApi()) : ViewModel() {
     val schedule: Flow<PagingData<ScheduledDayDto>> =
         Pager(PagingConfig(pageSize = 7, initialLoadSize = 7)) {
             ApiPagingSource { page, size -> api.getSchedule(page, size) }
-        }.flow.cachedIn(viewModelScope)
+        }
+            .flow
+            .cachedIn(viewModelScope)
 
     companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer { ScheduleViewModel() }
-        }
+        val Factory: ViewModelProvider.Factory = viewModelFactory { initializer { ScheduleViewModel() } }
     }
 }

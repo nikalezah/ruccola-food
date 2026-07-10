@@ -30,36 +30,26 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun SubscriptionPlanCard(
-    customerPlan: CustomerPlanDetailsDto,
-    onEditClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun SubscriptionPlanCard(customerPlan: CustomerPlanDetailsDto, onEditClick: () -> Unit, modifier: Modifier = Modifier) {
     val startDate = customerPlan.chosenDate
     val days = customerPlan.days
     val endEpoch = startDate.toEpochDays() + (days - 1)
     val endDate = LocalDate.fromEpochDays(endEpoch)
     val totalPrice = customerPlan.pricePerDay * days
 
-    val startDateText = startDate.day.toString().padStart(2, '0') +
-        "." + startDate.month.number.toString().padStart(2, '0')
-    val endDateText = endDate.day.toString().padStart(2, '0') +
-        "." + endDate.month.number.toString().padStart(2, '0')
+    val startDateText =
+        startDate.day.toString().padStart(2, '0') + "." + startDate.month.number.toString().padStart(2, '0')
+    val endDateText = endDate.day.toString().padStart(2, '0') + "." + endDate.month.number.toString().padStart(2, '0')
     val daysText = pluralStringResource(Res.plurals.days_quantity, days, days)
 
-    OutlinedCard(
-        modifier = modifier.fillMaxWidth(),
-    ) {
+    OutlinedCard(modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "$startDateText — $endDateText ($daysText)",
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Text(text = "$startDateText — $endDateText ($daysText)", style = MaterialTheme.typography.titleMedium)
                 IconButton(onClick = onEditClick) {
                     Icon(
                         imageVector = Icons.Outlined.EditSquare,
@@ -101,10 +91,6 @@ internal fun SubscriptionInfoRow(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            color = valueColor,
-        )
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, color = valueColor)
     }
 }

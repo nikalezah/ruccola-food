@@ -27,27 +27,15 @@ import androidx.compose.ui.unit.dp
 import kz.ruccola.food.dishImageUrl
 
 @Composable
-fun ImagePager(
-    imageUrls: List<String>,
-    onBack: () -> Unit,
-) {
+fun ImagePager(imageUrls: List<String>, onBack: () -> Unit) {
     if (imageUrls.isEmpty()) return
 
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth().clip(MaterialTheme.shapes.extraLarge),
-    ) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth().clip(MaterialTheme.shapes.extraLarge)) {
         val squareHeight = maxWidth
         val pagerState = rememberPagerState(pageCount = { imageUrls.size })
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(squareHeight),
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-            ) { page ->
+        Box(modifier = Modifier.fillMaxWidth().height(squareHeight)) {
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                 AsyncImage(
                     model = dishImageUrl(imageUrls[page]),
                     contentDescription = null,
@@ -56,14 +44,11 @@ fun ImagePager(
             }
 
             Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(40.dp)
-                    .align(Alignment.BottomStart)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = CircleShape,
-                    ),
+                modifier =
+                    Modifier.padding(16.dp)
+                        .size(40.dp)
+                        .align(Alignment.BottomStart)
+                        .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 IconButton(onClick = onBack) {
@@ -77,9 +62,7 @@ fun ImagePager(
 
             if (imageUrls.size > 1) {
                 Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     repeat(imageUrls.size) { index ->
@@ -87,17 +70,14 @@ fun ImagePager(
                         val dotColor = Color.White.copy(alpha = if (isSelected) 0.9f else 0.4f)
                         val dotWidth = if (isSelected) 16.dp else 8.dp
                         Box(
-                            modifier = Modifier
-                                .size(width = dotWidth, height = 8.dp)
-                                .border(
-                                    width = 0.5.dp,
-                                    color = Color.Black.copy(alpha = 0.25f),
-                                    shape = RoundedCornerShape(50),
-                                )
-                                .background(
-                                    color = dotColor,
-                                    shape = RoundedCornerShape(50),
-                                ),
+                            modifier =
+                                Modifier.size(width = dotWidth, height = 8.dp)
+                                    .border(
+                                        width = 0.5.dp,
+                                        color = Color.Black.copy(alpha = 0.25f),
+                                        shape = RoundedCornerShape(50),
+                                    )
+                                    .background(color = dotColor, shape = RoundedCornerShape(50))
                         )
                     }
                 }

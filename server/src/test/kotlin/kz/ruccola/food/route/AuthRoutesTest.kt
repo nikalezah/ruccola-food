@@ -19,96 +19,100 @@ import kotlin.test.assertTrue
 
 class AuthRoutesTest : RouteIntegrationTest() {
     @Test
-    fun testAdminLoginSuccess() =
-        testApp { client ->
-            val response = client.post("/api/auth/login") {
+    fun testAdminLoginSuccess() = testApp { client ->
+        val response =
+            client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginRequestDto("admin@gmail.com", "123qwe"))
             }
-            assertEquals(HttpStatusCode.OK, response.status)
-            val body = response.bodyAsText()
-            val json = Json.parseToJsonElement(body).jsonObject
-            val token = json["token"]!!.jsonPrimitive.content
-            assertTrue(token.isNotEmpty())
-            assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
-            val user = json["user"]!!.jsonObject
-            assertEquals("admin@gmail.com", user["email"]!!.jsonPrimitive.content)
-            assertEquals("ADMIN", user["role"]!!.jsonPrimitive.content)
-        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText()
+        val json = Json.parseToJsonElement(body).jsonObject
+        val token = json["token"]!!.jsonPrimitive.content
+        assertTrue(token.isNotEmpty())
+        assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
+        val user = json["user"]!!.jsonObject
+        assertEquals("admin@gmail.com", user["email"]!!.jsonPrimitive.content)
+        assertEquals("ADMIN", user["role"]!!.jsonPrimitive.content)
+    }
 
     @Test
-    fun testLoginFailureWrongPassword() =
-        testApp { client ->
-            val response = client.post("/api/auth/login") {
+    fun testLoginFailureWrongPassword() = testApp { client ->
+        val response =
+            client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginRequestDto("admin@gmail.com", "wrong"))
             }
-            assertEquals(HttpStatusCode.Unauthorized, response.status)
-        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
 
     @Test
-    fun testLoginUnknownEmail() =
-        testApp { client ->
-            val response = client.post("/api/auth/login") {
+    fun testLoginUnknownEmail() = testApp { client ->
+        val response =
+            client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginRequestDto("nobody@example.com", "secret"))
             }
-            assertEquals(HttpStatusCode.Unauthorized, response.status)
-        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
 
     @Test
-    fun testRegisterAndLoginCustomer() =
-        testApp { client ->
-            val registerResp = client.post("/api/auth/register") {
+    fun testRegisterAndLoginCustomer() = testApp { client ->
+        val registerResp =
+            client.post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(RegisterRequestDto("john.doe@example.com", "secret", "secret", "John", "Doe", "123 Main St"))
             }
-            assertEquals(HttpStatusCode.Created, registerResp.status)
-            val loginResp = client.post("/api/auth/login") {
+        assertEquals(HttpStatusCode.Created, registerResp.status)
+        val loginResp =
+            client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginRequestDto("john.doe@example.com", "secret"))
             }
-            assertEquals(HttpStatusCode.OK, loginResp.status)
-            val body = loginResp.bodyAsText()
-            val json = Json.parseToJsonElement(body).jsonObject
-            val token = json["token"]!!.jsonPrimitive.content
-            assertTrue(token.isNotEmpty())
-            assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
-            val user = json["user"]!!.jsonObject
-            assertEquals("CUSTOMER", user["role"]!!.jsonPrimitive.content)
-        }
+        assertEquals(HttpStatusCode.OK, loginResp.status)
+        val body = loginResp.bodyAsText()
+        val json = Json.parseToJsonElement(body).jsonObject
+        val token = json["token"]!!.jsonPrimitive.content
+        assertTrue(token.isNotEmpty())
+        assertEquals(token.split(".").size, 3, "Token should be a JWT (3 parts)")
+        val user = json["user"]!!.jsonObject
+        assertEquals("CUSTOMER", user["role"]!!.jsonPrimitive.content)
+    }
 
     @Test
-    fun testRegisterPasswordMismatch() =
-        testApp { client ->
-            val response = client.post("/api/auth/register") {
+    fun testRegisterPasswordMismatch() = testApp { client ->
+        val response =
+            client.post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(RegisterRequestDto("a@b.com", "one", "two", "John", "Doe", "123 Main St"))
             }
-            assertEquals(HttpStatusCode.BadRequest, response.status)
-        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
 
     @Test
-    fun testRegisterBlankAddress() =
-        testApp { client ->
-            val response = client.post("/api/auth/register") {
+    fun testRegisterBlankAddress() = testApp { client ->
+        val response =
+            client.post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(RegisterRequestDto("a@b.com", "pass", "pass", "John", "Doe", "   "))
             }
-            assertEquals(HttpStatusCode.BadRequest, response.status)
-        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
 
     @Test
-    fun testRegisterDuplicateEmail() =
-        testApp { client ->
-            val body = RegisterRequestDto("dup@example.com", "pass", "pass", "John", "Doe", "123 Main St")
-            client.post("/api/auth/register") {
+    fun testRegisterDuplicateEmail() = testApp { client ->
+        val body = RegisterRequestDto("dup@example.com", "pass", "pass", "John", "Doe", "123 Main St")
+        client
+            .post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(body)
-            }.apply { assertEquals(HttpStatusCode.Created, status) }
-            client.post("/api/auth/register") {
+            }
+            .apply { assertEquals(HttpStatusCode.Created, status) }
+        client
+            .post("/api/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(body)
-            }.apply { assertEquals(HttpStatusCode.Conflict, status) }
-        }
+            }
+            .apply { assertEquals(HttpStatusCode.Conflict, status) }
+    }
 }

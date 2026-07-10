@@ -56,10 +56,8 @@ fun DishImagesEditorScreen(
     onClose: () -> Unit,
     onSaved: (DishWithTranslationsDto) -> Unit,
 ) {
-    val viewModel: DishImagesViewModel = viewModel(
-        key = dish.id.toString(),
-        factory = DishImagesViewModel.factory(dish),
-    )
+    val viewModel: DishImagesViewModel =
+        viewModel(key = dish.id.toString(), factory = DishImagesViewModel.factory(dish))
     val uiState by viewModel.uiState.collectAsState()
     val onPickImage = provideImagePicker()
 
@@ -70,9 +68,10 @@ fun DishImagesEditorScreen(
         }
     }
 
-    val originalPositions = remember(dish.id, dish.images) {
-        dish.images.mapIndexed { index, image -> image.fileId to (index + 1) }.toMap()
-    }
+    val originalPositions =
+        remember(dish.id, dish.images) {
+            dish.images.mapIndexed { index, image -> image.fileId to (index + 1) }.toMap()
+        }
 
     Scaffold(
         topBar = {
@@ -98,9 +97,7 @@ fun DishImagesEditorScreen(
             }
         },
     ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
-        ) {
+        Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
             if (uiState.error != null) {
                 Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.height(8.dp))
@@ -113,10 +110,7 @@ fun DishImagesEditorScreen(
             if (uiState.workingList.isEmpty()) {
                 Text(stringResource(Res.string.no_items), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     itemsIndexed(uiState.workingList, key = { _, item -> item.fileId }) { index, item ->
                         val previousPosition = originalPositions[item.fileId] ?: (index + 1)
                         SwipeToRemove(

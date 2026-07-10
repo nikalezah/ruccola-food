@@ -14,19 +14,14 @@ actual fun SquareImagesCarousel200(imageUrls: List<String>) {
     if (imageUrls.isEmpty()) return
     HorizontalUncontainedCarousel(
         state = rememberCarouselState { imageUrls.size },
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 200.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp),
         itemWidth = 200.dp,
         itemSpacing = 8.dp,
     ) { i ->
         AsyncImage(
             model = dishImageUrl(imageUrls[i]),
             contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 200.dp)
-                .clip(MaterialTheme.shapes.extraLarge),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp).clip(MaterialTheme.shapes.extraLarge),
         )
     }
 }

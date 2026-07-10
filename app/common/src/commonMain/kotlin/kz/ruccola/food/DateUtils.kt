@@ -4,49 +4,51 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 
-fun formatDate(
-    date: LocalDate,
-    locale: String,
-): String {
-    val normalizedLocale = when {
-        locale.startsWith("ru") -> "ru-RU"
-        locale.startsWith("en") -> "en-US"
-        locale.startsWith("kk") -> "kk-KZ"
-        else -> "ru-RU"
-    }
-    val dayOfWeekName = when (normalizedLocale) {
-        "en-US" -> when (date.dayOfWeek) {
-            DayOfWeek.MONDAY -> "Monday"
-            DayOfWeek.TUESDAY -> "Tuesday"
-            DayOfWeek.WEDNESDAY -> "Wednesday"
-            DayOfWeek.THURSDAY -> "Thursday"
-            DayOfWeek.FRIDAY -> "Friday"
-            DayOfWeek.SATURDAY -> "Saturday"
-            DayOfWeek.SUNDAY -> "Sunday"
+fun formatDate(date: LocalDate, locale: String): String {
+    val normalizedLocale =
+        when {
+            locale.startsWith("ru") -> "ru-RU"
+            locale.startsWith("en") -> "en-US"
+            locale.startsWith("kk") -> "kk-KZ"
+            else -> "ru-RU"
         }
+    val dayOfWeekName =
+        when (normalizedLocale) {
+            "en-US" ->
+                when (date.dayOfWeek) {
+                    DayOfWeek.MONDAY -> "Monday"
+                    DayOfWeek.TUESDAY -> "Tuesday"
+                    DayOfWeek.WEDNESDAY -> "Wednesday"
+                    DayOfWeek.THURSDAY -> "Thursday"
+                    DayOfWeek.FRIDAY -> "Friday"
+                    DayOfWeek.SATURDAY -> "Saturday"
+                    DayOfWeek.SUNDAY -> "Sunday"
+                }
 
-        "ru-RU" -> when (date.dayOfWeek) {
-            DayOfWeek.MONDAY -> "Понедельник"
-            DayOfWeek.TUESDAY -> "Вторник"
-            DayOfWeek.WEDNESDAY -> "Среда"
-            DayOfWeek.THURSDAY -> "Четверг"
-            DayOfWeek.FRIDAY -> "Пятница"
-            DayOfWeek.SATURDAY -> "Суббота"
-            DayOfWeek.SUNDAY -> "Воскресенье"
+            "ru-RU" ->
+                when (date.dayOfWeek) {
+                    DayOfWeek.MONDAY -> "Понедельник"
+                    DayOfWeek.TUESDAY -> "Вторник"
+                    DayOfWeek.WEDNESDAY -> "Среда"
+                    DayOfWeek.THURSDAY -> "Четверг"
+                    DayOfWeek.FRIDAY -> "Пятница"
+                    DayOfWeek.SATURDAY -> "Суббота"
+                    DayOfWeek.SUNDAY -> "Воскресенье"
+                }
+
+            "kk-KZ" ->
+                when (date.dayOfWeek) {
+                    DayOfWeek.MONDAY -> "Дүйсенбі"
+                    DayOfWeek.TUESDAY -> "Сейсенбі"
+                    DayOfWeek.WEDNESDAY -> "Сәрсенбі"
+                    DayOfWeek.THURSDAY -> "Бейсенбі"
+                    DayOfWeek.FRIDAY -> "Жұма"
+                    DayOfWeek.SATURDAY -> "Сенбі"
+                    DayOfWeek.SUNDAY -> "Жексенбі"
+                }
+
+            else -> throw IllegalArgumentException("Unsupported locale: $normalizedLocale")
         }
-
-        "kk-KZ" -> when (date.dayOfWeek) {
-            DayOfWeek.MONDAY -> "Дүйсенбі"
-            DayOfWeek.TUESDAY -> "Сейсенбі"
-            DayOfWeek.WEDNESDAY -> "Сәрсенбі"
-            DayOfWeek.THURSDAY -> "Бейсенбі"
-            DayOfWeek.FRIDAY -> "Жұма"
-            DayOfWeek.SATURDAY -> "Сенбі"
-            DayOfWeek.SUNDAY -> "Жексенбі"
-        }
-
-        else -> throw IllegalArgumentException("Unsupported locale: $normalizedLocale")
-    }
 
     val day = date.day.toString().padStart(2, '0')
     val month = date.month.number.toString().padStart(2, '0')
@@ -57,10 +59,7 @@ fun formatDate(
     }
 }
 
-fun formatDateTime(
-    dateTime: kotlinx.datetime.LocalDateTime,
-    locale: String,
-): String {
+fun formatDateTime(dateTime: kotlinx.datetime.LocalDateTime, locale: String): String {
     val date = dateTime.date
     val formattedDate = formatDate(date, locale)
     val hour = dateTime.hour.toString().padStart(2, '0')

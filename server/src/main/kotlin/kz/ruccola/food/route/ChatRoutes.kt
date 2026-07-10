@@ -19,10 +19,7 @@ import kz.ruccola.food.withRole
 fun Route.configureChatRoutes() {
     val chatService = ChatService()
 
-    suspend fun requireChatAccess(
-        call: ApplicationCall,
-        chatId: Int,
-    ): Boolean {
+    suspend fun requireChatAccess(call: ApplicationCall, chatId: Int): Boolean {
         val customerId = chatService.getChatCustomerId(chatId)
         if (customerId == null) {
             call.respond(HttpStatusCode.NotFound, "Chat not found")
@@ -37,9 +34,7 @@ fun Route.configureChatRoutes() {
     }
 
     withRole(Role.ADMIN) {
-        get<Chats> {
-            call.respond(chatService.getChatsForAdmin(call.user.id))
-        }
+        get<Chats> { call.respond(chatService.getChatsForAdmin(call.user.id)) }
 
         get<Chats.ChatId> { params ->
             val chat = chatService.getChatById(params.chatId, call.user.id)
@@ -51,11 +46,7 @@ fun Route.configureChatRoutes() {
         }
     }
 
-    withRole(Role.CUSTOMER) {
-        get<Chats.My> {
-            call.respond(chatService.getOrCreateChat(call.user.id, call.user.id))
-        }
-    }
+    withRole(Role.CUSTOMER) { get<Chats.My> { call.respond(chatService.getOrCreateChat(call.user.id, call.user.id)) } }
 
     get<Chats.ChatId.Messages> { params ->
         if (!requireChatAccess(call, params.parent.chatId)) return@get
@@ -74,10 +65,7 @@ fun Route.configureChatRoutes() {
             return@post
         }
         if (cleanedBody.length > MESSAGE_BODY_MAX_LENGTH) {
-            call.respond(
-                HttpStatusCode.BadRequest,
-                "Message body must be $MESSAGE_BODY_MAX_LENGTH characters or fewer",
-            )
+            call.respond(HttpStatusCode.BadRequest, "Message body must be $MESSAGE_BODY_MAX_LENGTH characters or fewer")
             return@post
         }
         val message = chatService.sendMessage(params.parent.chatId, call.user.id, cleanedBody)

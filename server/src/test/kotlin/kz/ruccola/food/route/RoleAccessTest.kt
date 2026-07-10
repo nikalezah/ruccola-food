@@ -20,11 +20,11 @@ import kotlin.test.assertEquals
 
 class RoleAccessTest : RouteIntegrationTest() {
     @Test
-    fun customerForbiddenOnAdminEndpoints() =
-        testApp { client ->
-            val token = client.registerCustomer().token
+    fun customerForbiddenOnAdminEndpoints() = testApp { client ->
+        val token = client.registerCustomer().token
 
-            val cases = listOf(
+        val cases =
+            listOf(
                 "POST" to "/api/dishes",
                 "POST" to "/api/files",
                 "PUT" to "/api/meal-plan-days",
@@ -32,53 +32,54 @@ class RoleAccessTest : RouteIntegrationTest() {
                 "POST" to "/api/days/midnight",
             )
 
-            cases.forEach { (method, path) ->
-                val response = when (method) {
+        cases.forEach { (method, path) ->
+            val response =
+                when (method) {
                     "POST" -> client.post(path) { authHeader(token) }
                     "PUT" -> client.put(path) { authHeader(token) }
                     else -> error("Unsupported method: $method")
                 }
-                assertEquals(HttpStatusCode.Forbidden, response.status, "$method $path")
-            }
+            assertEquals(HttpStatusCode.Forbidden, response.status, "$method $path")
         }
+    }
 
     @Test
-    fun customerForbiddenOnDishCreateWithBody() =
-        testApp { client ->
-            val token = client.registerCustomer().token
-            val response = client.post("/api/dishes") {
+    fun customerForbiddenOnDishCreateWithBody() = testApp { client ->
+        val token = client.registerCustomer().token
+        val response =
+            client.post("/api/dishes") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(
                     DishCreateDto(
-                        translations = mapOf(
-                            Language.EN to DishTranslation("Soup", "Hot soup"),
-                            Language.RU to DishTranslation("Суп", "Горячий суп"),
-                            Language.KK to DishTranslation("Сорпа", "Ыстық сорпа"),
-                        ),
-                    ),
+                        translations =
+                            mapOf(
+                                Language.EN to DishTranslation("Soup", "Hot soup"),
+                                Language.RU to DishTranslation("Суп", "Горячий суп"),
+                                Language.KK to DishTranslation("Сорпа", "Ыстық сорпа"),
+                            )
+                    )
                 )
             }
-            assertEquals(HttpStatusCode.Forbidden, response.status)
-        }
+        assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
 
     @Test
-    fun customerForbiddenOnMealPlanDaySave() =
-        testApp { client ->
-            val token = client.registerCustomer().token
-            val response = client.put("/api/meal-plan-days") {
+    fun customerForbiddenOnMealPlanDaySave() = testApp { client ->
+        val token = client.registerCustomer().token
+        val response =
+            client.put("/api/meal-plan-days") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(MealPlanDaySaveDto(null, emptyMap()))
             }
-            assertEquals(HttpStatusCode.Forbidden, response.status)
-        }
+        assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
 
     @Test
-    fun customerCanListPlans() =
-        testApp { client ->
-            val token = client.registerCustomer().token
-            val response = client.get("/api/plans") { authHeader(token) }
-            assertEquals(HttpStatusCode.OK, response.status)
-        }
+    fun customerCanListPlans() = testApp { client ->
+        val token = client.registerCustomer().token
+        val response = client.get("/api/plans") { authHeader(token) }
+        assertEquals(HttpStatusCode.OK, response.status)
+    }
 }

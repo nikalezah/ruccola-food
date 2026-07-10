@@ -53,9 +53,7 @@ fun MealPlanDayItem(
     var dishes by remember { mutableStateOf(item.dishes) }
     var isLoading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(item.dishes) {
-        dishes = item.dishes
-    }
+    LaunchedEffect(item.dishes) { dishes = item.dishes }
 
     SwipeToRemove(
         Icons.Filled.Delete,
@@ -64,14 +62,9 @@ fun MealPlanDayItem(
         CardDefaults.outlinedShape,
         swipeEnabled,
     ) {
-        OutlinedCard(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = onClick,
-        ) {
+        OutlinedCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
             Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(PaddingValues(0.dp, 8.dp, 8.dp, 8.dp))
-                    .heightIn(min = 142.dp),
+                modifier = Modifier.fillMaxWidth().padding(PaddingValues(0.dp, 8.dp, 8.dp, 8.dp)).heightIn(min = 142.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(12.dp, 0.dp).width(48.dp).heightIn(min = 142.dp),
@@ -110,28 +103,30 @@ fun MealPlanDayItem(
                     when {
                         isLoading -> CircularProgressIndicator(modifier = Modifier.size(18.dp))
 
-                        dishes.isEmpty() -> Text(
-                            text = stringResource(Res.string.no_data),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        dishes.isEmpty() ->
+                            Text(
+                                text = stringResource(Res.string.no_data),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
 
-                        else -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            dishes.forEach { d ->
-                                Row(modifier = Modifier.fillMaxWidth().padding(end = 8.dp)) {
-                                    SingleLineText(
-                                        d.dish.name,
-                                        modifier = Modifier.weight(1f),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                    Text(
-                                        d.meal.time.toString(),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(start = 8.dp),
-                                    )
+                        else ->
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                dishes.forEach { d ->
+                                    Row(modifier = Modifier.fillMaxWidth().padding(end = 8.dp)) {
+                                        SingleLineText(
+                                            d.dish.name,
+                                            modifier = Modifier.weight(1f),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Text(
+                                            d.meal.time.toString(),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            modifier = Modifier.padding(start = 8.dp),
+                                        )
+                                    }
                                 }
                             }
-                        }
                     }
                 }
             }

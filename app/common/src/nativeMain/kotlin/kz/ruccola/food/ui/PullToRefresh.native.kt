@@ -48,33 +48,30 @@ actual fun PullToRefresh(
     }
 
     Box(
-        modifier = modifier.pointerInput(isRefreshing) {
-            detectVerticalDragGestures(
-                onVerticalDrag = { change, dragAmount ->
-                    if (!isRefreshing && dragAmount > 0f) {
-                        change.consume()
-                        dragPx = maxOf(0f, dragPx + dragAmount)
-                    }
-                },
-                onDragCancel = {
-                    if (!isRefreshing) dragPx = 0f
-                },
-                onDragEnd = {
-                    if (!isRefreshing && dragPx >= thresholdPx && didTrigger == 0f) {
-                        didTrigger = 1f
-                        onRefresh()
-                    }
-                    if (didTrigger == 0f || !isRefreshing) {
-                        if (didTrigger == 0f) dragPx = 0f
-                    }
-                },
-            )
-        },
+        modifier =
+            modifier.pointerInput(isRefreshing) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = { change, dragAmount ->
+                        if (!isRefreshing && dragAmount > 0f) {
+                            change.consume()
+                            dragPx = maxOf(0f, dragPx + dragAmount)
+                        }
+                    },
+                    onDragCancel = { if (!isRefreshing) dragPx = 0f },
+                    onDragEnd = {
+                        if (!isRefreshing && dragPx >= thresholdPx && didTrigger == 0f) {
+                            didTrigger = 1f
+                            onRefresh()
+                        }
+                        if (didTrigger == 0f || !isRefreshing) {
+                            if (didTrigger == 0f) dragPx = 0f
+                        }
+                    },
+                )
+            },
         contentAlignment = contentAlignment,
     ) {
-        Box(modifier = Modifier.offset { IntOffset(0, dragPx.toInt()) }) {
-            content()
-        }
+        Box(modifier = Modifier.offset { IntOffset(0, dragPx.toInt()) }) { content() }
 
         if (isRefreshing) {
             Box(modifier = Modifier.matchParentSize()) {

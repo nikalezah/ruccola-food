@@ -30,75 +30,68 @@ import kotlin.test.assertTrue
 
 class MidnightRoutesTest : RouteIntegrationTest() {
     @Test
-    fun midnightCreatesDayFromCurrentMealPlanAndAdvances() =
-        testApp { client ->
-            val token = client.loginAdmin()
-            val dishId = seedDish("Midnight Pasta", nameRu = "Паста")
+    fun midnightCreatesDayFromCurrentMealPlanAndAdvances() = testApp { client ->
+        val token = client.loginAdmin()
+        val dishId = seedDish("Midnight Pasta", nameRu = "Паста")
 
-            suspendTransaction {
-                val mpd1 = MealPlanDays.insertAndGetId {
-                    it[serial] = 1
-                    it[current] = true
-                }
-                MealPlanDays.insertAndGetId {
-                    it[serial] = 2
-                    it[current] = false
-                }
-                MealPlanDayDishes.insert {
-                    it[MealPlanDayDishes.mealPlanDayId] = mpd1
-                    it[MealPlanDayDishes.dishId] = dishId
-                    it[MealPlanDayDishes.meal] = Meal.BREAKFAST.name
-                }
+        suspendTransaction {
+            val mpd1 = MealPlanDays.insertAndGetId {
+                it[serial] = 1
+                it[current] = true
             }
-
-            val response = client.post("/api/days/midnight") { authHeader(token) }
-            assertEquals(HttpStatusCode.OK, response.status)
-
-            val days = client.get("/api/days") { authHeader(token) }.body<List<DayDto>>()
-            assertEquals(1, days.size)
-            assertEquals(today(), days.first().date)
-            assertEquals(1, days.first().dishes.size)
-            assertEquals("Паста", days.first().dishes.first().dish.name)
-
-            val currentMpd = suspendTransaction {
-                MealPlanDays.selectAll().where { MealPlanDays.current eq true }.singleOrNull()
+            MealPlanDays.insertAndGetId {
+                it[serial] = 2
+                it[current] = false
             }
-            assertNotNull(currentMpd)
-            assertEquals(2, currentMpd[MealPlanDays.serial])
+            MealPlanDayDishes.insert {
+                it[MealPlanDayDishes.mealPlanDayId] = mpd1
+                it[MealPlanDayDishes.dishId] = dishId
+                it[MealPlanDayDishes.meal] = Meal.BREAKFAST.name
+            }
         }
+
+        val response = client.post("/api/days/midnight") { authHeader(token) }
+        assertEquals(HttpStatusCode.OK, response.status)
+
+        val days = client.get("/api/days") { authHeader(token) }.body<List<DayDto>>()
+        assertEquals(1, days.size)
+        assertEquals(today(), days.first().date)
+        assertEquals(1, days.first().dishes.size)
+        assertEquals("Паста", days.first().dishes.first().dish.name)
+
+        val currentMpd = suspendTransaction {
+            MealPlanDays.selectAll().where { MealPlanDays.current eq true }.singleOrNull()
+        }
+        assertNotNull(currentMpd)
+        assertEquals(2, currentMpd[MealPlanDays.serial])
+    }
 
     @Test
-    fun midnightIsIdempotentWhenDayAlreadyExists() =
-        testApp { client ->
-            val token = client.loginAdmin()
-            val dishId = seedDish("Idempotent Dish", nameRu = "Блюдо")
+    fun midnightIsIdempotentWhenDayAlreadyExists() = testApp { client ->
+        val token = client.loginAdmin()
+        val dishId = seedDish("Idempotent Dish", nameRu = "Блюдо")
 
-            val tomorrow = today().plus(1, DateTimeUnit.DAY)
+        val tomorrow = today().plus(1, DateTimeUnit.DAY)
 
-            suspendTransaction {
-                val mpdId = MealPlanDays.insertAndGetId {
-                    it[serial] = 1
-                    it[current] = true
-                }
-                MealPlanDayDishes.insert {
-                    it[MealPlanDayDishes.mealPlanDayId] = mpdId
-                    it[MealPlanDayDishes.dishId] = dishId
-                    it[MealPlanDayDishes.meal] = Meal.LAUNCH.name
-                }
-                Days.insert {
-                    it[Days.date] = today()
-                }
-                Days.insert {
-                    it[Days.date] = tomorrow
-                }
+        suspendTransaction {
+            val mpdId = MealPlanDays.insertAndGetId {
+                it[serial] = 1
+                it[current] = true
             }
-
-            client.post("/api/days/midnight") { authHeader(token) }
-                .apply { assertEquals(HttpStatusCode.OK, status) }
-
-            val daysAfter = client.get("/api/days") { authHeader(token) }.body<List<DayDto>>()
-            val tomorrowDays = daysAfter.filter { it.date == tomorrow }
-            assertEquals(1, tomorrowDays.size)
-            assertTrue(tomorrowDays.first().dishes.isEmpty())
+            MealPlanDayDishes.insert {
+                it[MealPlanDayDishes.mealPlanDayId] = mpdId
+                it[MealPlanDayDishes.dishId] = dishId
+                it[MealPlanDayDishes.meal] = Meal.LAUNCH.name
+            }
+            Days.insert { it[Days.date] = today() }
+            Days.insert { it[Days.date] = tomorrow }
         }
+
+        client.post("/api/days/midnight") { authHeader(token) }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        val daysAfter = client.get("/api/days") { authHeader(token) }.body<List<DayDto>>()
+        val tomorrowDays = daysAfter.filter { it.date == tomorrow }
+        assertEquals(1, tomorrowDays.size)
+        assertTrue(tomorrowDays.first().dishes.isEmpty())
+    }
 }

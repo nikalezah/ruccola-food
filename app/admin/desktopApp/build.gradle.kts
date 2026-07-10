@@ -18,8 +18,4 @@ kotlin {
     }
 }
 
-compose.desktop {
-    application {
-        mainClass = "kz.ruccola.food.MainKt"
-    }
-}
+compose.desktop { application { mainClass = "kz.ruccola.food.MainKt" } }

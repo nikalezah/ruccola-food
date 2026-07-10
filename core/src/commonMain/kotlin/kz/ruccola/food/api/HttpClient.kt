@@ -24,7 +24,7 @@ val httpClient = HttpClient {
                 prettyPrint = true
                 isLenient = true
                 ignoreUnknownKeys = true
-            },
+            }
         )
     }
     install(Resources)
@@ -34,12 +34,8 @@ val httpClient = HttpClient {
     }
     install(Auth) {
         bearer {
-            loadTokens {
-                TokenProvider.token?.let { BearerTokens(it, "") }
-            }
-            sendWithoutRequest {
-                TokenProvider.token != null
-            }
+            loadTokens { TokenProvider.token?.let { BearerTokens(it, "") } }
+            sendWithoutRequest { TokenProvider.token != null }
         }
     }
     HttpResponseValidator {
@@ -56,9 +52,7 @@ object TokenProvider {
         set(value) {
             field = value
             // Clear the Ktor Auth cache so it calls loadTokens again on the next request
-            httpClient.authProviders
-                .filterIsInstance<BearerAuthProvider>()
-                .forEach { it.clearToken() }
+            httpClient.authProviders.filterIsInstance<BearerAuthProvider>().forEach { it.clearToken() }
         }
 
     var onUnauthorized: (() -> Unit)? = null

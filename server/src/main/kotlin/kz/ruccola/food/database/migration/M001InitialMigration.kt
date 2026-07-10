@@ -29,14 +29,7 @@ class M001InitialMigration : Migration {
     override suspend fun up() {
         suspendTransaction {
             // Order matters because of FKs. Create base tables first.
-            SchemaUtils.create(
-                Users,
-                Dishes,
-                Files,
-                Days,
-                MealPlanDays,
-                Plans,
-            )
+            SchemaUtils.create(Users, Dishes, Files, Days, MealPlanDays, Plans)
             // Then create tables that reference the above
             SchemaUtils.create(
                 Customers,
@@ -58,7 +51,8 @@ class M001InitialMigration : Migration {
                 """
                 ALTER TABLE dish_translations ADD CONSTRAINT chk_dish_translations_language
                 CHECK (language IN ($languages));
-                """.trimIndent(),
+                """
+                    .trimIndent()
             )
             exec(
                 """
@@ -68,7 +62,8 @@ class M001InitialMigration : Migration {
                   (language = '${Language.RU.name}' AND name ~ '${Language.RU.dishNamePattern}') OR
                   (language = '${Language.KK.name}' AND name ~ '${Language.KK.dishNamePattern}')
                 );
-                """.trimIndent(),
+                """
+                    .trimIndent()
             )
 
             println("[DEBUG_LOG] Created core tables and relations")

@@ -21,15 +21,15 @@ fun Route.configureDishRoutes() {
     val dishService = DishService()
 
     withRole(Role.ADMIN) {
-        get<Dishes.List> { dishes ->
-            call.respond(dishService.getAll(dishes.page, dishes.size, call.language))
-        }
+        get<Dishes.List> { dishes -> call.respond(dishService.getAll(dishes.page, dishes.size, call.language)) }
 
         get<Dishes.Id> { dish ->
-            val d = dishService.findByIdWithTranslations(dish.id) ?: run {
-                call.respond(HttpStatusCode.NotFound, "Dish not found")
-                return@get
-            }
+            val d =
+                dishService.findByIdWithTranslations(dish.id)
+                    ?: run {
+                        call.respond(HttpStatusCode.NotFound, "Dish not found")
+                        return@get
+                    }
             call.respond(d)
         }
 
@@ -67,11 +67,12 @@ fun Route.configureDishRoutes() {
                     return@put
                 }
             }
-            val updated = dishService.updateDish(dish.id, payload.translations, payload.imageFileIds)
-                ?: run {
-                    call.respond(HttpStatusCode.NotFound, "Dish not found")
-                    return@put
-                }
+            val updated =
+                dishService.updateDish(dish.id, payload.translations, payload.imageFileIds)
+                    ?: run {
+                        call.respond(HttpStatusCode.NotFound, "Dish not found")
+                        return@put
+                    }
             call.respond(updated)
         }
 

@@ -12,17 +12,8 @@ import androidx.compose.ui.Modifier
 import kz.ruccola.food.ui.Icons
 
 @Composable
-fun LogoutButton(
-    onClick: () -> Unit,
-    label: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.fillMaxWidth(),
-    ) {
+fun LogoutButton(onClick: () -> Unit, label: String, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    Button(onClick = onClick, enabled = enabled, modifier = modifier.fillMaxWidth()) {
         Icon(Icons.Filled.Logout, contentDescription = label)
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text(label)

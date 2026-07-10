@@ -154,10 +154,7 @@ fun PlanEditorDialog(
         dismissButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (plan != null) {
-                    TextButton(
-                        onClick = { onDelete(plan.id) },
-                        enabled = !isSaving,
-                    ) {
+                    TextButton(onClick = { onDelete(plan.id) }, enabled = !isSaving) {
                         Text(stringResource(Res.string.delete), color = MaterialTheme.colorScheme.error)
                     }
                 }

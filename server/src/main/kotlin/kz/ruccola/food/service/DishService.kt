@@ -32,108 +32,87 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 
 class DishService {
-    suspend fun exists(id: Int): Boolean =
-        dbQuery {
-            Dishes.selectAll().where { Dishes.id eq id }.count() > 0
-        }
+    suspend fun exists(id: Int): Boolean = dbQuery { Dishes.selectAll().where { Dishes.id eq id }.count() > 0 }
 
-    suspend fun translationNameExists(
-        language: Language,
-        name: String,
-        excludeId: Int?,
-    ): Boolean =
-        dbQuery {
-            val baseCondition = (DishTranslations.language eq language.name) and
-                (DishTranslations.name.lowerCase() eq name.lowercase())
-            val condition = if (excludeId != null) {
+    suspend fun translationNameExists(language: Language, name: String, excludeId: Int?): Boolean = dbQuery {
+        val baseCondition =
+            (DishTranslations.language eq language.name) and (DishTranslations.name.lowerCase() eq name.lowercase())
+        val condition =
+            if (excludeId != null) {
                 baseCondition and (DishTranslations.dishId neq excludeId)
             } else {
                 baseCondition
             }
-            DishTranslations.selectAll().where { condition }.count() > 0
-        }
+        DishTranslations.selectAll().where { condition }.count() > 0
+    }
 
-    suspend fun findByIdWithTranslations(id: Int): DishWithTranslationsDto? =
-        dbQuery {
-            Dishes.selectAll().where { Dishes.id eq id }.singleOrNull()?.let { toDtoWithTranslations(it) }
-        }
+    suspend fun findByIdWithTranslations(id: Int): DishWithTranslationsDto? = dbQuery {
+        Dishes.selectAll().where { Dishes.id eq id }.singleOrNull()?.let { toDtoWithTranslations(it) }
+    }
 
-    suspend fun getAll(
-        page: Int = 0,
-        size: Int = 20,
-        language: Language,
-    ): PagingResponse<DishDto> =
-        dbQuery {
-            Dishes.selectAll()
-                .where { Dishes.archived eq false }
-                .orderBy(Dishes.id to SortOrder.ASC)
-                .toPagingResponse(page, size) { toDto(it, language) }
-        }
+    suspend fun getAll(page: Int = 0, size: Int = 20, language: Language): PagingResponse<DishDto> = dbQuery {
+        Dishes.selectAll()
+            .where { Dishes.archived eq false }
+            .orderBy(Dishes.id to SortOrder.ASC)
+            .toPagingResponse(page, size) { toDto(it, language) }
+    }
 
     suspend fun createDish(
         translations: Map<Language, DishTranslation>,
         imageFileIds: List<Int>,
-    ): DishWithTranslationsDto =
-        dbQuery {
-            val dishId = Dishes.insertAndGetId {
+    ): DishWithTranslationsDto = dbQuery {
+        val dishId =
+            Dishes.insertAndGetId {
                 it[Dishes.archived] = false
                 it[Dishes.createdAt] = now()
                 it[Dishes.updatedAt] = now()
-            }.value
+            }
+                .value
 
-            insertTranslations(dishId, translations)
-            insertImages(dishId, imageFileIds)
+        insertTranslations(dishId, translations)
+        insertImages(dishId, imageFileIds)
 
-            toDtoWithTranslations(Dishes.selectAll().where { Dishes.id eq dishId }.single())
-        }
+        toDtoWithTranslations(Dishes.selectAll().where { Dishes.id eq dishId }.single())
+    }
 
     suspend fun updateDish(
         id: Int,
         translations: Map<Language, DishTranslation>?,
         imageFileIds: List<Int>?,
-    ): DishWithTranslationsDto? =
-        dbQuery {
-            Dishes.selectAll().where { Dishes.id eq id }.singleOrNull() ?: return@dbQuery null
-            Dishes.update({ Dishes.id eq id }) {
-                it[Dishes.updatedAt] = now()
-            }
-            translations?.let { transMap ->
-                DishTranslations.deleteWhere { DishTranslations.dishId eq id }
-                insertTranslations(id, transMap)
-            }
-            imageFileIds?.let { newImages ->
-                DishImages.deleteWhere { DishImages.dishId eq id }
-                insertImages(id, newImages)
-            }
-            toDtoWithTranslations(Dishes.selectAll().where { Dishes.id eq id }.single())
+    ): DishWithTranslationsDto? = dbQuery {
+        Dishes.selectAll().where { Dishes.id eq id }.singleOrNull() ?: return@dbQuery null
+        Dishes.update({ Dishes.id eq id }) { it[Dishes.updatedAt] = now() }
+        translations?.let { transMap ->
+            DishTranslations.deleteWhere { DishTranslations.dishId eq id }
+            insertTranslations(id, transMap)
         }
+        imageFileIds?.let { newImages ->
+            DishImages.deleteWhere { DishImages.dishId eq id }
+            insertImages(id, newImages)
+        }
+        toDtoWithTranslations(Dishes.selectAll().where { Dishes.id eq id }.single())
+    }
 
-    suspend fun archiveDish(id: Int): Boolean =
-        dbQuery {
-            Dishes.update({ Dishes.id eq id }) {
-                it[archived] = true
-                it[updatedAt] = now()
-            } > 0
-        }
+    suspend fun archiveDish(id: Int): Boolean = dbQuery {
+        Dishes.update({ Dishes.id eq id }) {
+            it[archived] = true
+            it[updatedAt] = now()
+        } > 0
+    }
 
     private suspend fun getTranslationsMap(dishId: Int): Map<Language, DishTranslation> =
         DishTranslations.selectAll()
             .where { DishTranslations.dishId eq dishId }
             .map { row ->
                 val lang = Language.valueOf(row[DishTranslations.language])
-                val translation = DishTranslation(
-                    name = row[DishTranslations.name],
-                    description = row[DishTranslations.description],
-                )
+                val translation =
+                    DishTranslation(name = row[DishTranslations.name], description = row[DishTranslations.description])
                 lang to translation
             }
             .toList()
             .toMap()
 
-    suspend fun toDto(
-        row: ResultRow,
-        language: Language,
-    ): DishDto {
+    suspend fun toDto(row: ResultRow, language: Language): DishDto {
         val dishId = row[Dishes.id].value
         val translation = getTranslationsMap(dishId)[language]!!
         return DishDto(
@@ -160,16 +139,14 @@ class DishService {
     }
 
     private suspend fun getImages(dishId: Int): List<DishImageDto> =
-        (DishImages innerJoin Files).selectAll()
+        (DishImages innerJoin Files)
+            .selectAll()
             .where { DishImages.dishId eq dishId }
             .orderBy(DishImages.position to SortOrder.ASC, DishImages.id to SortOrder.ASC)
             .map(::toDishImageDto)
             .toList()
 
-    private suspend fun insertTranslations(
-        dishId: Int,
-        translations: Map<Language, DishTranslation>,
-    ) {
+    private suspend fun insertTranslations(dishId: Int, translations: Map<Language, DishTranslation>) {
         Language.entries.forEach { lang ->
             translations[lang]?.let { translation ->
                 DishTranslations.insert {
@@ -182,10 +159,7 @@ class DishService {
         }
     }
 
-    private suspend fun insertImages(
-        dishId: Int,
-        imageFileIds: List<Int>,
-    ) {
+    private suspend fun insertImages(dishId: Int, imageFileIds: List<Int>) {
         imageFileIds.forEachIndexed { i, id ->
             DishImages.insert {
                 it[DishImages.dishId] = dishId

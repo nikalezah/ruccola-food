@@ -4,9 +4,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kz.ruccola.food.api.PagingResponse
 
-class ApiPagingSource<T : Any>(
-    private val fetchData: suspend (page: Int, size: Int) -> PagingResponse<T>,
-) : PagingSource<Int, T>() {
+class ApiPagingSource<T : Any>(private val fetchData: suspend (page: Int, size: Int) -> PagingResponse<T>) :
+    PagingSource<Int, T>() {
     override fun getRefreshKey(state: PagingState<Int, T>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)

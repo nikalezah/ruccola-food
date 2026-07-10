@@ -31,51 +31,45 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 
 class CustomerService {
-    suspend fun findById(id: Int): CustomerDto? =
-        dbQuery {
-            Customers.innerJoin(Users).selectAll()
-                .where { Customers.id eq id }
-                .singleOrNull()
-                ?.let(::toDto)
-        }
+    suspend fun findById(id: Int): CustomerDto? = dbQuery {
+        Customers.innerJoin(Users).selectAll().where { Customers.id eq id }.singleOrNull()?.let(::toDto)
+    }
 
-    suspend fun findAllWithDetails(): List<CustomerDetailsDto> =
-        dbQuery {
-            val customers = Customers.innerJoin(Users).selectAll().toList()
-            val customerIds = customers.map { it[Customers.id].value }
+    suspend fun findAllWithDetails(): List<CustomerDetailsDto> = dbQuery {
+        val customers = Customers.innerJoin(Users).selectAll().toList()
+        val customerIds = customers.map { it[Customers.id].value }
 
-            if (customerIds.isEmpty()) return@dbQuery emptyList()
+        if (customerIds.isEmpty()) return@dbQuery emptyList()
 
-            val latestPlans = CustomerPlans.innerJoin(Plans).selectAll()
+        val latestPlans =
+            CustomerPlans.innerJoin(Plans)
+                .selectAll()
                 .where { CustomerPlans.customer inList customerIds }
                 .orderBy(CustomerPlans.customer to SortOrder.ASC, CustomerPlans.chosenDate to SortOrder.DESC)
                 .toList()
                 .groupBy { it[CustomerPlans.customer].value }
                 .mapValues { (_, rows) -> rows.first() }
 
-            val lastMessages = Messages.innerJoin(Chats).select(Messages.body, Chats.customerId)
+        val lastMessages =
+            Messages.innerJoin(Chats)
+                .select(Messages.body, Chats.customerId)
                 .where { Chats.customerId inList customerIds }
                 .orderBy(Chats.customerId to SortOrder.ASC, Messages.id to SortOrder.DESC)
                 .toList()
                 .groupBy { it[Chats.customerId].value }
                 .mapValues { (_, rows) -> rows.first()[Messages.body] }
 
-            customers.map { row ->
-                val id = row[Customers.id].value
-                val planRow = latestPlans[id]
-                val plan = planRow?.let { toCustomerPlanDetailsDto(it) }
-                toDetailsDto(row, plan, lastMessages[id])
-            }
+        customers.map { row ->
+            val id = row[Customers.id].value
+            val planRow = latestPlans[id]
+            val plan = planRow?.let { toCustomerPlanDetailsDto(it) }
+            toDetailsDto(row, plan, lastMessages[id])
         }
+    }
 
-    suspend fun update(
-        id: Int,
-        firstName: String?,
-        lastName: String?,
-        address: String?,
-    ): CustomerDto? =
-        dbQuery {
-            val updatedUsers = if (firstName != null || lastName != null) {
+    suspend fun update(id: Int, firstName: String?, lastName: String?, address: String?): CustomerDto? = dbQuery {
+        val updatedUsers =
+            if (firstName != null || lastName != null) {
                 Users.update({ Users.id eq id }) {
                     firstName?.let { n -> it[Users.firstName] = n }
                     lastName?.let { n -> it[Users.lastName] = n }
@@ -84,60 +78,49 @@ class CustomerService {
                 0
             }
 
-            val updatedCustomers = address?.let { addr ->
-                Customers.update({ Customers.id eq id }) {
-                    it[Customers.address] = addr
-                }
-            } ?: 0
+        val updatedCustomers =
+            address?.let { addr -> Customers.update({ Customers.id eq id }) { it[Customers.address] = addr } } ?: 0
 
-            if (updatedUsers == 0 && updatedCustomers == 0) {
-                null
-            } else {
-                Customers.innerJoin(Users).selectAll()
-                    .where { Customers.id eq id }
-                    .singleOrNull()
-                    ?.let(::toDto)
-            }
+        if (updatedUsers == 0 && updatedCustomers == 0) {
+            null
+        } else {
+            Customers.innerJoin(Users).selectAll().where { Customers.id eq id }.singleOrNull()?.let(::toDto)
         }
+    }
 
-    suspend fun getCustomerPlanWithPrefs(customerId: Int): CustomerPlanWithPrefsDto? =
-        dbQuery {
-            val customerRow = Customers.selectAll()
-                .where { Customers.id eq customerId }
-                .singleOrNull()
+    suspend fun getCustomerPlanWithPrefs(customerId: Int): CustomerPlanWithPrefsDto? = dbQuery {
+        val customerRow =
+            Customers.selectAll().where { Customers.id eq customerId }.singleOrNull()
                 ?: throw IllegalStateException("Customer not found")
 
-            val prefs = toCustomerPrefsDto(customerRow)
+        val prefs = toCustomerPrefsDto(customerRow)
 
-            val planRow = CustomerPlans.selectAll()
+        val planRow =
+            CustomerPlans.selectAll()
                 .where { CustomerPlans.customer eq customerId }
                 .orderBy(CustomerPlans.chosenDate to SortOrder.DESC)
-                .firstOrNull()
-                ?: return@dbQuery null
+                .firstOrNull() ?: return@dbQuery null
 
-            CustomerPlanWithPrefsDto(plan = toCustomerPlanDetailsDto(planRow), prefs = prefs)
-        }
+        CustomerPlanWithPrefsDto(plan = toCustomerPlanDetailsDto(planRow), prefs = prefs)
+    }
 
-    suspend fun saveCustomerPlan(
-        customerId: Int,
-        newCustomerPlan: CustomerPlanCreateDto,
-    ): CustomerPlanDetailsDto =
+    suspend fun saveCustomerPlan(customerId: Int, newCustomerPlan: CustomerPlanCreateDto): CustomerPlanDetailsDto =
         dbQuery {
             Customers.selectAll().where { Customers.id eq customerId }.singleOrNull()
                 ?: throw IllegalArgumentException("Customer not found")
 
-            val plan = Plans.selectAll()
-                .where { Plans.id eq newCustomerPlan.planId }
-                .singleOrNull()
-                ?: throw IllegalArgumentException("Plan not found")
+            val plan =
+                Plans.selectAll().where { Plans.id eq newCustomerPlan.planId }.singleOrNull()
+                    ?: throw IllegalArgumentException("Plan not found")
 
             val calories = plan[Plans.calories]
 
-            val thresholdPlan = Plans.selectAll()
-                .where { (Plans.calories eq calories) and (Plans.periodDays lessEq newCustomerPlan.days) }
-                .orderBy(Plans.periodDays to SortOrder.DESC)
-                .firstOrNull()
-                ?: throw IllegalArgumentException("No plan available for the requested number of days")
+            val thresholdPlan =
+                Plans.selectAll()
+                    .where { (Plans.calories eq calories) and (Plans.periodDays lessEq newCustomerPlan.days) }
+                    .orderBy(Plans.periodDays to SortOrder.DESC)
+                    .firstOrNull()
+                    ?: throw IllegalArgumentException("No plan available for the requested number of days")
 
             val thresholdPricePerDay = thresholdPlan[Plans.pricePerDay]
             val thresholdPlanId = thresholdPlan[Plans.id]
@@ -145,39 +128,31 @@ class CustomerService {
             CustomerPlans.deleteWhere {
                 (CustomerPlans.customer eq customerId) and (CustomerPlans.chosenDate eq newCustomerPlan.chosenDate)
             }
-            val cp = CustomerPlans.insertReturning {
-                it[CustomerPlans.customer] = customerId
-                it[CustomerPlans.plan] = thresholdPlanId
-                it[CustomerPlans.chosenDate] = newCustomerPlan.chosenDate
-                it[CustomerPlans.calories] = calories
-                it[CustomerPlans.pricePerDay] = thresholdPricePerDay
-                it[CustomerPlans.days] = newCustomerPlan.days
-            }.single()
+            val cp =
+                CustomerPlans.insertReturning {
+                    it[CustomerPlans.customer] = customerId
+                    it[CustomerPlans.plan] = thresholdPlanId
+                    it[CustomerPlans.chosenDate] = newCustomerPlan.chosenDate
+                    it[CustomerPlans.calories] = calories
+                    it[CustomerPlans.pricePerDay] = thresholdPricePerDay
+                    it[CustomerPlans.days] = newCustomerPlan.days
+                }
+                    .single()
             toCustomerPlanDetailsDto(cp)
         }
 
-    suspend fun updateCustomerPrefs(
-        id: Int,
-        prefs: CustomerPrefsUpdateDto,
-    ): CustomerPrefsDto? =
-        dbQuery {
-            val updateCount = Customers.update({ Customers.id eq id }) {
+    suspend fun updateCustomerPrefs(id: Int, prefs: CustomerPrefsUpdateDto): CustomerPrefsDto? = dbQuery {
+        val updateCount =
+            Customers.update({ Customers.id eq id }) {
                 prefs.needsCutlery?.let { v -> it[needsCutlery] = v }
                 prefs.weekendDelivery?.let { v -> it[weekendDelivery] = v }
                 prefs.morningDelivery?.let { v -> it[morningDelivery] = v }
             }
-            if (updateCount == 0) return@dbQuery null
-            Customers.selectAll()
-                .where { Customers.id eq id }
-                .singleOrNull()
-                ?.let(::toCustomerPrefsDto)
-        }
+        if (updateCount == 0) return@dbQuery null
+        Customers.selectAll().where { Customers.id eq id }.singleOrNull()?.let(::toCustomerPrefsDto)
+    }
 
-    fun toDto(
-        row: ResultRow,
-        calories: Int? = null,
-        lastMessage: String? = null,
-    ): CustomerDto =
+    fun toDto(row: ResultRow, calories: Int? = null, lastMessage: String? = null): CustomerDto =
         CustomerDto(
             row[Customers.id].value,
             row[Users.email],
@@ -201,11 +176,12 @@ class CustomerService {
             lastName = row[Users.lastName],
             address = row[Customers.address],
             role = row[Users.role].name,
-            prefs = CustomerPrefsDto(
-                row[Customers.needsCutlery],
-                row[Customers.weekendDelivery],
-                row[Customers.morningDelivery],
-            ),
+            prefs =
+                CustomerPrefsDto(
+                    row[Customers.needsCutlery],
+                    row[Customers.weekendDelivery],
+                    row[Customers.morningDelivery],
+                ),
             plan = plan,
             lastMessage = lastMessage,
         )

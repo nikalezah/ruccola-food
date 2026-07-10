@@ -45,16 +45,11 @@ fun PlanContent(
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
-    PullToRefresh(
-        isRefreshing = state.isLoading,
-        onRefresh = onRefresh,
-        modifier = modifier,
-        state = ptrState,
-    ) {
+    PullToRefresh(isRefreshing = state.isLoading, onRefresh = onRefresh, modifier = modifier, state = ptrState) {
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).graphicsLayer {
                 translationY = ptrState.distanceFraction * thresholdPx
-            },
+            }
         ) {
             AsyncContent(
                 isLoading = state.isLoading,
@@ -65,11 +60,7 @@ fun PlanContent(
                 emptyText = stringResource(Res.string.no_plans),
                 retryLabel = stringResource(Res.string.retry),
             ) {
-                PlansTable(
-                    items = state.items,
-                    onCellClick = onCellClick,
-                    onEmptyCellClick = onEmptyCellClick,
-                )
+                PlansTable(items = state.items, onCellClick = onCellClick, onEmptyCellClick = onEmptyCellClick)
             }
         }
     }
@@ -88,10 +79,7 @@ private fun PlansTable(
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Row(Modifier.fillMaxWidth()) {
             Box(Modifier.width(72.dp)) {
-                Text(
-                    stringResource(Res.string.kcal_days),
-                    style = MaterialTheme.typography.labelMedium,
-                )
+                Text(stringResource(Res.string.kcal_days), style = MaterialTheme.typography.labelMedium)
             }
             periods.forEach { d ->
                 Box(Modifier.weight(1f), Alignment.TopCenter) {
@@ -105,9 +93,7 @@ private fun PlansTable(
                 Box(Modifier.width(72.dp)) { Text(planCalLabel(cal), style = MaterialTheme.typography.bodyMedium) }
                 periods.forEach { d ->
                     val plan = map[cal to d]
-                    Box(
-                        Modifier.weight(1f).padding(4.dp),
-                    ) {
+                    Box(Modifier.weight(1f).padding(4.dp)) {
                         if (plan == null) {
                             Surface(
                                 tonalElevation = 2.dp,

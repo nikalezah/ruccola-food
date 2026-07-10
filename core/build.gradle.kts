@@ -34,13 +34,10 @@ kotlin {
 
     js { browser() }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs { browser() }
+    @OptIn(ExperimentalWasmDsl::class) wasmJs { browser() }
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.ktor.client.android)
-        }
+        androidMain.dependencies { implementation(libs.ktor.client.android) }
         commonMain.dependencies {
             api(libs.ktor.resources)
             implementation(libs.ktor.client.core)
@@ -52,19 +49,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.androidx.paging.common)
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
-        jvmMain.dependencies {
-            implementation(libs.ktor.client.cio)
-        }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
-        named("webMain") {
-            dependencies {
-                implementation(libs.ktor.client.core)
-            }
-        }
+        commonTest.dependencies { implementation(libs.kotlin.test) }
+        jvmMain.dependencies { implementation(libs.ktor.client.cio) }
+        iosMain.dependencies { implementation(libs.ktor.client.darwin) }
+        named("webMain") { dependencies { implementation(libs.ktor.client.core) } }
     }
 }

@@ -24,33 +24,31 @@ data class DishEditorUiState(
     val error: String? = null,
 ) {
     val hasChanges: Boolean
-        get() = Language.entries.any { lang ->
-            val current = translations[lang]
-            val original = originalTranslations[lang]
-            current?.name != original?.name || current?.description != original?.description
-        } || dish == null
+        get() =
+            Language.entries.any { lang ->
+                val current = translations[lang]
+                val original = originalTranslations[lang]
+                current?.name != original?.name || current?.description != original?.description
+            } || dish == null
 }
 
-class DishEditorViewModel(
-    initialDish: DishWithTranslationsDto?,
-    private val dishApi: DishApi = DishApi(),
-) : ViewModel() {
+class DishEditorViewModel(initialDish: DishWithTranslationsDto?, private val dishApi: DishApi = DishApi()) :
+    ViewModel() {
     private fun getInitialTranslations(dish: DishWithTranslationsDto?): Map<Language, DishTranslation> {
         if (dish == null) {
             return Language.entries.associateWith { DishTranslation("", "") }
         }
-        return Language.entries.associateWith { lang ->
-            dish.translations[lang] ?: DishTranslation("", "")
-        }
+        return Language.entries.associateWith { lang -> dish.translations[lang] ?: DishTranslation("", "") }
     }
 
     val uiState: StateFlow<DishEditorUiState>
-        field = MutableStateFlow(
+        field =
+        MutableStateFlow(
             DishEditorUiState(
                 dish = initialDish,
                 translations = getInitialTranslations(initialDish),
                 originalTranslations = getInitialTranslations(initialDish),
-            ),
+            )
         )
 
     fun saveDish() {
@@ -60,15 +58,17 @@ class DishEditorViewModel(
                 val currentDish = uiState.value.dish
                 val translations = uiState.value.translations
 
-                val missingFields = Language.entries.filter { lang ->
-                    val t = translations[lang]
-                    t?.name.isNullOrBlank()
-                }
+                val missingFields =
+                    Language.entries.filter { lang ->
+                        val t = translations[lang]
+                        t?.name.isNullOrBlank()
+                    }
                 if (missingFields.isNotEmpty()) {
                     uiState.update {
                         it.copy(
                             isBusy = false,
-                            error = "Please fill in name for all languages: ${
+                            error =
+                                "Please fill in name for all languages: ${
                                 missingFields.joinToString(", ") {
                                     it.name
                                 }
@@ -79,28 +79,11 @@ class DishEditorViewModel(
                 }
 
                 if (currentDish == null) {
-                    val created = dishApi.createDish(
-                        DishCreateDto(translations = translations),
-                    )
-                    uiState.update {
-                        it.copy(
-                            dish = created,
-                            translations = created.translations,
-                            isBusy = false,
-                        )
-                    }
+                    val created = dishApi.createDish(DishCreateDto(translations = translations))
+                    uiState.update { it.copy(dish = created, translations = created.translations, isBusy = false) }
                 } else {
-                    val updated = dishApi.updateDish(
-                        currentDish.id,
-                        DishUpdateDto(translations = translations),
-                    )
-                    uiState.update {
-                        it.copy(
-                            dish = updated,
-                            translations = updated.translations,
-                            isBusy = false,
-                        )
-                    }
+                    val updated = dishApi.updateDish(currentDish.id, DishUpdateDto(translations = translations))
+                    uiState.update { it.copy(dish = updated, translations = updated.translations, isBusy = false) }
                 }
             } catch (e: Exception) {
                 uiState.update { it.copy(error = e.message ?: "Ошибка сохранения", isBusy = false) }
@@ -108,26 +91,18 @@ class DishEditorViewModel(
         }
     }
 
-    fun onTranslationNameChange(
-        language: Language,
-        name: String,
-    ) {
+    fun onTranslationNameChange(language: Language, name: String) {
         uiState.update { state ->
             val currentTranslation = state.translations[language] ?: DishTranslation("", "")
-            state.copy(
-                translations = state.translations + (language to currentTranslation.copy(name = name)),
-            )
+            state.copy(translations = state.translations + (language to currentTranslation.copy(name = name)))
         }
     }
 
-    fun onTranslationDescriptionChange(
-        language: Language,
-        description: String,
-    ) {
+    fun onTranslationDescriptionChange(language: Language, description: String) {
         uiState.update { state ->
             val currentTranslation = state.translations[language] ?: DishTranslation("", "")
             state.copy(
-                translations = state.translations + (language to currentTranslation.copy(description = description)),
+                translations = state.translations + (language to currentTranslation.copy(description = description))
             )
         }
     }
@@ -137,10 +112,7 @@ class DishEditorViewModel(
     }
 
     companion object {
-        fun factory(
-            initialDish: DishWithTranslationsDto?,
-            dishApi: DishApi = DishApi(),
-        ): ViewModelProvider.Factory =
+        fun factory(initialDish: DishWithTranslationsDto?, dishApi: DishApi = DishApi()): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer { DishEditorViewModel(initialDish, dishApi) }
             }

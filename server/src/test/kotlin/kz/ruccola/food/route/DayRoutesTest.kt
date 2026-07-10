@@ -23,31 +23,28 @@ import kotlin.test.assertTrue
 
 class DayRoutesTest : RouteIntegrationTest() {
     @Test
-    fun testListDaysOnly() =
-        testApp { client ->
-            val token = client.loginAdmin()
-            val dishId = seedDish("Test Dish", nameRu = "Тестовое блюдо")
+    fun testListDaysOnly() = testApp { client ->
+        val token = client.loginAdmin()
+        val dishId = seedDish("Test Dish", nameRu = "Тестовое блюдо")
 
-            dbQuery {
-                val dayId = Days.insertReturning {
-                    it[date] = LocalDate(2025, 1, 1)
-                }.toList().first()[Days.id]
+        dbQuery {
+            val dayId = Days.insertReturning { it[date] = LocalDate(2025, 1, 1) }.toList().first()[Days.id]
 
-                DayDishes.insert {
-                    it[DayDishes.dayId] = dayId
-                    it[DayDishes.dishId] = dishId
-                    it[meal] = Meal.BREAKFAST.name
-                }
+            DayDishes.insert {
+                it[DayDishes.dayId] = dayId
+                it[DayDishes.dishId] = dishId
+                it[meal] = Meal.BREAKFAST.name
             }
-
-            val response = client.get("/api/days") { authHeader(token) }
-            assertEquals(HttpStatusCode.OK, response.status)
-
-            val days = response.body<List<DayDto>>()
-            assertTrue(days.isNotEmpty())
-            val firstDay = days.first()
-            assertEquals(1, firstDay.dishes.size)
-            assertEquals("Тестовое блюдо", firstDay.dishes.first().dish.name)
-            assertEquals(Meal.BREAKFAST, firstDay.dishes.first().meal)
         }
+
+        val response = client.get("/api/days") { authHeader(token) }
+        assertEquals(HttpStatusCode.OK, response.status)
+
+        val days = response.body<List<DayDto>>()
+        assertTrue(days.isNotEmpty())
+        val firstDay = days.first()
+        assertEquals(1, firstDay.dishes.size)
+        assertEquals("Тестовое блюдо", firstDay.dishes.first().dish.name)
+        assertEquals(Meal.BREAKFAST, firstDay.dishes.first().meal)
+    }
 }

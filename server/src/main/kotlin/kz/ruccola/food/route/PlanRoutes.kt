@@ -18,9 +18,7 @@ import kz.ruccola.food.withRole
 fun Route.configurePlanRoutes() {
     val service = PlanService()
 
-    get<Plans> {
-        call.respond(service.getAll())
-    }
+    get<Plans> { call.respond(service.getAll()) }
 
     withRole(Role.ADMIN) {
         post<Plans> {

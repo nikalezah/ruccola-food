@@ -13,10 +13,7 @@ object DesktopPreferences {
 
     fun get(key: String): String? = properties.getProperty(key)
 
-    fun set(
-        key: String,
-        value: String,
-    ) {
+    fun set(key: String, value: String) {
         properties.setProperty(key, value)
         save()
     }

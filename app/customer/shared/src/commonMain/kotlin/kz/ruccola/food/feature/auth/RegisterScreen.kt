@@ -128,8 +128,6 @@ fun RegisterScreen(
         ) {
             Text(if (uiState.isLoading) stringResource(Res.string.registering) else stringResource(Res.string.register))
         }
-        Button(onClick = onBackToLogin, enabled = !uiState.isLoading) {
-            Text(stringResource(Res.string.back_to_login))
-        }
+        Button(onClick = onBackToLogin, enabled = !uiState.isLoading) { Text(stringResource(Res.string.back_to_login)) }
     }
 }

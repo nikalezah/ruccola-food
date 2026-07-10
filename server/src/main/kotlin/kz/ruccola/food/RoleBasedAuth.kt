@@ -16,34 +16,30 @@ class RoleBasedAuthConfig {
     var roles: Set<Role> = emptySet()
 }
 
-val RoleBasedAuthPlugin = createRouteScopedPlugin(
-    name = "RoleBasedAuth",
-    createConfiguration = ::RoleBasedAuthConfig,
-) {
-    val roles = pluginConfig.roles
+val RoleBasedAuthPlugin =
+    createRouteScopedPlugin(name = "RoleBasedAuth", createConfiguration = ::RoleBasedAuthConfig) {
+        val roles = pluginConfig.roles
 
-    on(AuthenticationChecked) { call ->
-        val user = call.principal<UserDto>() ?: return@on
-        if (user.role !in roles) {
-            call.respond(HttpStatusCode.Forbidden, "You do not have permission to access this resource")
+        on(AuthenticationChecked) { call ->
+            val user = call.principal<UserDto>() ?: return@on
+            if (user.role !in roles) {
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to access this resource")
+            }
         }
     }
-}
 
-fun Route.withRole(
-    vararg roles: Role,
-    build: Route.() -> Unit,
-): Route {
-    val authorizedRoute = createChild(object : RouteSelector() {
-        override suspend fun evaluate(
-            context: RoutingResolveContext,
-            segmentIndex: Int,
-        ): RouteSelectorEvaluation = RouteSelectorEvaluation.Constant
-    })
+fun Route.withRole(vararg roles: Role, build: Route.() -> Unit): Route {
+    val authorizedRoute =
+        createChild(
+            object : RouteSelector() {
+                override suspend fun evaluate(
+                    context: RoutingResolveContext,
+                    segmentIndex: Int,
+                ): RouteSelectorEvaluation = RouteSelectorEvaluation.Constant
+            }
+        )
 
-    authorizedRoute.install(RoleBasedAuthPlugin) {
-        this.roles = roles.toSet()
-    }
+    authorizedRoute.install(RoleBasedAuthPlugin) { this.roles = roles.toSet() }
 
     authorizedRoute.build()
     return authorizedRoute

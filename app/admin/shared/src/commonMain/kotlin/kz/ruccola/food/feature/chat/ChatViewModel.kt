@@ -20,9 +20,7 @@ import kz.ruccola.food.api.MessageDto
 import kz.ruccola.food.api.MessageSendDto
 import kotlin.time.Duration.Companion.seconds
 
-class ChatViewModel(
-    private val api: ChatApi = ChatApi(),
-) : ViewModel() {
+class ChatViewModel(private val api: ChatApi = ChatApi()) : ViewModel() {
     val uiState: StateFlow<ChatUiState>
         field = MutableStateFlow(ChatUiState())
 
@@ -79,9 +77,7 @@ class ChatViewModel(
             val currentChat = uiState.value.chat
             if (lastId != null && currentChat?.lastReadMessageId != lastId) {
                 api.markRead(chatId, MarkReadDto(lastId))
-                uiState.update { state ->
-                    state.copy(chat = state.chat?.copy(lastReadMessageId = lastId))
-                }
+                uiState.update { state -> state.copy(chat = state.chat?.copy(lastReadMessageId = lastId)) }
             }
             uiState.update { it.copy(messages = messages) }
         } catch (e: Exception) {
@@ -117,10 +113,9 @@ class ChatViewModel(
     }
 
     companion object {
-        fun factory(api: ChatApi = ChatApi()): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { ChatViewModel(api) }
-            }
+        fun factory(api: ChatApi = ChatApi()): ViewModelProvider.Factory = viewModelFactory {
+            initializer { ChatViewModel(api) }
+        }
     }
 }
 

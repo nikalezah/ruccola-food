@@ -19,11 +19,6 @@ fun rememberAppSession(): Pair<SessionViewModelStoreOwner, () -> Unit> {
 }
 
 @Composable
-fun AppSessionProvider(
-    sessionOwner: SessionViewModelStoreOwner,
-    content: @Composable () -> Unit,
-) {
-    CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) {
-        content()
-    }
+fun AppSessionProvider(sessionOwner: SessionViewModelStoreOwner, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalViewModelStoreOwner provides sessionOwner) { content() }
 }

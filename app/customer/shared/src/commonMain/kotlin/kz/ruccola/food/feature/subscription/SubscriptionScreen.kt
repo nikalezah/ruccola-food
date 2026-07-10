@@ -23,13 +23,7 @@ fun SubscriptionScreen(viewModel: SubscriptionViewModel = viewModel(factory = Su
     val uiState by viewModel.uiState.collectAsState()
 
     ResponsiveContainer(maxContentWidth = 640.dp) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.tab_subscription)) },
-                )
-            },
-        ) { padding ->
+        Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_subscription)) }) }) { padding ->
             SubscriptionContent(
                 uiState = uiState,
                 viewModel = viewModel,

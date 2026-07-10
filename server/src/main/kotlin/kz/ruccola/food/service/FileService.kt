@@ -32,53 +32,49 @@ class FileService {
         return dir
     }
 
-    suspend fun save(part: PartData.FileItem): FileDto =
-        dbQuery {
-            val dir = ensureUploadDir()
-            val originalName = part.originalFileName ?: "file_${System.currentTimeMillis()}"
-            val target = File(dir, uniqueName(dir, originalName))
-            val bytes = part.provider().readRemaining().readByteArray()
-            target.writeBytes(bytes)
-            val mime =
-                part.contentType?.toString() ?: NioFiles.probeContentType(target.toPath()) ?: "application/octet-stream"
-            Files.insertReturning {
+    suspend fun save(part: PartData.FileItem): FileDto = dbQuery {
+        val dir = ensureUploadDir()
+        val originalName = part.originalFileName ?: "file_${System.currentTimeMillis()}"
+        val target = File(dir, uniqueName(dir, originalName))
+        val bytes = part.provider().readRemaining().readByteArray()
+        target.writeBytes(bytes)
+        val mime =
+            part.contentType?.toString() ?: NioFiles.probeContentType(target.toPath()) ?: "application/octet-stream"
+        Files.insertReturning {
                 it[filename] = target.name
                 it[path] = dir.toPath().relativize(target.toPath()).toString()
                 it[mimeType] = mime
                 it[size] = bytes.size.toLong()
                 it[createdAt] = now()
-            }.single().let(::toDto)
         }
+            .single()
+            .let(::toDto)
+    }
 
-    suspend fun delete(fileId: Int): Boolean =
-        dbQuery {
-            val path = Files.select(Files.path)
-                .where { Files.id eq fileId }
-                .singleOrNull()
-                ?.get(Files.path)
+    suspend fun delete(fileId: Int): Boolean = dbQuery {
+        val path =
+            Files.select(Files.path).where { Files.id eq fileId }.singleOrNull()?.get(Files.path)
                 ?: return@dbQuery false
-            try {
-                File(AppConfig.storagePath, path).takeIf { it.exists() }?.delete()
-                Files.deleteWhere { Files.id eq fileId }
-                true
-            } catch (_: Exception) {
-                false
-            }
+        try {
+            File(AppConfig.storagePath, path).takeIf { it.exists() }?.delete()
+            Files.deleteWhere { Files.id eq fileId }
+            true
+        } catch (_: Exception) {
+            false
         }
+    }
 
-    private fun uniqueName(
-        dir: File,
-        baseName: String,
-    ): String {
+    private fun uniqueName(dir: File, baseName: String): String {
         var name = baseName
         var i = 1
         while (File(dir, name).exists()) {
             val dot = baseName.lastIndexOf('.')
-            name = if (dot != -1) {
-                baseName.substring(0, dot) + "_" + i++ + baseName.substring(dot)
-            } else {
-                baseName + "_" + i++
-            }
+            name =
+                if (dot != -1) {
+                    baseName.substring(0, dot) + "_" + i++ + baseName.substring(dot)
+                } else {
+                    baseName + "_" + i++
+                }
         }
         return name
     }

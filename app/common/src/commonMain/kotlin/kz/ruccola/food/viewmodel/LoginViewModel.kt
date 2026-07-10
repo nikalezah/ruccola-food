@@ -13,10 +13,8 @@ import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.api.Role
 
-class LoginViewModel(
-    private val authApi: AuthApi = AuthApi(),
-    private val roleFilter: (Role) -> Boolean,
-) : ViewModel() {
+class LoginViewModel(private val authApi: AuthApi = AuthApi(), private val roleFilter: (Role) -> Boolean) :
+    ViewModel() {
     val uiState: StateFlow<LoginUiState>
         field = MutableStateFlow(LoginUiState())
 
@@ -28,10 +26,7 @@ class LoginViewModel(
         uiState.update { it.copy(password = password, error = null) }
     }
 
-    fun login(
-        onLoggedIn: (AuthResponseDto) -> Unit,
-        loginFailedText: String,
-    ) {
+    fun login(onLoggedIn: (AuthResponseDto) -> Unit, loginFailedText: String) {
         val state = uiState.value
         if (state.isLoading) return
         viewModelScope.launch {
@@ -56,10 +51,7 @@ class LoginViewModel(
     }
 
     companion object {
-        fun factory(
-            roleFilter: (Role) -> Boolean,
-            authApi: AuthApi = AuthApi(),
-        ): ViewModelProvider.Factory =
+        fun factory(roleFilter: (Role) -> Boolean, authApi: AuthApi = AuthApi()): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer { LoginViewModel(authApi, roleFilter) }
             }

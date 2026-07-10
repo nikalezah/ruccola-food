@@ -76,20 +76,12 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel(factory = ScheduleVi
 
     // On compact / medium windows the detail takes over the whole screen (with its own back button).
     if (!twoPane && selectedDish != null) {
-        DishDetailsScreen(
-            dish = selectedDish!!,
-            onBack = { selectedDish = null },
-        )
+        DishDetailsScreen(dish = selectedDish!!, onBack = { selectedDish = null })
         return
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.tab_schedule)) },
-            )
-        },
-    ) { padding ->
+    Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_schedule)) }) }) { padding
+        ->
         if (twoPane) {
             Row(Modifier.fillMaxSize().padding(padding)) {
                 ScheduleList(
@@ -101,10 +93,7 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = viewModel(factory = ScheduleVi
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     val dish = selectedDish
                     if (dish != null) {
-                        DishDetailsScreen(
-                            dish = dish,
-                            onBack = { selectedDish = null },
-                        )
+                        DishDetailsScreen(dish = dish, onBack = { selectedDish = null })
                     } else {
                         EmptyDetailPane(
                             icon = Icons.Outlined.DinnerDining,
@@ -132,95 +121,80 @@ private fun ScheduleList(
     val currentLocale = LocalLocale.current
     Box(modifier) {
         when {
-            scheduledDays.loadState.refresh is LoadState.Error -> Column(
-                modifier = Modifier.fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = stringResource(
-                        Res.string.error_prefix,
-                        (scheduledDays.loadState.refresh as LoadState.Error).error.message
-                            ?: stringResource(Res.string.loading),
-                    ),
-                    color = MaterialTheme.colorScheme.error,
-                )
-                Button(onClick = { scheduledDays.refresh() }) {
-                    Text(stringResource(Res.string.retry))
-                }
-            }
-
-            scheduledDays.loadState.refresh is LoadState.Loading && scheduledDays.itemCount == 0 -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
-
-            scheduledDays.itemCount == 0 -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(Res.string.no_dishes))
-            }
-
-            else -> LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp),
-            ) {
-                items(
-                    count = scheduledDays.itemCount,
-                    key = scheduledDays.itemKey { it.date },
-                ) { index ->
-                    val day = scheduledDays[index] ?: return@items
-                    HorizontalDivider()
-                    Spacer(Modifier.height(8.dp))
-                    val header = remember(day.date, currentLocale) {
-                        formatDate(day.date, currentLocale)
-                    }
+            scheduledDays.loadState.refresh is LoadState.Error ->
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
                     Text(
-                        header,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text =
+                            stringResource(
+                                Res.string.error_prefix,
+                                (scheduledDays.loadState.refresh as LoadState.Error).error.message
+                                    ?: stringResource(Res.string.loading),
+                            ),
+                        color = MaterialTheme.colorScheme.error,
                     )
-                    Spacer(Modifier.height(6.dp))
+                    Button(onClick = { scheduledDays.refresh() }) { Text(stringResource(Res.string.retry)) }
+                }
 
-                    if (day.dishes.isEmpty()) {
+            scheduledDays.loadState.refresh is LoadState.Loading && scheduledDays.itemCount == 0 ->
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+
+            scheduledDays.itemCount == 0 ->
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(stringResource(Res.string.no_dishes))
+                }
+
+            else ->
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
+                    items(count = scheduledDays.itemCount, key = scheduledDays.itemKey { it.date }) { index ->
+                        val day = scheduledDays[index] ?: return@items
+                        HorizontalDivider()
+                        Spacer(Modifier.height(8.dp))
+                        val header = remember(day.date, currentLocale) { formatDate(day.date, currentLocale) }
                         Text(
-                            stringResource(Res.string.no_dishes),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            header,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                             modifier = Modifier.padding(horizontal = 8.dp),
                         )
-                    } else {
-                        day.dishes.forEach { d ->
-                            val imageUrl = d.dish.images.firstOrNull()?.url
-                            ListItem(
-                                leadingContent = {
-                                    if (imageUrl != null) {
-                                        AsyncImage(
-                                            model = dishImageUrl(imageUrl),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
-                                        )
-                                    }
-                                },
-                                headlineContent = { SingleLineText(d.dish.name) },
-                                supportingContent = { SingleLineText(d.dish.description) },
-                                trailingContent = {
-                                    Text(
-                                        "${d.meal.time}\n${d.meal.toLocalizedString()}",
-                                        textAlign = TextAlign.End,
-                                    )
-                                },
-                                modifier = Modifier.clickable(onClick = { onDishClick(d.dish) }),
+                        Spacer(Modifier.height(6.dp))
+
+                        if (day.dishes.isEmpty()) {
+                            Text(
+                                stringResource(Res.string.no_dishes),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp),
                             )
+                        } else {
+                            day.dishes.forEach { d ->
+                                val imageUrl = d.dish.images.firstOrNull()?.url
+                                ListItem(
+                                    leadingContent = {
+                                        if (imageUrl != null) {
+                                            AsyncImage(
+                                                model = dishImageUrl(imageUrl),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                                            )
+                                        }
+                                    },
+                                    headlineContent = { SingleLineText(d.dish.name) },
+                                    supportingContent = { SingleLineText(d.dish.description) },
+                                    trailingContent = {
+                                        Text("${d.meal.time}\n${d.meal.toLocalizedString()}", textAlign = TextAlign.End)
+                                    },
+                                    modifier = Modifier.clickable(onClick = { onDishClick(d.dish) }),
+                                )
+                            }
                         }
+                        Spacer(Modifier.height(16.dp))
                     }
-                    Spacer(Modifier.height(16.dp))
                 }
-            }
         }
     }
 }

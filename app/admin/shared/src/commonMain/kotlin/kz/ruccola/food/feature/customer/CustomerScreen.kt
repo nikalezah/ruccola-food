@@ -55,10 +55,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerScreen(
-    onChatOpenChanged: (Boolean) -> Unit = {},
-    onUnreadChanged: (Boolean) -> Unit = {},
-) {
+fun CustomerScreen(onChatOpenChanged: (Boolean) -> Unit = {}, onUnreadChanged: (Boolean) -> Unit = {}) {
     val viewModel: CustomersViewModel = viewModel(factory = CustomersViewModel.factory())
     val uiState by viewModel.uiState.collectAsState()
 
@@ -68,32 +65,22 @@ fun CustomerScreen(
 
     val twoPane = LocalWindowWidthClass.current == WindowWidthClass.Expanded
 
-    LaunchedEffect(Unit) {
-        viewModel.loadCustomers()
-    }
+    LaunchedEffect(Unit) { viewModel.loadCustomers() }
 
-    LaunchedEffect(selectedChatCustomer) {
-        onChatOpenChanged(selectedChatCustomer != null)
-    }
+    LaunchedEffect(selectedChatCustomer) { onChatOpenChanged(selectedChatCustomer != null) }
 
     LaunchedEffect(uiState.chats) {
-        val hasUnread = uiState.chats.values.any { chat ->
-            chat.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
-        }
+        val hasUnread =
+            uiState.chats.values.any { chat ->
+                chat.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
+            }
         onUnreadChanged(hasUnread)
     }
 
-    DisposableEffect(Unit) {
-        onDispose { onChatOpenChanged(false) }
-    }
+    DisposableEffect(Unit) { onDispose { onChatOpenChanged(false) } }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(Res.string.tab_customers)) },
-            )
-        },
-    ) { padding ->
+    Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_customers)) }) }) { padding
+        ->
         if (twoPane) {
             Row(Modifier.fillMaxSize().padding(padding)) {
                 CustomersList(
@@ -114,10 +101,7 @@ fun CustomerScreen(
                                     style = MaterialTheme.typography.headlineSmall,
                                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
                                 )
-                                CustomerDetailsContent(
-                                    customer = customer,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
+                                CustomerDetailsContent(customer = customer, modifier = Modifier.fillMaxSize())
                             }
                         }
                     } else {
@@ -140,10 +124,7 @@ fun CustomerScreen(
     }
 
     if (!twoPane && selectedCustomerDetails != null) {
-        CustomerDetailsScreen(
-            customer = selectedCustomerDetails!!,
-            onBack = { selectedCustomerDetails = null },
-        )
+        CustomerDetailsScreen(customer = selectedCustomerDetails!!, onBack = { selectedCustomerDetails = null })
     }
 
     if (selectedChatCustomer != null) {
@@ -198,10 +179,7 @@ private fun CustomersList(
             }
 
             else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(8.dp),
-                ) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
                     items(uiState.customers) { c ->
                         ListItem(
                             modifier = Modifier.fillMaxWidth().clickable { onSelect(c) },
@@ -213,7 +191,7 @@ private fun CustomersList(
                                             Res.string.label_calories,
                                             c.plan?.calories?.toString() ?: "-",
                                         )
-                                    }",
+                                    }"
                                 )
                             },
                             colors = listItemColorsFor(selected = selectedCustomer?.id == c.id),
@@ -229,9 +207,7 @@ private fun CustomersList(
 @Composable
 private fun listItemColorsFor(selected: Boolean) =
     if (selected) {
-        ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        )
+        ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     } else {
         ListItemDefaults.colors()
     }

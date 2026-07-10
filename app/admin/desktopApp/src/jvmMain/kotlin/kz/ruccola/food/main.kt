@@ -15,16 +15,15 @@ import kz.ruccola.food.api.LanguageProvider
 import kz.ruccola.food.api.TokenProvider
 import kz.ruccola.food.theme.ThemePreference
 
-fun main() =
-    application {
-        Window(
-            onCloseRequest = ::exitApplication,
-            title = "Ruccola Food Admin",
-            state = WindowState(width = 1200.dp, height = 800.dp),
-        ) {
-            AdminApp()
-        }
+fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Ruccola Food Admin",
+        state = WindowState(width = 1200.dp, height = 800.dp),
+    ) {
+        AdminApp()
     }
+}
 
 @Composable
 fun AdminApp() {
@@ -38,9 +37,7 @@ fun AdminApp() {
 
     val (sessionOwner, resetSession) = rememberAppSession()
 
-    LaunchedEffect(token) {
-        TokenProvider.token = token
-    }
+    LaunchedEffect(token) { TokenProvider.token = token }
 
     DisposableEffect(Unit) {
         TokenProvider.onUnauthorized = {
@@ -49,9 +46,7 @@ fun AdminApp() {
             DesktopPreferences.remove("admin.role")
             DesktopPreferences.remove("admin.token")
         }
-        onDispose {
-            TokenProvider.onUnauthorized = null
-        }
+        onDispose { TokenProvider.onUnauthorized = null }
     }
 
     AppSessionProvider(sessionOwner) {

@@ -14,10 +14,8 @@ import kz.ruccola.food.api.ChatListItemDto
 import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDetailsDto
 
-class CustomersViewModel(
-    private val api: CustomerApi = CustomerApi(),
-    private val chatApi: ChatApi = ChatApi(),
-) : ViewModel() {
+class CustomersViewModel(private val api: CustomerApi = CustomerApi(), private val chatApi: ChatApi = ChatApi()) :
+    ViewModel() {
     val uiState: StateFlow<CustomersUiState>
         field = MutableStateFlow(CustomersUiState())
 
@@ -41,10 +39,7 @@ class CustomersViewModel(
     }
 
     companion object {
-        fun factory(
-            api: CustomerApi = CustomerApi(),
-            chatApi: ChatApi = ChatApi(),
-        ): ViewModelProvider.Factory =
+        fun factory(api: CustomerApi = CustomerApi(), chatApi: ChatApi = ChatApi()): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer { CustomersViewModel(api, chatApi) }
             }

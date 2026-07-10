@@ -56,10 +56,7 @@ fun PlanSelectionDialog(viewModel: SubscriptionViewModel) {
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.primaryContainer,
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -105,10 +102,7 @@ fun PlanSelectionDialog(viewModel: SubscriptionViewModel) {
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surfaceContainer,
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -142,10 +136,7 @@ fun PlanSelectionDialog(viewModel: SubscriptionViewModel) {
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.surfaceContainer,
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             "${stringResource(Res.string.period_days)}: ${uiState.selectedDays}",
                             style = MaterialTheme.typography.labelLarge,
@@ -170,22 +161,20 @@ fun PlanSelectionDialog(viewModel: SubscriptionViewModel) {
         },
         confirmButton = {
             val selectedCalories = uiState.caloriesOptions.getOrNull(uiState.caloriesIndex)
-            val hasValidPlan = selectedCalories != null && uiState.allPlans.any {
-                it.calories.amount == selectedCalories && it.periodDays.amount <= uiState.selectedDays
-            }
+            val hasValidPlan =
+                selectedCalories != null &&
+                        uiState.allPlans.any {
+                            it.calories.amount == selectedCalories && it.periodDays.amount <= uiState.selectedDays
+                        }
 
-            Button(
-                onClick = { viewModel.savePlan() },
-                enabled = hasValidPlan && !uiState.isSavingPlan,
-            ) {
+            Button(onClick = { viewModel.savePlan() }, enabled = hasValidPlan && !uiState.isSavingPlan) {
                 Text(if (uiState.isSavingPlan) stringResource(Res.string.saving) else stringResource(Res.string.save))
             }
         },
         dismissButton = {
-            OutlinedButton(
-                onClick = { viewModel.setShowPlanDialog(false) },
-                enabled = !uiState.isSavingPlan,
-            ) { Text(stringResource(Res.string.cancel)) }
+            OutlinedButton(onClick = { viewModel.setShowPlanDialog(false) }, enabled = !uiState.isSavingPlan) {
+                Text(stringResource(Res.string.cancel))
+            }
         },
     )
 }

@@ -36,8 +36,7 @@ kotlin {
 
     js { browser() }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs { browser() }
+    @OptIn(ExperimentalWasmDsl::class) wasmJs { browser() }
 
     sourceSets {
         androidMain.dependencies {
@@ -56,9 +55,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
+        commonTest.dependencies { implementation(libs.kotlin.test) }
         jvmMain.dependencies {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
@@ -67,19 +64,9 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.darwin)
         }
-        named("nativeMain") {
-            dependencies {
-                implementation(libs.ktor.client.core)
-            }
-        }
-        named("webMain") {
-            dependencies {
-                implementation(libs.ktor.client.core)
-            }
-        }
+        named("nativeMain") { dependencies { implementation(libs.ktor.client.core) } }
+        named("webMain") { dependencies { implementation(libs.ktor.client.core) } }
     }
 }
 
-compose.resources {
-    packageOfResClass = "food.shared.generated.resources"
-}
+compose.resources { packageOfResClass = "food.shared.generated.resources" }

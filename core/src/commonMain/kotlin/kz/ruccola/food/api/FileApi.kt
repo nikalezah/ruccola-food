@@ -18,36 +18,29 @@ import kotlinx.serialization.Serializable
 @Resource("files")
 class Files {
     @Resource("{id}")
-    class Id(
-        val parent: Files = Files(),
-        val id: Int,
-    )
+    class Id(val parent: Files = Files(), val id: Int)
 }
 
-class FileApi(
-    private val client: HttpClient = httpClient,
-) {
-    suspend fun upload(
-        filename: String,
-        mimeType: String,
-        bytes: ByteArray,
-    ): FileDto {
-        val response: HttpResponse = client.post(Files()) {
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append(
-                            key = "file",
-                            value = bytes,
-                            headers = Headers.build {
-                                append(HttpHeaders.ContentType, mimeType)
-                                append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
-                            },
-                        )
-                    },
-                ),
-            )
-        }
+class FileApi(private val client: HttpClient = httpClient) {
+    suspend fun upload(filename: String, mimeType: String, bytes: ByteArray): FileDto {
+        val response: HttpResponse =
+            client.post(Files()) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                key = "file",
+                                value = bytes,
+                                headers =
+                                    Headers.build {
+                                        append(HttpHeaders.ContentType, mimeType)
+                                        append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                    },
+                            )
+                        }
+                    )
+                )
+            }
         if (!response.status.isSuccess()) {
             val msg = runCatching { response.bodyAsText() }.getOrNull() ?: "HTTP ${response.status.value}"
             throw Exception(msg)
@@ -59,10 +52,4 @@ class FileApi(
 }
 
 @Serializable
-data class FileDto(
-    val id: Int,
-    val url: String,
-    val filename: String,
-    val size: Long,
-    val mimeType: String,
-)
+data class FileDto(val id: Int, val url: String, val filename: String, val size: Long, val mimeType: String)

@@ -61,7 +61,7 @@ fun Application.module() {
                 prettyPrint = true
                 isLenient = true
                 encodeDefaults = true
-            },
+            }
         )
     }
 
@@ -99,9 +99,7 @@ fun Application.module() {
     }
 
     routing {
-        authenticate {
-            staticFiles(FILES_URL_PREFIX, File(AppConfig.storagePath))
-        }
+        authenticate { staticFiles(FILES_URL_PREFIX, File(AppConfig.storagePath)) }
         route("/api/") {
             configureAuthRoutes(jwtService)
             authenticate {
@@ -122,15 +120,8 @@ fun Application.configureDatabase() {
     val url = environment.config.property("ktor.db.url").getString()
     val user = environment.config.property("ktor.db.user").getString()
     val password = environment.config.property("ktor.db.password").getString()
-    R2dbcDatabase.connect(
-        url = url,
-        driver = "postgresql",
-        user = user,
-        password = password,
-    )
-    runBlocking {
-        DatabaseMigration.migrate()
-    }
+    R2dbcDatabase.connect(url = url, driver = "postgresql", user = user, password = password)
+    runBlocking { DatabaseMigration.migrate() }
 }
 
 // todo: run every midnight

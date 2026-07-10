@@ -22,50 +22,36 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.updateReturning
 
 class PlanService {
-    suspend fun getAll(): List<PlanDto> =
-        dbQuery {
-            Plans.selectAll().orderBy(Plans.id to SortOrder.ASC).map(::toDto).toList()
-        }
+    suspend fun getAll(): List<PlanDto> = dbQuery {
+        Plans.selectAll().orderBy(Plans.id to SortOrder.ASC).map(::toDto).toList()
+    }
 
-    suspend fun exists(
-        calories: Int,
-        periodDays: Int,
-    ): Boolean =
-        dbQuery {
-            Plans.selectAll()
-                .where { (Plans.calories eq calories) and (Plans.periodDays eq periodDays) }
-                .count() > 0
-        }
+    suspend fun exists(calories: Int, periodDays: Int): Boolean = dbQuery {
+        Plans.selectAll().where { (Plans.calories eq calories) and (Plans.periodDays eq periodDays) }.count() > 0
+    }
 
-    suspend fun create(newPlan: PlanCreateDto): PlanDto =
-        dbQuery {
-            Plans.insertReturning {
+    suspend fun create(newPlan: PlanCreateDto): PlanDto = dbQuery {
+        Plans.insertReturning {
                 it[calories] = newPlan.calories.value
                 it[periodDays] = newPlan.periodDays.amount
                 it[pricePerDay] = newPlan.pricePerDay
                 it[createdAt] = now()
                 it[updatedAt] = now()
-            }.single().let(::toDto)
         }
+            .single()
+            .let(::toDto)
+    }
 
-    suspend fun update(
-        id: Int,
-        update: PlanUpdateDto,
-    ): PlanDto? =
-        dbQuery {
-            Plans.updateReturning(where = { Plans.id eq id }) {
+    suspend fun update(id: Int, update: PlanUpdateDto): PlanDto? = dbQuery {
+        Plans.updateReturning(where = { Plans.id eq id }) {
                 update.pricePerDay?.let { p -> it[pricePerDay] = p }
                 it[updatedAt] = now()
             }
-                .singleOrNull()
-                ?.let(::toDto)
-                ?: return@dbQuery null
-        }
+            .singleOrNull()
+            ?.let(::toDto) ?: return@dbQuery null
+    }
 
-    suspend fun delete(id: Int): Int =
-        dbQuery {
-            Plans.deleteWhere { Plans.id eq id }
-        }
+    suspend fun delete(id: Int): Int = dbQuery { Plans.deleteWhere { Plans.id eq id } }
 
     fun toDto(row: ResultRow): PlanDto =
         PlanDto(

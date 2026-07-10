@@ -9,18 +9,20 @@ plugins {
 }
 
 group = "kz.ruccola.food"
+
 version = "1.0.0"
 
 application {
     mainClass.set("kz.ruccola.food.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf(
-        "-Dio.ktor.development=$isDevelopment",
-        // Required for Java 21+ to allow libraries (like Jansi for logging colors or Netty for networking)
-        // to call native OS APIs without security warnings.
-        "--enable-native-access=ALL-UNNAMED",
-    )
+    applicationDefaultJvmArgs =
+        listOf(
+            "-Dio.ktor.development=$isDevelopment",
+            // Required for Java 21+ to allow libraries (like Jansi for logging colors or Netty for networking)
+            // to call native OS APIs without security warnings.
+            "--enable-native-access=ALL-UNNAMED",
+        )
 }
 
 dependencies {
@@ -55,6 +57,4 @@ dependencies {
     testImplementation(libs.postgresql.jdbc)
 }
 
-tasks.test {
-    maxParallelForks = 1
-}
+tasks.test { maxParallelForks = 1 }

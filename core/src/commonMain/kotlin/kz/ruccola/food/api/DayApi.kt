@@ -13,14 +13,10 @@ import kotlinx.serialization.Serializable
 class Days {
     // Dev/testing endpoint that triggers midnight functions
     @Resource("midnight")
-    class Midnight(
-        val parent: Days = Days(),
-    )
+    class Midnight(val parent: Days = Days())
 }
 
-class DayApi(
-    private val client: HttpClient = httpClient,
-) {
+class DayApi(private val client: HttpClient = httpClient) {
     suspend fun getAllDays(): List<DayDto> = client.get(Days()).body()
 
     suspend fun triggerMidnight(): String {
@@ -32,7 +28,6 @@ class DayApi(
 @Serializable
 data class DayDto(
     val id: Int,
-    @Serializable(with = LocalDateIso8601Serializer::class)
-    val date: LocalDate,
+    @Serializable(with = LocalDateIso8601Serializer::class) val date: LocalDate,
     val dishes: List<DishWithMealDto> = emptyList(),
 )

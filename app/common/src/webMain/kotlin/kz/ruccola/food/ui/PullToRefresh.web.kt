@@ -48,37 +48,34 @@ actual fun PullToRefresh(
     }
 
     Box(
-        modifier = modifier.pointerInput(isRefreshing) {
-            // We need proper "end" handling. detectVerticalDragGestures provides onDragEnd.
-            detectVerticalDragGestures(
-                onVerticalDrag = { change, dragAmount ->
-                    // Pull down only (dragAmount > 0)
-                    if (!isRefreshing && dragAmount > 0f) {
-                        change.consume()
-                        dragPx = maxOf(0f, dragPx + dragAmount)
-                    }
-                },
-                onDragCancel = {
-                    if (!isRefreshing) dragPx = 0f
-                },
-                onDragEnd = {
-                    if (!isRefreshing && dragPx >= thresholdPx && didTrigger == 0f) {
-                        didTrigger = 1f
-                        onRefresh()
-                    }
-                    // If we didn't trigger (or refreshing hasn't started yet), snap back.
-                    if (didTrigger == 0f || !isRefreshing) {
-                        if (didTrigger == 0f) dragPx = 0f
-                    }
-                },
-            )
-        },
+        modifier =
+            modifier.pointerInput(isRefreshing) {
+                // We need proper "end" handling. detectVerticalDragGestures provides onDragEnd.
+                detectVerticalDragGestures(
+                    onVerticalDrag = { change, dragAmount ->
+                        // Pull down only (dragAmount > 0)
+                        if (!isRefreshing && dragAmount > 0f) {
+                            change.consume()
+                            dragPx = maxOf(0f, dragPx + dragAmount)
+                        }
+                    },
+                    onDragCancel = { if (!isRefreshing) dragPx = 0f },
+                    onDragEnd = {
+                        if (!isRefreshing && dragPx >= thresholdPx && didTrigger == 0f) {
+                            didTrigger = 1f
+                            onRefresh()
+                        }
+                        // If we didn't trigger (or refreshing hasn't started yet), snap back.
+                        if (didTrigger == 0f || !isRefreshing) {
+                            if (didTrigger == 0f) dragPx = 0f
+                        }
+                    },
+                )
+            },
         contentAlignment = contentAlignment,
     ) {
         // Move content while pulling; snap-back works on cancel/end.
-        Box(modifier = Modifier.offset { IntOffset(0, dragPx.toInt()) }) {
-            content()
-        }
+        Box(modifier = Modifier.offset { IntOffset(0, dragPx.toInt()) }) { content() }
 
         // Show indicator when actually refreshing (default indicator now uses only isRefreshing).
         if (isRefreshing) {

@@ -28,10 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(
-    onBack: (() -> Unit)? = null,
-    viewModel: ChatViewModel = viewModel(factory = ChatViewModel.Factory),
-) {
+fun ChatScreen(onBack: (() -> Unit)? = null, viewModel: ChatViewModel = viewModel(factory = ChatViewModel.Factory)) {
     val uiState by viewModel.uiState.collectAsState()
     val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
@@ -48,15 +45,12 @@ fun ChatScreen(
                     navigationIcon = {
                         if (onBack != null) {
                             IconButton(onClick = onBack) {
-                                Icon(
-                                    imageVector = Icons.Filled.ArrowBack,
-                                    contentDescription = null,
-                                )
+                                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
                             }
                         }
                     },
                 )
-            },
+            }
         ) {
             ChatUi(
                 messages = uiState.messages,

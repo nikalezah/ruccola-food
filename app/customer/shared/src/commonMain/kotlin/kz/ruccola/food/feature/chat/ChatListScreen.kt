@@ -47,20 +47,14 @@ fun ChatListScreen(
     var isChatOpen by remember { mutableStateOf(false) }
     val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
-    LaunchedEffect(Unit) {
-        viewModel.loadChat()
-    }
-    LaunchedEffect(isChatOpen) {
-        onChatOpenChanged(isChatOpen)
-    }
+    LaunchedEffect(Unit) { viewModel.loadChat() }
+    LaunchedEffect(isChatOpen) { onChatOpenChanged(isChatOpen) }
     LaunchedEffect(uiState.chat?.lastMessageId, uiState.chat?.lastReadMessageId) {
         val chat = uiState.chat
         val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
         onUnreadChanged(isUnread)
     }
-    DisposableEffect(Unit) {
-        onDispose { onChatOpenChanged(false) }
-    }
+    DisposableEffect(Unit) { onDispose { onChatOpenChanged(false) } }
 
     Box(Modifier.fillMaxSize()) {
         when {
@@ -81,13 +75,7 @@ fun ChatListScreen(
                 val isUnread = chat?.lastMessageId != null && chat.lastMessageId != chat.lastReadMessageId
                 val messageText = uiState.lastMessage?.body ?: stringResource(Res.string.chat_empty)
 
-                Scaffold(
-                    topBar = {
-                        CenterAlignedTopAppBar(
-                            title = { Text(stringResource(Res.string.tab_chat)) },
-                        )
-                    },
-                ) { padding ->
+                Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_chat)) }) }) { padding ->
                     LazyColumn(
                         modifier = Modifier.fillMaxSize().padding(padding),
                         contentPadding = PaddingValues(12.dp),

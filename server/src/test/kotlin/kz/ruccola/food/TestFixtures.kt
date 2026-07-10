@@ -19,39 +19,34 @@ suspend fun seedDish(
     descriptionRu: String = "Описание",
     descriptionKk: String = "Сипаттама",
     archived: Boolean = false,
-): Int =
-    suspendTransaction {
-        val dishId = Dishes.insertAndGetId {
-            it[Dishes.archived] = archived
-        }.value
-        Language.entries.forEach { lang ->
-            DishTranslations.insert {
-                it[DishTranslations.dishId] = dishId
-                it[DishTranslations.language] = lang.name
-                it[DishTranslations.name] = when (lang) {
+): Int = suspendTransaction {
+    val dishId = Dishes.insertAndGetId { it[Dishes.archived] = archived }.value
+    Language.entries.forEach { lang ->
+        DishTranslations.insert {
+            it[DishTranslations.dishId] = dishId
+            it[DishTranslations.language] = lang.name
+            it[DishTranslations.name] =
+                when (lang) {
                     Language.EN -> nameEn
                     Language.RU -> nameRu
                     Language.KK -> nameKk
                 }
-                it[DishTranslations.description] = when (lang) {
+            it[DishTranslations.description] =
+                when (lang) {
                     Language.EN -> descriptionEn
                     Language.RU -> descriptionRu
                     Language.KK -> descriptionKk
                 }
-            }
         }
-        dishId
     }
+    dishId
+}
 
-suspend fun seedPlan(
-    calories: Int,
-    periodDays: Int,
-    pricePerDay: Int,
-): Int =
-    suspendTransaction {
-        Plans.insertAndGetId {
+suspend fun seedPlan(calories: Int, periodDays: Int, pricePerDay: Int): Int = suspendTransaction {
+    Plans.insertAndGetId {
             it[Plans.calories] = calories
             it[Plans.periodDays] = periodDays
             it[Plans.pricePerDay] = pricePerDay
-        }.value
     }
+        .value
+}

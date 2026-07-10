@@ -14,10 +14,8 @@ import kz.ruccola.food.api.CustomerApi
 import kz.ruccola.food.api.CustomerDto
 import kz.ruccola.food.api.CustomerUpdateDto
 
-class ProfileViewModel(
-    private val customerApi: CustomerApi = CustomerApi(),
-    private val authApi: AuthApi = AuthApi(),
-) : ViewModel() {
+class ProfileViewModel(private val customerApi: CustomerApi = CustomerApi(), private val authApi: AuthApi = AuthApi()) :
+    ViewModel() {
     val uiState: StateFlow<ProfileUiState>
         field = MutableStateFlow(ProfileUiState())
 
@@ -46,21 +44,18 @@ class ProfileViewModel(
         }
     }
 
-    fun updateCustomer(
-        firstName: String,
-        lastName: String,
-        address: String,
-    ) {
+    fun updateCustomer(firstName: String, lastName: String, address: String) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, saveError = null) }
             try {
-                val updated = customerApi.update(
-                    CustomerUpdateDto(
-                        firstName = firstName.trim(),
-                        lastName = lastName.trim(),
-                        address = address.trim(),
-                    ),
-                )
+                val updated =
+                    customerApi.update(
+                        CustomerUpdateDto(
+                            firstName = firstName.trim(),
+                            lastName = lastName.trim(),
+                            address = address.trim(),
+                        )
+                    )
                 uiState.update { it.copy(customer = updated, isEditing = false) }
             } catch (e: Exception) {
                 uiState.update { it.copy(saveError = e.message ?: e.toString()) }
@@ -75,9 +70,7 @@ class ProfileViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer { ProfileViewModel() }
-        }
+        val Factory: ViewModelProvider.Factory = viewModelFactory { initializer { ProfileViewModel() } }
     }
 }
 

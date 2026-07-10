@@ -21,23 +21,20 @@ import kz.ruccola.food.theme.ThemePreference
 import java.awt.Desktop
 import java.net.URI
 
-fun main() =
-    application {
-        Window(
-            onCloseRequest = ::exitApplication,
-            title = "Ruccola Food Customer",
-            state = WindowState(width = 1200.dp, height = 800.dp),
-        ) {
-            CustomerApp()
-        }
+fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Ruccola Food Customer",
+        state = WindowState(width = 1200.dp, height = 800.dp),
+    ) {
+        CustomerApp()
     }
+}
 
 @Composable
 fun CustomerApp() {
     var token by remember { mutableStateOf(DesktopPreferences.get("customer.token")) }
-    var language by remember {
-        mutableStateOf(DesktopPreferences.get("customer.language") ?: "ru")
-    }
+    var language by remember { mutableStateOf(DesktopPreferences.get("customer.language") ?: "ru") }
     var themePreference by remember {
         mutableStateOf(ThemePreference.fromStorage(DesktopPreferences.get("customer.theme")))
     }
@@ -45,22 +42,16 @@ fun CustomerApp() {
 
     val (sessionOwner, resetSession) = rememberAppSession()
 
-    LaunchedEffect(token) {
-        TokenProvider.token = token
-    }
+    LaunchedEffect(token) { TokenProvider.token = token }
 
-    LaunchedEffect(language) {
-        LanguageProvider.language = language
-    }
+    LaunchedEffect(language) { LanguageProvider.language = language }
 
     DisposableEffect(Unit) {
         TokenProvider.onUnauthorized = {
             token = null
             DesktopPreferences.remove("customer.token")
         }
-        onDispose {
-            TokenProvider.onUnauthorized = null
-        }
+        onDispose { TokenProvider.onUnauthorized = null }
     }
 
     AppSessionProvider(sessionOwner) {

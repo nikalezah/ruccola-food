@@ -24,10 +24,11 @@ kotlin {
         browser {
             commonWebpackConfig {
                 outputFileName = "admin.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static(rootDir.path)
-                    static(projectDir.path)
-                }
+                devServer =
+                    (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                        static(rootDir.path)
+                        static(projectDir.path)
+                    }
             }
         }
         binaries.executable()
@@ -39,10 +40,11 @@ kotlin {
         browser {
             commonWebpackConfig {
                 outputFileName = "admin.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static(rootDir.path)
-                    static(projectDir.path)
-                }
+                devServer =
+                    (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                        static(rootDir.path)
+                        static(projectDir.path)
+                    }
             }
         }
         binaries.executable()
@@ -55,10 +57,6 @@ kotlin {
             implementation(projects.core)
             implementation(libs.bundles.web.app)
         }
-        named("webMain") {
-            dependencies {
-                implementation(libs.kotlinx.browser)
-            }
-        }
+        named("webMain") { dependencies { implementation(libs.kotlinx.browser) } }
     }
 }

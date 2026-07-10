@@ -29,13 +29,14 @@ fun Route.configureAuthRoutes(jwtService: JwtService) {
             call.respond(HttpStatusCode.Conflict, "Email already registered")
             return@post
         }
-        val created = userService.createUser(
-            email = req.email,
-            password = req.password,
-            firstName = req.firstName,
-            lastName = req.lastName,
-            address = req.address,
-        )
+        val created =
+            userService.createUser(
+                email = req.email,
+                password = req.password,
+                firstName = req.firstName,
+                lastName = req.lastName,
+                address = req.address,
+            )
         val token = jwtService.generateToken(created.id)
         call.respond(HttpStatusCode.Created, AuthResponseDto(token = token, user = created))
     }
@@ -51,7 +52,5 @@ fun Route.configureAuthRoutes(jwtService: JwtService) {
         call.respond(AuthResponseDto(token = token, user = user.first))
     }
 
-    post<Auth.Logout> {
-        call.respond(HttpStatusCode.OK)
-    }
+    post<Auth.Logout> { call.respond(HttpStatusCode.OK) }
 }

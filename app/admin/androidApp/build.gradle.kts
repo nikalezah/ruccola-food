@@ -14,22 +14,10 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    buildFeatures {
-        compose = true
-    }
-    compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-    }
+    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    buildTypes { getByName("release") { isMinifyEnabled = false } }
+    buildFeatures { compose = true }
+    compileOptions { isCoreLibraryDesugaringEnabled = true }
 }
 
 dependencies {

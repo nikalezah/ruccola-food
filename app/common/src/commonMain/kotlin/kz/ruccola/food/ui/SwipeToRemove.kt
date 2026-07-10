@@ -64,11 +64,7 @@ fun SwipeToRemove(
 }
 
 @Composable
-private fun RemoveIcon(
-    imageVector: ImageVector,
-    label: String,
-    color: Color,
-) {
+private fun RemoveIcon(imageVector: ImageVector, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector, contentDescription = null, tint = color)
         Text(label, style = MaterialTheme.typography.labelSmall, color = color)

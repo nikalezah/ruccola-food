@@ -59,9 +59,7 @@ fun ProfileContent(
     ) {
         when {
             uiState.isLoading && uiState.customer == null -> {
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             }
 
             uiState.error != null && uiState.customer == null -> {
@@ -69,23 +67,15 @@ fun ProfileContent(
                     stringResource(Res.string.error_prefix, uiState.error ?: ""),
                     color = MaterialTheme.colorScheme.error,
                 )
-                LogoutButton(
-                    onClick = onLogout,
-                    label = stringResource(Res.string.log_out),
-                )
+                LogoutButton(onClick = onLogout, label = stringResource(Res.string.log_out))
             }
 
             uiState.customer != null -> {
                 val customer = uiState.customer
-                OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onEditClick,
-                ) {
+                OutlinedCard(modifier = Modifier.fillMaxWidth(), onClick = onEditClick) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(stringResource(Res.string.label_email, customer.email))
-                        Text(
-                            stringResource(Res.string.label_name, customer.firstName, customer.lastName),
-                        )
+                        Text(stringResource(Res.string.label_name, customer.firstName, customer.lastName))
                         if (customer.address.isNotBlank()) {
                             Text(stringResource(Res.string.label_address, customer.address))
                         }
@@ -112,10 +102,7 @@ fun ProfileContent(
                 )
 
                 Spacer(Modifier.height(16.dp))
-                Text(
-                    stringResource(Res.string.language_section_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Text(stringResource(Res.string.language_section_title), style = MaterialTheme.typography.titleMedium)
                 val languageCodes = listOf("kk", "ru", "en")
                 val initialIndex = languageCodes.indexOf(currentLanguage)
                 ToggleButtonsRow(
@@ -132,10 +119,7 @@ fun ProfileContent(
                 }
 
                 Spacer(Modifier.height(16.dp))
-                LogoutButton(
-                    onClick = onLogout,
-                    label = stringResource(Res.string.log_out),
-                )
+                LogoutButton(onClick = onLogout, label = stringResource(Res.string.log_out))
             }
         }
     }

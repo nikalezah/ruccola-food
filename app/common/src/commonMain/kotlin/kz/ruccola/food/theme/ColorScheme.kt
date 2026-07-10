@@ -5,10 +5,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 
 @Composable
-fun resolveColorScheme(
-    themePreference: ThemePreference,
-    isSystemDark: Boolean = isSystemInDarkTheme(),
-): ColorScheme =
+fun resolveColorScheme(themePreference: ThemePreference, isSystemDark: Boolean = isSystemInDarkTheme()): ColorScheme =
     when (themePreference) {
         ThemePreference.LIGHT -> GreenLightColorScheme
         ThemePreference.DARK -> GreenDarkColorScheme

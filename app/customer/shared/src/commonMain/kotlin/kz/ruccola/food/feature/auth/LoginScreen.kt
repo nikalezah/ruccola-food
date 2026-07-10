@@ -37,10 +37,6 @@ fun LoginScreen(
         passwordLabel = stringResource(Res.string.password),
         loginLabel = stringResource(Res.string.login),
         loggingInLabel = stringResource(Res.string.logging_in),
-        extraActions = {
-            TextButton(onClick = onGoToRegister) {
-                Text(stringResource(Res.string.go_to_register))
-            }
-        },
+        extraActions = { TextButton(onClick = onGoToRegister) { Text(stringResource(Res.string.go_to_register)) } },
     )
 }

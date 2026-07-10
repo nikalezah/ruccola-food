@@ -4,7 +4,4 @@ import kotlinx.serialization.Serializable
 import kz.ruccola.food.model.Meal
 
 @Serializable
-data class DishWithMealDto(
-    val dish: DishDto,
-    val meal: Meal,
-)
+data class DishWithMealDto(val dish: DishDto, val meal: Meal)

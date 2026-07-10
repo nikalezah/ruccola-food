@@ -14,24 +14,20 @@ import org.jetbrains.exposed.v1.r2dbc.insertReturning
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 class UserService {
-    suspend fun findById(id: Int): UserDto? =
-        dbQuery {
-            Users.selectAll().where { Users.id eq id }
-                .singleOrNull()
-                ?.let { toDto(it) }
-        }
+    suspend fun findById(id: Int): UserDto? = dbQuery {
+        Users.selectAll().where { Users.id eq id }.singleOrNull()?.let { toDto(it) }
+    }
 
-    suspend fun findByEmail(email: String): Pair<UserDto, String>? =
-        dbQuery {
-            Users.selectAll().where { Users.email eq email }
-                .singleOrNull()
-                ?.let { toDto(it) to it[Users.password] } // todo: remove, don't return password
-        }
+    suspend fun findByEmail(email: String): Pair<UserDto, String>? = dbQuery {
+        Users.selectAll()
+            .where { Users.email eq email }
+            .singleOrNull()
+            ?.let { toDto(it) to it[Users.password] } // todo: remove, don't return password
+    }
 
-    suspend fun existsByEmail(email: String): Boolean =
-        dbQuery {
-            Users.selectAll().where { Users.email eq email }.count() > 0
-        }
+    suspend fun existsByEmail(email: String): Boolean = dbQuery {
+        Users.selectAll().where { Users.email eq email }.count() > 0
+    }
 
     // todo: separate creation of customer and user
     suspend fun createUser(
@@ -40,24 +36,25 @@ class UserService {
         firstName: String,
         lastName: String,
         address: String,
-    ): UserDto =
-        dbQuery {
-            val user = Users.insertReturning {
+    ): UserDto = dbQuery {
+        val user =
+            Users.insertReturning {
                 it[Users.email] = email
                 it[Users.password] = password
                 it[Users.firstName] = firstName
                 it[Users.lastName] = lastName
                 it[Users.role] = Role.CUSTOMER
-            }.single()
-            Customers.insert {
-                it[Customers.id] = user[Users.id]
-                it[Customers.address] = address
-                it[Customers.needsCutlery] = false
-                it[Customers.weekendDelivery] = false
-                it[Customers.morningDelivery] = false
             }
-            toDto(user)
+                .single()
+        Customers.insert {
+            it[Customers.id] = user[Users.id]
+            it[Customers.address] = address
+            it[Customers.needsCutlery] = false
+            it[Customers.weekendDelivery] = false
+            it[Customers.morningDelivery] = false
         }
+        toDto(user)
+    }
 
     fun toDto(row: ResultRow): UserDto =
         UserDto(row[Users.id].value, row[Users.email], row[Users.firstName], row[Users.lastName], row[Users.role])

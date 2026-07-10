@@ -20,9 +20,7 @@ import kz.ruccola.food.theme.ThemePreference
 fun main() {
     ComposeViewport(viewportContainerId = "root") {
         var token by remember { mutableStateOf(window.localStorage.getItem("customer.token")) }
-        var language by remember {
-            mutableStateOf(window.localStorage.getItem("customer.language") ?: "ru")
-        }
+        var language by remember { mutableStateOf(window.localStorage.getItem("customer.language") ?: "ru") }
         var themePreference by remember {
             mutableStateOf(ThemePreference.fromStorage(window.localStorage.getItem("customer.theme")))
         }
@@ -30,22 +28,16 @@ fun main() {
 
         val (sessionOwner, resetSession) = rememberAppSession()
 
-        LaunchedEffect(token) {
-            TokenProvider.token = token
-        }
+        LaunchedEffect(token) { TokenProvider.token = token }
 
-        LaunchedEffect(language) {
-            LanguageProvider.language = language
-        }
+        LaunchedEffect(language) { LanguageProvider.language = language }
 
         DisposableEffect(Unit) {
             TokenProvider.onUnauthorized = {
                 token = null
                 window.localStorage.removeItem("customer.token")
             }
-            onDispose {
-                TokenProvider.onUnauthorized = null
-            }
+            onDispose { TokenProvider.onUnauthorized = null }
         }
 
         AppSessionProvider(sessionOwner) {
@@ -77,9 +69,7 @@ fun main() {
                     themePreference = newPreference
                     window.localStorage.setItem("customer.theme", newPreference.storageValue())
                 },
-                onOpenWhatsApp = {
-                    window.open("https://wa.me/77059847909", "_blank")
-                },
+                onOpenWhatsApp = { window.open("https://wa.me/77059847909", "_blank") },
             )
         }
     }

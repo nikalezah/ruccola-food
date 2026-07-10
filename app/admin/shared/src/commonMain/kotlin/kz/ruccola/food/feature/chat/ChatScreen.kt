@@ -35,9 +35,7 @@ fun ChatScreen(
     val uiState by viewModel.uiState.collectAsState()
     val errorText = uiState.error?.let { stringResource(Res.string.error_prefix, it) }
 
-    LaunchedEffect(chatId) {
-        viewModel.setChatId(chatId)
-    }
+    LaunchedEffect(chatId) { viewModel.setChatId(chatId) }
 
     Scaffold(
         topBar = {
@@ -52,7 +50,7 @@ fun ChatScreen(
                     }
                 },
             )
-        },
+        }
     ) { padding ->
         ChatUi(
             messages = uiState.messages,

@@ -24,14 +24,15 @@ import kz.ruccola.food.ui.LabeledNavigationTab
 import org.jetbrains.compose.resources.stringResource
 
 private val bottomNavTabs: List<CustomerTab>
-    get() = listOf(
-        CustomerTab.Schedule,
-        /*
-        CustomerTab.Chat,
-         */
-        CustomerTab.Subscription,
-        CustomerTab.Profile,
-    )
+    get() =
+        listOf(
+            CustomerTab.Schedule,
+            /*
+            CustomerTab.Chat,
+             */
+            CustomerTab.Subscription,
+            CustomerTab.Profile,
+        )
 
 @Composable
 fun MainScreen(
@@ -49,31 +50,32 @@ fun MainScreen(
     val showBottomBar = !(selectedTabIndex == 1 && isChatOpen)
 
     AdaptiveNavigationScaffold(
-        tabs = listOf(
-            LabeledNavigationTab(
-                Icons.Filled.DinnerDining,
-                Icons.Outlined.DinnerDining,
-                stringResource(Res.string.tab_schedule),
+        tabs =
+            listOf(
+                LabeledNavigationTab(
+                    Icons.Filled.DinnerDining,
+                    Icons.Outlined.DinnerDining,
+                    stringResource(Res.string.tab_schedule),
+                ),
+                /*
+                LabeledNavigationTab(
+                    Icons.Filled.Chat,
+                    Icons.Outlined.Chat,
+                    stringResource(Res.string.tab_chat),
+                    showBadge = hasUnreadChat,
+                ),
+                 */
+                LabeledNavigationTab(
+                    Icons.Filled.Settings,
+                    Icons.Outlined.Settings,
+                    stringResource(Res.string.tab_subscription),
+                ),
+                LabeledNavigationTab(
+                    Icons.Filled.ManageAccounts,
+                    Icons.Outlined.ManageAccounts,
+                    stringResource(Res.string.tab_profile),
+                ),
             ),
-            /*
-            LabeledNavigationTab(
-                Icons.Filled.Chat,
-                Icons.Outlined.Chat,
-                stringResource(Res.string.tab_chat),
-                showBadge = hasUnreadChat,
-            ),
-             */
-            LabeledNavigationTab(
-                Icons.Filled.Settings,
-                Icons.Outlined.Settings,
-                stringResource(Res.string.tab_subscription),
-            ),
-            LabeledNavigationTab(
-                Icons.Filled.ManageAccounts,
-                Icons.Outlined.ManageAccounts,
-                stringResource(Res.string.tab_profile),
-            ),
-        ),
         selected = { selectedTabIndex },
         onSelect = { tab ->
             selectedTab = bottomNavTabs[tab]
@@ -101,11 +103,12 @@ fun MainScreen(
                 }
 
                 CustomerTab.Profile -> {
-                    val profileLanguage = when {
-                        language.startsWith("ru") -> "ru"
-                        language.startsWith("kk") -> "kk"
-                        else -> "en"
-                    }
+                    val profileLanguage =
+                        when {
+                            language.startsWith("ru") -> "ru"
+                            language.startsWith("kk") -> "kk"
+                            else -> "en"
+                        }
                     ProfileScreen(
                         onLoggedOut = onLogout,
                         onLanguageChanged = onLanguageChanged,

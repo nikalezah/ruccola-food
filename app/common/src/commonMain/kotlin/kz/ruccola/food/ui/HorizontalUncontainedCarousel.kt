@@ -14,9 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class CarouselState internal constructor(
-    val itemCount: Int,
-)
+class CarouselState internal constructor(val itemCount: Int)
 
 @Composable
 fun rememberCarouselState(itemCount: () -> Int): CarouselState {
@@ -34,21 +32,14 @@ fun HorizontalUncontainedCarousel(
 ) {
     val scrollState = rememberScrollState()
     BoxWithConstraints(modifier = modifier) {
-        val totalWidth = itemWidth * state.itemCount +
-            itemSpacing * (state.itemCount - 1).coerceAtLeast(0)
+        val totalWidth = itemWidth * state.itemCount + itemSpacing * (state.itemCount - 1).coerceAtLeast(0)
         val sidePadding = if (totalWidth < maxWidth) (maxWidth - totalWidth) / 2 else 0.dp
 
         Row(
-            modifier = Modifier
-                .horizontalScroll(scrollState)
-                .padding(horizontal = sidePadding),
+            modifier = Modifier.horizontalScroll(scrollState).padding(horizontal = sidePadding),
             horizontalArrangement = Arrangement.spacedBy(itemSpacing),
         ) {
-            repeat(state.itemCount) { index ->
-                Box(modifier = Modifier.width(itemWidth)) {
-                    content(index)
-                }
-            }
+            repeat(state.itemCount) { index -> Box(modifier = Modifier.width(itemWidth)) { content(index) } }
         }
     }
 }

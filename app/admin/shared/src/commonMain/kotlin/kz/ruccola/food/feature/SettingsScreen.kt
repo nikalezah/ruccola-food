@@ -38,11 +38,7 @@ fun SettingsScreen(
 
     ResponsiveContainer(maxContentWidth = 640.dp) {
         Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.screen_settings_title)) },
-                )
-            },
+            topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.screen_settings_title)) }) }
         ) { padding ->
             Column(
                 modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
@@ -59,10 +55,7 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                LogoutButton(
-                    onClick = { scope.launch { onLoggedOut() } },
-                    label = stringResource(Res.string.log_out),
-                )
+                LogoutButton(onClick = { scope.launch { onLoggedOut() } }, label = stringResource(Res.string.log_out))
             }
         }
     }

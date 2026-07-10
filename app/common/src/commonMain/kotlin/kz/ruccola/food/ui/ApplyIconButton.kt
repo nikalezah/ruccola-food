@@ -20,11 +20,10 @@ fun ApplyIconButton(
     FilledIconButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = Modifier.size(
-            IconButtonDefaults.smallContainerSize(
-                widthOption = IconButtonDefaults.IconButtonWidthOption.Wide,
+        modifier =
+            Modifier.size(
+                IconButtonDefaults.smallContainerSize(widthOption = IconButtonDefaults.IconButtonWidthOption.Wide)
             ),
-        ),
     ) {
         Icon(icon, contentDescription = contentDescription)
     }

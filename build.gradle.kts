@@ -1,8 +1,8 @@
 import com.android.build.api.dsl.ApplicationExtension
+import com.ncorti.ktfmt.gradle.KtfmtExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 fun jvmTargetOf(version: String): JvmTarget = JvmTarget.valueOf("JVM_$version")
 
@@ -17,17 +17,14 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.ktor) apply false
-    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.ktfmt) apply false
 }
 
 allprojects {
-    pluginManager.apply(rootProject.libs.plugins.ktlint.get().pluginId)
-    configure<KtlintExtension> {
-        version.set(rootProject.libs.versions.ktlint.engine)
-        ignoreFailures.set(true)
-        filter {
-            exclude { it.file.path.contains("${File.separator}build${File.separator}") }
-        }
+    pluginManager.apply(rootProject.libs.plugins.ktfmt.get().pluginId)
+    configure<KtfmtExtension> {
+        kotlinLangStyle()
+        maxWidth.set(120)
     }
 }
 
@@ -35,9 +32,7 @@ subprojects {
     // todo: uncomment when works with all KMP targets
     // pluginManager.apply(rootProject.libs.plugins.dependencyAnalysis.get().pluginId)
 
-    tasks.withType<KotlinCompile>().configureEach {
-        dependsOn("ktlintFormat")
-    }
+    tasks.withType<KotlinCompile>().configureEach { dependsOn("ktfmtFormat", "ktfmtFormatScripts") }
 
     afterEvaluate {
         val androidJava = rootProject.libs.versions.java.android.get()
@@ -50,16 +45,13 @@ subprojects {
 
         extensions.findByType<KotlinJvmProjectExtension>()?.apply {
             jvmToolchain(jvmJava.toInt())
-            compilerOptions {
-                jvmTarget.set(jvmTargetOf(jvmJava))
-            }
+            compilerOptions { jvmTarget.set(jvmTargetOf(jvmJava)) }
         }
 
         tasks.withType<KotlinCompile>().configureEach {
             compilerOptions {
                 val isAndroid =
-                    name.contains("Android", ignoreCase = true) ||
-                        pluginManager.hasPlugin("com.android.application")
+                    name.contains("Android", ignoreCase = true) || pluginManager.hasPlugin("com.android.application")
                 jvmTarget.set(if (isAndroid) jvmTargetOf(androidJava) else jvmTargetOf(jvmJava))
             }
         }

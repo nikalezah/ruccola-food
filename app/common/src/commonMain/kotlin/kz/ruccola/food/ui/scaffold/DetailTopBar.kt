@@ -11,25 +11,12 @@ import kz.ruccola.food.ui.Icons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailTopBar(
-    title: String,
-    onBack: () -> Unit,
-    backContentDescription: String,
-) {
+fun DetailTopBar(title: String, onBack: () -> Unit, backContentDescription: String) {
     TopAppBar(
-        title = {
-            Text(
-                text = title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
+        title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
             IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = backContentDescription,
-                )
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = backContentDescription)
             }
         },
     )

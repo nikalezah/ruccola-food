@@ -14,10 +14,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerDetailsScreen(
-    customer: CustomerDetailsDto,
-    onBack: () -> Unit,
-) {
+fun CustomerDetailsScreen(customer: CustomerDetailsDto, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             DetailTopBar(
@@ -25,11 +22,8 @@ fun CustomerDetailsScreen(
                 onBack = onBack,
                 backContentDescription = stringResource(Res.string.back_to_login),
             )
-        },
+        }
     ) { padding ->
-        CustomerDetailsContent(
-            customer = customer,
-            modifier = Modifier.fillMaxSize().padding(padding),
-        )
+        CustomerDetailsContent(customer = customer, modifier = Modifier.fillMaxSize().padding(padding))
     }
 }

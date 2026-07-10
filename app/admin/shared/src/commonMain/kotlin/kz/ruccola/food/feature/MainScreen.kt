@@ -40,34 +40,35 @@ fun MainScreen(
     var hasUnreadChats by remember { mutableStateOf(false) }
 
     AdaptiveNavigationScaffold(
-        tabs = listOf(
-            LabeledNavigationTab(
-                Icons.Filled.PriceChange,
-                Icons.Outlined.PriceChange,
-                stringResource(Res.string.tab_plans),
+        tabs =
+            listOf(
+                LabeledNavigationTab(
+                    Icons.Filled.PriceChange,
+                    Icons.Outlined.PriceChange,
+                    stringResource(Res.string.tab_plans),
+                ),
+                LabeledNavigationTab(
+                    Icons.Filled.DinnerDining,
+                    Icons.Outlined.DinnerDining,
+                    stringResource(Res.string.tab_dishes),
+                ),
+                LabeledNavigationTab(
+                    Icons.Filled.CalendarMonth,
+                    Icons.Outlined.CalendarMonth,
+                    stringResource(Res.string.tab_meal_plan_days),
+                ),
+                LabeledNavigationTab(
+                    Icons.Filled.Groups,
+                    Icons.Outlined.Groups,
+                    stringResource(Res.string.tab_customers),
+                    showBadge = hasUnreadChats,
+                ),
+                LabeledNavigationTab(
+                    Icons.Filled.Settings,
+                    Icons.Outlined.Settings,
+                    stringResource(Res.string.tab_settings),
+                ),
             ),
-            LabeledNavigationTab(
-                Icons.Filled.DinnerDining,
-                Icons.Outlined.DinnerDining,
-                stringResource(Res.string.tab_dishes),
-            ),
-            LabeledNavigationTab(
-                Icons.Filled.CalendarMonth,
-                Icons.Outlined.CalendarMonth,
-                stringResource(Res.string.tab_meal_plan_days),
-            ),
-            LabeledNavigationTab(
-                Icons.Filled.Groups,
-                Icons.Outlined.Groups,
-                stringResource(Res.string.tab_customers),
-                showBadge = hasUnreadChats,
-            ),
-            LabeledNavigationTab(
-                Icons.Filled.Settings,
-                Icons.Outlined.Settings,
-                stringResource(Res.string.tab_settings),
-            ),
-        ),
         selected = { AdminTab.entries.indexOf(selectedTab) },
         onSelect = { selectedTab = AdminTab.entries[it] },
         showNavigation = !isChatOpen,
@@ -97,10 +98,7 @@ fun MainScreen(
                 }
 
                 AdminTab.Customers -> {
-                    CustomerScreen(
-                        onChatOpenChanged = { isChatOpen = it },
-                        onUnreadChanged = { hasUnreadChats = it },
-                    )
+                    CustomerScreen(onChatOpenChanged = { isChatOpen = it }, onUnreadChanged = { hasUnreadChats = it })
                 }
 
                 AdminTab.Settings -> {

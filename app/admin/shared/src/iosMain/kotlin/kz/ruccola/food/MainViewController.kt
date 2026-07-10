@@ -20,15 +20,11 @@ fun AdminApp() {
 
     var role by remember { mutableStateOf(IosPreferences.get("admin.role")) }
     var token by remember { mutableStateOf(IosPreferences.get("admin.token")) }
-    var themePreference by remember {
-        mutableStateOf(ThemePreference.fromStorage(IosPreferences.get("admin.theme")))
-    }
+    var themePreference by remember { mutableStateOf(ThemePreference.fromStorage(IosPreferences.get("admin.theme"))) }
 
     val (sessionOwner, resetSession) = rememberAppSession()
 
-    LaunchedEffect(token) {
-        TokenProvider.token = token
-    }
+    LaunchedEffect(token) { TokenProvider.token = token }
 
     DisposableEffect(Unit) {
         TokenProvider.onUnauthorized = {
@@ -37,9 +33,7 @@ fun AdminApp() {
             IosPreferences.remove("admin.role")
             IosPreferences.remove("admin.token")
         }
-        onDispose {
-            TokenProvider.onUnauthorized = null
-        }
+        onDispose { TokenProvider.onUnauthorized = null }
     }
 
     AppSessionProvider(sessionOwner) {

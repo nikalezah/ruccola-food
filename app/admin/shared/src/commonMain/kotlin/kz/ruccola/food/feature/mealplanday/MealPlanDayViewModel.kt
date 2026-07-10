@@ -14,9 +14,7 @@ import kz.ruccola.food.api.MealPlanDayDto
 import kz.ruccola.food.api.MealPlanDaySaveDto
 import kz.ruccola.food.model.Meal
 
-class MealPlanDayViewModel(
-    private val api: MealPlanDayApi = MealPlanDayApi(),
-) : ViewModel() {
+class MealPlanDayViewModel(private val api: MealPlanDayApi = MealPlanDayApi()) : ViewModel() {
     val uiState: StateFlow<MealPlanDayUiState>
         field = MutableStateFlow(MealPlanDayUiState())
 
@@ -36,10 +34,7 @@ class MealPlanDayViewModel(
         }
     }
 
-    fun save(
-        id: Int?,
-        dishIdToMeal: Map<Int, Meal>,
-    ) {
+    fun save(id: Int?, dishIdToMeal: Map<Int, Meal>) {
         viewModelScope.launch {
             uiState.update { it.copy(isSaving = true, error = null) }
             try {
@@ -48,11 +43,7 @@ class MealPlanDayViewModel(
                     val updated = current.items.toMutableList()
                     val idx = updated.indexOfFirst { it.id == saved.id }
                     if (idx >= 0) updated[idx] = saved else updated.add(saved)
-                    current.copy(
-                        items = updated.sortedBy { it.serial },
-                        isSaving = false,
-                        error = null,
-                    )
+                    current.copy(items = updated.sortedBy { it.serial }, isSaving = false, error = null)
                 }
             } catch (e: Exception) {
                 uiState.update { it.copy(error = e.message, isSaving = false) }
@@ -112,10 +103,9 @@ class MealPlanDayViewModel(
     }
 
     companion object {
-        fun factory(api: MealPlanDayApi = MealPlanDayApi()): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { MealPlanDayViewModel(api) }
-            }
+        fun factory(api: MealPlanDayApi = MealPlanDayApi()): ViewModelProvider.Factory = viewModelFactory {
+            initializer { MealPlanDayViewModel(api) }
+        }
     }
 }
 

@@ -13,9 +13,7 @@ import kz.ruccola.food.api.AuthApi
 import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.api.RegisterRequestDto
 
-class RegisterViewModel(
-    private val api: AuthApi = AuthApi(),
-) : ViewModel() {
+class RegisterViewModel(private val api: AuthApi = AuthApi()) : ViewModel() {
     val uiState: StateFlow<RegisterUiState>
         field = MutableStateFlow(RegisterUiState())
 
@@ -36,16 +34,17 @@ class RegisterViewModel(
         viewModelScope.launch {
             uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val resp = api.register(
-                    RegisterRequestDto(
-                        email = state.email.trim(),
-                        password = state.password,
-                        confirmPassword = state.confirmPassword,
-                        firstName = state.firstName.trim(),
-                        lastName = state.lastName.trim(),
-                        address = state.address.trim(),
-                    ),
-                )
+                val resp =
+                    api.register(
+                        RegisterRequestDto(
+                            email = state.email.trim(),
+                            password = state.password,
+                            confirmPassword = state.confirmPassword,
+                            firstName = state.firstName.trim(),
+                            lastName = state.lastName.trim(),
+                            address = state.address.trim(),
+                        )
+                    )
                 reset()
                 onRegistered(resp)
             } catch (e: Exception) {
@@ -61,9 +60,7 @@ class RegisterViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer { RegisterViewModel() }
-        }
+        val Factory: ViewModelProvider.Factory = viewModelFactory { initializer { RegisterViewModel() } }
     }
 }
 

@@ -23,23 +23,19 @@ import kz.ruccola.food.api.AuthResponseDto
 import kz.ruccola.food.api.LoginRequestDto
 import kz.ruccola.food.api.RegisterRequestDto
 
-fun testApp(block: suspend ApplicationTestBuilder.(HttpClient) -> Unit) =
-    testApplication {
-        environment { config = ApplicationConfig("application-test.conf") }
-        application { module() }
-        val client = createClient {
-            install(ContentNegotiation) {
-                json()
-            }
-        }
-        block(client)
-    }
+fun testApp(block: suspend ApplicationTestBuilder.(HttpClient) -> Unit) = testApplication {
+    environment { config = ApplicationConfig("application-test.conf") }
+    application { module() }
+    val client = createClient { install(ContentNegotiation) { json() } }
+    block(client)
+}
 
 suspend fun HttpClient.loginAdmin(): String {
-    val response = post("/api/auth/login") {
-        contentType(ContentType.Application.Json)
-        setBody(LoginRequestDto("admin@gmail.com", "123qwe"))
-    }
+    val response =
+        post("/api/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginRequestDto("admin@gmail.com", "123qwe"))
+        }
     if (response.status != HttpStatusCode.OK) {
         throw IllegalStateException("Failed to login as admin: ${response.status}")
     }
@@ -49,10 +45,11 @@ suspend fun HttpClient.loginAdmin(): String {
 }
 
 suspend fun HttpClient.registerCustomer(email: String = uniqueEmail()): AuthResponseDto {
-    val response = post("/api/auth/register") {
-        contentType(ContentType.Application.Json)
-        setBody(RegisterRequestDto(email, "password", "password", "John", "Doe", "123 Main St"))
-    }
+    val response =
+        post("/api/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterRequestDto(email, "password", "password", "John", "Doe", "123 Main St"))
+        }
     if (response.status != HttpStatusCode.Created) {
         throw IllegalStateException("Failed to create customer: ${response.status}")
     }

@@ -27,133 +27,105 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.update
 
 class ChatService {
-    suspend fun getOrCreateChat(
-        customerId: Int,
-        viewerUserId: Int,
-    ): ChatDto =
-        dbQuery {
-            val existing = Chats.selectAll().where { Chats.customerId eq customerId }.singleOrNull()
-            val chatId = if (existing == null) {
+    suspend fun getOrCreateChat(customerId: Int, viewerUserId: Int): ChatDto = dbQuery {
+        val existing = Chats.selectAll().where { Chats.customerId eq customerId }.singleOrNull()
+        val chatId =
+            if (existing == null) {
                 Chats.insertAndGetId {
                     it[Chats.customerId] = customerId
                     it[Chats.createdAt] = now()
                     it[Chats.lastMessageAt] = now()
-                }.value
+                }
+                    .value
             } else {
                 existing[Chats.id].value
             }
-            toChatDto(chatId, viewerUserId) ?: error("Chat not found after create")
-        }
+        toChatDto(chatId, viewerUserId) ?: error("Chat not found after create")
+    }
 
-    suspend fun getChatById(
-        chatId: Int,
-        viewerUserId: Int,
-    ): ChatDto? =
-        dbQuery {
-            toChatDto(chatId, viewerUserId)
-        }
+    suspend fun getChatById(chatId: Int, viewerUserId: Int): ChatDto? = dbQuery { toChatDto(chatId, viewerUserId) }
 
-    suspend fun getChatCustomerId(chatId: Int): Int? =
-        dbQuery {
-            Chats.select(Chats.customerId).where { Chats.id eq chatId }
-                .singleOrNull()
-                ?.get(Chats.customerId)
-                ?.value
-        }
+    suspend fun getChatCustomerId(chatId: Int): Int? = dbQuery {
+        Chats.select(Chats.customerId).where { Chats.id eq chatId }.singleOrNull()?.get(Chats.customerId)?.value
+    }
 
-    suspend fun getChatsForAdmin(adminUserId: Int): List<ChatListItemDto> =
-        dbQuery {
-            Chats.innerJoin(Customers).innerJoin(Users).selectAll()
-                .orderBy(Chats.lastMessageAt to SortOrder.DESC)
-                .map { row ->
-                    val chatId = row[Chats.id].value
-                    ChatListItemDto(
-                        id = chatId,
-                        customerId = row[Customers.id].value,
-                        customerFirstName = row[Users.firstName],
-                        customerLastName = row[Users.lastName],
-                        customerEmail = row[Users.email],
-                        lastMessageAt = row[Chats.lastMessageAt],
-                        lastMessageId = getLastMessageId(chatId),
-                        lastReadMessageId = getLastReadMessageId(chatId, adminUserId),
-                    )
-                }
-                .toList()
-        }
+    suspend fun getChatsForAdmin(adminUserId: Int): List<ChatListItemDto> = dbQuery {
+        Chats.innerJoin(Customers)
+            .innerJoin(Users)
+            .selectAll()
+            .orderBy(Chats.lastMessageAt to SortOrder.DESC)
+            .map { row ->
+                val chatId = row[Chats.id].value
+                ChatListItemDto(
+                    id = chatId,
+                    customerId = row[Customers.id].value,
+                    customerFirstName = row[Users.firstName],
+                    customerLastName = row[Users.lastName],
+                    customerEmail = row[Users.email],
+                    lastMessageAt = row[Chats.lastMessageAt],
+                    lastMessageId = getLastMessageId(chatId),
+                    lastReadMessageId = getLastReadMessageId(chatId, adminUserId),
+                )
+            }
+            .toList()
+    }
 
-    suspend fun getMessages(
-        chatId: Int,
-        afterId: Int?,
-        limit: Int,
-        requesterId: Int,
-    ): List<MessageDto> =
-        dbQuery {
-            val condition =
-                if (afterId == null) {
-                    Messages.chatId eq chatId
-                } else {
-                    (Messages.chatId eq chatId) and (Messages.id greater afterId)
-                }
-            Messages.selectAll()
-                .where { condition }
-                .orderBy(Messages.id to SortOrder.ASC)
-                .limit(limit)
-                .map { toMessageDto(it, requesterId) }
-                .toList()
-        }
+    suspend fun getMessages(chatId: Int, afterId: Int?, limit: Int, requesterId: Int): List<MessageDto> = dbQuery {
+        val condition =
+            if (afterId == null) {
+                Messages.chatId eq chatId
+            } else {
+                (Messages.chatId eq chatId) and (Messages.id greater afterId)
+            }
+        Messages.selectAll()
+            .where { condition }
+            .orderBy(Messages.id to SortOrder.ASC)
+            .limit(limit)
+            .map { toMessageDto(it, requesterId) }
+            .toList()
+    }
 
-    suspend fun sendMessage(
-        chatId: Int,
-        senderId: Int,
-        body: String,
-    ): MessageDto =
-        dbQuery {
-            val message = Messages.insertReturning {
+    suspend fun sendMessage(chatId: Int, senderId: Int, body: String): MessageDto = dbQuery {
+        val message =
+            Messages.insertReturning {
                 it[Messages.chatId] = chatId
                 it[Messages.senderUserId] = senderId
                 it[Messages.body] = body
                 it[Messages.createdAt] = now()
-            }.single()
-            Chats.update({ Chats.id eq chatId }) {
-                it[lastMessageAt] = now()
             }
-            toMessageDto(message, senderId)
-        }
+                .single()
+        Chats.update({ Chats.id eq chatId }) { it[lastMessageAt] = now() }
+        toMessageDto(message, senderId)
+    }
 
-    suspend fun markRead(
-        chatId: Int,
-        userId: Int,
-        lastReadMessageId: Int,
-    ): Boolean =
-        dbQuery {
-            val messageExists = Messages.select(Messages.id)
+    suspend fun markRead(chatId: Int, userId: Int, lastReadMessageId: Int): Boolean = dbQuery {
+        val messageExists =
+            Messages.select(Messages.id)
                 .where { (Messages.id eq lastReadMessageId) and (Messages.chatId eq chatId) }
                 .singleOrNull()
                 ?.get(Messages.id)
-                ?.value
-                ?: return@dbQuery false
+                ?.value ?: return@dbQuery false
 
-            val existing = MessageReads.selectAll()
+        val existing =
+            MessageReads.selectAll()
                 .where { (MessageReads.chatId eq chatId) and (MessageReads.userId eq userId) }
                 .singleOrNull()
 
-            if (existing == null) {
-                MessageReads.insert {
-                    it[MessageReads.chatId] = chatId
-                    it[MessageReads.userId] = userId
-                    it[MessageReads.lastReadMessageId] = messageExists
-                    it[MessageReads.updatedAt] = now()
-                }
-            } else {
-                MessageReads.update(
-                    where = { (MessageReads.chatId eq chatId) and (MessageReads.userId eq userId) },
-                ) {
-                    it[MessageReads.lastReadMessageId] = messageExists
-                    it[MessageReads.updatedAt] = now()
-                }
+        if (existing == null) {
+            MessageReads.insert {
+                it[MessageReads.chatId] = chatId
+                it[MessageReads.userId] = userId
+                it[MessageReads.lastReadMessageId] = messageExists
+                it[MessageReads.updatedAt] = now()
             }
-            true
+        } else {
+            MessageReads.update(where = { (MessageReads.chatId eq chatId) and (MessageReads.userId eq userId) }) {
+                it[MessageReads.lastReadMessageId] = messageExists
+                it[MessageReads.updatedAt] = now()
+            }
         }
+        true
+    }
 
     private suspend fun getLastMessageId(chatId: Int): Int? =
         Messages.select(Messages.id)
@@ -164,24 +136,17 @@ class ChatService {
             ?.get(Messages.id)
             ?.value
 
-    private suspend fun getLastReadMessageId(
-        chatId: Int,
-        userId: Int,
-    ): Int? =
+    private suspend fun getLastReadMessageId(chatId: Int, userId: Int): Int? =
         MessageReads.select(MessageReads.lastReadMessageId)
             .where { (MessageReads.chatId eq chatId) and (MessageReads.userId eq userId) }
             .singleOrNull()
             ?.get(MessageReads.lastReadMessageId)
             ?.value
 
-    private suspend fun toChatDto(
-        chatId: Int,
-        viewerUserId: Int,
-    ): ChatDto? {
-        val row = Chats.innerJoin(Customers).innerJoin(Users).selectAll()
-            .where { Chats.id eq chatId }
-            .singleOrNull()
-            ?: return null
+    private suspend fun toChatDto(chatId: Int, viewerUserId: Int): ChatDto? {
+        val row =
+            Chats.innerJoin(Customers).innerJoin(Users).selectAll().where { Chats.id eq chatId }.singleOrNull()
+                ?: return null
 
         return ChatDto(
             id = row[Chats.id].value,
@@ -195,10 +160,7 @@ class ChatService {
         )
     }
 
-    private fun toMessageDto(
-        row: ResultRow,
-        ownerId: Int,
-    ): MessageDto =
+    private fun toMessageDto(row: ResultRow, ownerId: Int): MessageDto =
         MessageDto(
             id = row[Messages.id].value,
             chatId = row[Messages.chatId].value,

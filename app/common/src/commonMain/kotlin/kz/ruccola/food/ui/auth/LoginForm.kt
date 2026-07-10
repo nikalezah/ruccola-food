@@ -30,10 +30,7 @@ fun LoginForm(
     modifier: Modifier = Modifier,
     extraActions: @Composable () -> Unit = {},
 ) {
-    Column(
-        modifier = modifier.padding(24.dp).statusBarsPadding(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+    Column(modifier = modifier.padding(24.dp).statusBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(title, style = MaterialTheme.typography.titleLarge)
 
         OutlinedTextField(

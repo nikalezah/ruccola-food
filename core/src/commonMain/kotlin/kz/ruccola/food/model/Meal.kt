@@ -4,9 +4,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class Meal(
-    val time: LocalTime,
-) {
+enum class Meal(val time: LocalTime) {
     BREAKFAST(LocalTime(8, 0)),
     BRUNCH(LocalTime(11, 0)),
     LAUNCH(LocalTime(13, 30)),

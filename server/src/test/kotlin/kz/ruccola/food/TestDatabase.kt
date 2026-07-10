@@ -61,12 +61,13 @@ private fun initializeTemplate() {
 
 private fun connectR2dbc(database: String) {
     disconnectR2dbc()
-    r2dbcDatabase = R2dbcDatabase.connect(
-        url = PostgresTestContainer.r2dbcUrl(database),
-        driver = "postgresql",
-        user = PostgresTestContainer.ensureStarted().username,
-        password = PostgresTestContainer.ensureStarted().password,
-    )
+    r2dbcDatabase =
+        R2dbcDatabase.connect(
+            url = PostgresTestContainer.r2dbcUrl(database),
+            driver = "postgresql",
+            user = PostgresTestContainer.ensureStarted().username,
+            password = PostgresTestContainer.ensureStarted().password,
+        )
 }
 
 private fun disconnectR2dbc() {
@@ -76,11 +77,7 @@ private fun disconnectR2dbc() {
 
 private fun adminExecute(sql: String) {
     val c = PostgresTestContainer.ensureStarted()
-    DriverManager.getConnection(
-        PostgresTestContainer.adminJdbcUrl(),
-        c.username,
-        c.password,
-    ).use { connection ->
+    DriverManager.getConnection(PostgresTestContainer.adminJdbcUrl(), c.username, c.password).use { connection ->
         connection.createStatement().execute(sql)
     }
 }

@@ -30,9 +30,7 @@ class SubscriptionViewModel(
     }
 
     private fun loadData() {
-        viewModelScope.launch {
-            loadPlanWithPrefs()
-        }
+        viewModelScope.launch { loadPlanWithPrefs() }
     }
 
     private suspend fun loadPlanWithPrefs() {
@@ -49,12 +47,7 @@ class SubscriptionViewModel(
             }
         } catch (e: Exception) {
             uiState.update {
-                it.copy(
-                    customerPlan = null,
-                    needsCutlery = false,
-                    weekendDelivery = false,
-                    morningDelivery = false,
-                )
+                it.copy(customerPlan = null, needsCutlery = false, weekendDelivery = false, morningDelivery = false)
             }
         } finally {
             uiState.update { it.copy(isLoadingPlan = false) }
@@ -62,13 +55,7 @@ class SubscriptionViewModel(
     }
 
     fun setShowPlanDialog(show: Boolean) {
-        uiState.update {
-            it.copy(
-                showPlanDialog = show,
-                caloriesIndex = 0,
-                selectedDays = 1,
-            )
-        }
+        uiState.update { it.copy(showPlanDialog = show, caloriesIndex = 0, selectedDays = 1) }
         if (show) {
             loadPlansForDialog()
         }
@@ -103,9 +90,7 @@ class SubscriptionViewModel(
         val state = uiState.value
         val allPlans = state.allPlans
         if (allPlans.isEmpty()) {
-            uiState.update {
-                it.copy(caloriesOptions = emptyList())
-            }
+            uiState.update { it.copy(caloriesOptions = emptyList()) }
             return
         }
 
@@ -114,11 +99,12 @@ class SubscriptionViewModel(
 
         val planCalories = state.customerPlan?.calories
         val currentCalories = caloriesOptions.getOrNull(state.caloriesIndex)
-        val targetCalories = if (preserveDays && planCalories != null && planCalories in caloriesOptions) {
-            planCalories
-        } else {
-            currentCalories ?: caloriesOptions.first()
-        }
+        val targetCalories =
+            if (preserveDays && planCalories != null && planCalories in caloriesOptions) {
+                planCalories
+            } else {
+                currentCalories ?: caloriesOptions.first()
+            }
         val newCaloriesIndex = caloriesOptions.indexOf(targetCalories).coerceAtLeast(0)
         uiState.update { it.copy(caloriesIndex = newCaloriesIndex) }
 
@@ -155,13 +141,10 @@ class SubscriptionViewModel(
             uiState.update { it.copy(isSavingPlan = true, dialogError = null) }
             try {
                 val today = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
-                val saved = customerApi.saveCustomerPlan(
-                    CustomerPlanCreateDto(
-                        planId = plan.id,
-                        days = state.selectedDays,
-                        chosenDate = today,
-                    ),
-                )
+                val saved =
+                    customerApi.saveCustomerPlan(
+                        CustomerPlanCreateDto(planId = plan.id, days = state.selectedDays, chosenDate = today)
+                    )
                 uiState.update { it.copy(customerPlan = saved, showPlanDialog = false) }
                 loadPlanWithPrefs()
             } catch (e: Exception) {
@@ -179,13 +162,14 @@ class SubscriptionViewModel(
     ) {
         viewModelScope.launch {
             try {
-                val result = customerApi.saveDeliveryPrefs(
-                    CustomerPrefsUpdateDto(
-                        needsCutlery = needsCutlery,
-                        weekendDelivery = weekendDelivery,
-                        morningDelivery = morningDelivery,
-                    ),
-                )
+                val result =
+                    customerApi.saveDeliveryPrefs(
+                        CustomerPrefsUpdateDto(
+                            needsCutlery = needsCutlery,
+                            weekendDelivery = weekendDelivery,
+                            morningDelivery = morningDelivery,
+                        )
+                    )
                 uiState.update {
                     it.copy(
                         needsCutlery = result.needsCutlery,
@@ -200,9 +184,7 @@ class SubscriptionViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer { SubscriptionViewModel() }
-        }
+        val Factory: ViewModelProvider.Factory = viewModelFactory { initializer { SubscriptionViewModel() } }
     }
 }
 

@@ -40,118 +40,125 @@ import kotlin.test.assertTrue
 
 class PlanRoutesTest : RouteIntegrationTest() {
     @Test
-    fun testCrud() =
-        testApp { client ->
-            // Create
-            var id = 0
-            val token = client.loginAdmin()
-            client.post("/api/plans") {
+    fun testCrud() = testApp { client ->
+        // Create
+        var id = 0
+        val token = client.loginAdmin()
+        client
+            .post("/api/plans") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 id = obj["id"]!!.jsonPrimitive.int
                 assertEquals("C1800", obj["calories"]!!.jsonPrimitive.content)
             }
 
-            // List
-            client.get("/api/plans") { authHeader(token) }
-                .apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
-                    assertTrue(arr.isNotEmpty())
-                }
+        // List
+        client
+            .get("/api/plans") { authHeader(token) }
+            .apply {
+                assertEquals(HttpStatusCode.OK, status)
+                val arr = Json.parseToJsonElement(bodyAsText()).jsonArray
+                assertTrue(arr.isNotEmpty())
+            }
 
-            // Update
-            client.put("/api/plans/$id") {
+        // Update
+        client
+            .put("/api/plans/$id") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(PlanUpdateDto(5000))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.OK, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(5000, obj["pricePerDay"]!!.jsonPrimitive.int)
             }
 
-            // Delete
-            client.delete("/api/plans/$id") { authHeader(token) }
-                .apply { assertEquals(HttpStatusCode.OK, status) }
-            client.get("/api/plans/$id") { authHeader(token) }
-                .apply { assertEquals(HttpStatusCode.NotFound, status) }
-        }
+        // Delete
+        client.delete("/api/plans/$id") { authHeader(token) }.apply { assertEquals(HttpStatusCode.OK, status) }
+        client.get("/api/plans/$id") { authHeader(token) }.apply { assertEquals(HttpStatusCode.NotFound, status) }
+    }
 
     @Test
-    fun testDuplicatePlan() =
-        testApp { client ->
-            val token = client.loginAdmin()
-            client.post("/api/plans") {
+    fun testDuplicatePlan() = testApp { client ->
+        val token = client.loginAdmin()
+        client
+            .post("/api/plans") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000))
-            }.apply {
-                assertEquals(HttpStatusCode.Created, status)
             }
+            .apply { assertEquals(HttpStatusCode.Created, status) }
 
-            client.post("/api/plans") {
+        client
+            .post("/api/plans") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2500))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Conflict, status)
                 assertEquals("A plan with these calories and days already exists", bodyAsText())
             }
-        }
+    }
 
     @Test
-    fun testCustomerPlanSelection() =
-        testApp { client ->
-            // Setup: Create a customer and plans
-            val customer = client.registerCustomer()
-            var planId1 = 0
-            var planId2 = 0
+    fun testCustomerPlanSelection() = testApp { client ->
+        // Setup: Create a customer and plans
+        val customer = client.registerCustomer()
+        var planId1 = 0
+        var planId2 = 0
 
-            suspendTransaction {
-                // Create plans with different options
-                planId1 = Plans.insertAndGetId {
+        suspendTransaction {
+            // Create plans with different options
+            planId1 =
+                Plans.insertAndGetId {
                     it[calories] = 1200
                     it[periodDays] = 30
                     it[pricePerDay] = 2000
-                }.value
+                }
+                    .value
 
-                planId2 = Plans.insertAndGetId {
+            planId2 =
+                Plans.insertAndGetId {
                     it[calories] = 1500
                     it[periodDays] = 14
                     it[pricePerDay] = 2500
-                }.value
+                }
+                    .value
 
-                // Additional plans for option testing
-                Plans.insert {
-                    it[calories] = 1800
-                    it[periodDays] = 14
-                    it[pricePerDay] = 1800
-                }
-                Plans.insert {
-                    it[calories] = 2200
-                    it[periodDays] = 30
-                    it[pricePerDay] = 2200
-                }
+            // Additional plans for option testing
+            Plans.insert {
+                it[calories] = 1800
+                it[periodDays] = 14
+                it[pricePerDay] = 1800
             }
+            Plans.insert {
+                it[calories] = 2200
+                it[periodDays] = 30
+                it[pricePerDay] = 2200
+            }
+        }
 
-            // Test 1: Get a customer plan when none exists
-            client.get("/api/customers/plan") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.NotFound, status)
-                }
+        // Test 1: Get a customer plan when none exists
+        client
+            .get("/api/customers/plan") { authHeader(customer.token) }
+            .apply { assertEquals(HttpStatusCode.NotFound, status) }
 
-            // Test 2: Save customer plan with exact plan days
-            val today = today()
-            client.post("/api/customers/plan") {
+        // Test 2: Save customer plan with exact plan days
+        val today = today()
+        client
+            .post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId1, days = 30, chosenDate = today))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(customer.user.id, obj["customerId"]!!.jsonPrimitive.int)
@@ -161,23 +168,26 @@ class PlanRoutesTest : RouteIntegrationTest() {
                 assertEquals(today.toString(), obj["chosenDate"]!!.jsonPrimitive.content)
             }
 
-            // Test 3: Get a customer plan after saving
-            client.get("/api/customers/plan") { authHeader(customer.token) }
-                .apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val obj = Json.parseToJsonElement(bodyAsText()).jsonObject["plan"]!!.jsonObject
-                    assertEquals(customer.user.id, obj["customerId"]!!.jsonPrimitive.int)
-                    assertEquals(1200, obj["calories"]!!.jsonPrimitive.int)
-                    assertEquals(2000, obj["pricePerDay"]!!.jsonPrimitive.int)
-                    assertEquals(30, obj["days"]!!.jsonPrimitive.int)
-                }
+        // Test 3: Get a customer plan after saving
+        client
+            .get("/api/customers/plan") { authHeader(customer.token) }
+            .apply {
+                assertEquals(HttpStatusCode.OK, status)
+                val obj = Json.parseToJsonElement(bodyAsText()).jsonObject["plan"]!!.jsonObject
+                assertEquals(customer.user.id, obj["customerId"]!!.jsonPrimitive.int)
+                assertEquals(1200, obj["calories"]!!.jsonPrimitive.int)
+                assertEquals(2000, obj["pricePerDay"]!!.jsonPrimitive.int)
+                assertEquals(30, obj["days"]!!.jsonPrimitive.int)
+            }
 
-            // Test 4: Update plan with the same date (should replace)
-            client.post("/api/customers/plan") {
+        // Test 4: Update plan with the same date (should replace)
+        client
+            .post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId2, days = 14, chosenDate = today))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(1500, obj["calories"]!!.jsonPrimitive.int)
@@ -185,49 +195,56 @@ class PlanRoutesTest : RouteIntegrationTest() {
                 assertEquals(14, obj["days"]!!.jsonPrimitive.int)
             }
 
-            // Verify only one record exists for today
-            val recordCount = suspendTransaction {
-                CustomerPlans.selectAll().where { CustomerPlans.customer eq customer.user.id }.count()
-            }
-            assertEquals(1, recordCount)
+        // Verify only one record exists for today
+        val recordCount = suspendTransaction {
+            CustomerPlans.selectAll().where { CustomerPlans.customer eq customer.user.id }.count()
         }
+        assertEquals(1, recordCount)
+    }
 
     @Test
-    fun testCustomerPlanThresholdPricing() =
-        testApp { client ->
-            val customer = client.registerCustomer()
-            var planId7 = 0
-            var planId14 = 0
-            var planId21 = 0
+    fun testCustomerPlanThresholdPricing() = testApp { client ->
+        val customer = client.registerCustomer()
+        var planId7 = 0
+        var planId14 = 0
+        var planId21 = 0
 
-            suspendTransaction {
-                planId7 = Plans.insertAndGetId {
+        suspendTransaction {
+            planId7 =
+                Plans.insertAndGetId {
                     it[calories] = 1800
                     it[periodDays] = 7
                     it[pricePerDay] = 3000
-                }.value
+                }
+                    .value
 
-                planId14 = Plans.insertAndGetId {
+            planId14 =
+                Plans.insertAndGetId {
                     it[calories] = 1800
                     it[periodDays] = 14
                     it[pricePerDay] = 2500
-                }.value
+                }
+                    .value
 
-                planId21 = Plans.insertAndGetId {
+            planId21 =
+                Plans.insertAndGetId {
                     it[calories] = 1800
                     it[periodDays] = 21
                     it[pricePerDay] = 2000
-                }.value
-            }
+                }
+                    .value
+        }
 
-            val today = today()
+        val today = today()
 
-            // Test: Choose 15 days - should use 14-day plan's price (largest threshold <= 15)
-            client.post("/api/customers/plan") {
+        // Test: Choose 15 days - should use 14-day plan's price (largest threshold <= 15)
+        client
+            .post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId14, days = 15, chosenDate = today))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(1800, obj["calories"]!!.jsonPrimitive.int)
@@ -235,12 +252,14 @@ class PlanRoutesTest : RouteIntegrationTest() {
                 assertEquals(15, obj["days"]!!.jsonPrimitive.int)
             }
 
-            // Test: Choose 8 days - should use 7-day plan's price
-            client.post("/api/customers/plan") {
+        // Test: Choose 8 days - should use 7-day plan's price
+        client
+            .post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId7, days = 8, chosenDate = today.plus(DatePeriod(days = 1))))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(1800, obj["calories"]!!.jsonPrimitive.int)
@@ -248,43 +267,43 @@ class PlanRoutesTest : RouteIntegrationTest() {
                 assertEquals(8, obj["days"]!!.jsonPrimitive.int)
             }
 
-            // Test: Choose 25 days - should use 21-day plan's price
-            client.post("/api/customers/plan") {
+        // Test: Choose 25 days - should use 21-day plan's price
+        client
+            .post("/api/customers/plan") {
                 authHeader(customer.token)
                 contentType(ContentType.Application.Json)
                 setBody(CustomerPlanCreateDto(planId21, days = 25, chosenDate = today.plus(DatePeriod(days = 2))))
-            }.apply {
+            }
+            .apply {
                 assertEquals(HttpStatusCode.Created, status)
                 val obj = Json.parseToJsonElement(bodyAsText()).jsonObject
                 assertEquals(1800, obj["calories"]!!.jsonPrimitive.int)
                 assertEquals(2000, obj["pricePerDay"]!!.jsonPrimitive.int)
                 assertEquals(25, obj["days"]!!.jsonPrimitive.int)
             }
-        }
+    }
 
     @Test
-    fun testCreatePlanNegativePrice() =
-        testApp { client ->
-            val token = client.loginAdmin()
-            client.post("/api/plans") {
+    fun testCreatePlanNegativePrice() = testApp { client ->
+        val token = client.loginAdmin()
+        client
+            .post("/api/plans") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, -100))
-            }.apply {
-                assertEquals(HttpStatusCode.BadRequest, status)
             }
-        }
+            .apply { assertEquals(HttpStatusCode.BadRequest, status) }
+    }
 
     @Test
-    fun testCustomerForbiddenToCreatePlan() =
-        testApp { client ->
-            val token = client.registerCustomer().token
-            client.post("/api/plans") {
+    fun testCustomerForbiddenToCreatePlan() = testApp { client ->
+        val token = client.registerCustomer().token
+        client
+            .post("/api/plans") {
                 authHeader(token)
                 contentType(ContentType.Application.Json)
                 setBody(PlanCreateDto(PlanCalories.C1800, PlanDays.D30, 2000))
-            }.apply {
-                assertEquals(HttpStatusCode.Forbidden, status)
             }
-        }
+            .apply { assertEquals(HttpStatusCode.Forbidden, status) }
+    }
 }

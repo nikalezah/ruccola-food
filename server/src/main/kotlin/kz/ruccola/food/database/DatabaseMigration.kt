@@ -27,15 +27,14 @@ object DatabaseMigration {
             SchemaUtils.create(MigrationHistory)
 
             // Get applied migrations
-            val appliedVersions = MigrationHistory.selectAll()
-                .map { it[MigrationHistory.version] }
-                .toSet()
+            val appliedVersions = MigrationHistory.selectAll().map { it[MigrationHistory.version] }.toSet()
 
             // List of migration classes (add new ones here)
-            val migrations = listOf(
-                M001InitialMigration(),
-                // ... add future migrations here
-            )
+            val migrations =
+                listOf(
+                    M001InitialMigration()
+                    // ... add future migrations here
+                )
 
             // Apply each migration if not already applied
             for (migration in migrations) {

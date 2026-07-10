@@ -45,9 +45,7 @@ actual fun ToggleButtonsRow(
 ) {
     if (options.isEmpty()) return
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
-    LaunchedEffect(initialSelectedIndex) {
-        selectedIndex = initialSelectedIndex
-    }
+    LaunchedEffect(initialSelectedIndex) { selectedIndex = initialSelectedIndex }
     Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
         options.forEachIndexed { i, o ->
             ToggleButton(
@@ -111,8 +109,7 @@ private fun ToggleButton(
     ) {
         ProvideTextStyle(MaterialTheme.typography.labelLarge) {
             Row(
-                Modifier.defaultMinSize(minHeight = ToggleButtonDefaults.MinHeight)
-                    .padding(contentPadding),
+                Modifier.defaultMinSize(minHeight = ToggleButtonDefaults.MinHeight).padding(contentPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 content = content,
@@ -200,21 +197,18 @@ private object ToggleButtonDefaults {
         checkedContainerColor: Color = Color.Unspecified,
         checkedContentColor: Color = Color.Unspecified,
     ): ToggleButtonColors =
-        defaultToggleButtonColors().copy(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-        )
+        defaultToggleButtonColors()
+            .copy(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = disabledContainerColor,
+                disabledContentColor = disabledContentColor,
+                checkedContainerColor = checkedContainerColor,
+                checkedContentColor = checkedContentColor,
+            )
 
     @Composable
-    fun shapes(
-        shape: Shape? = null,
-        pressedShape: Shape? = null,
-        checkedShape: Shape? = null,
-    ): ToggleButtonShapes =
+    fun shapes(shape: Shape? = null, pressedShape: Shape? = null, checkedShape: Shape? = null): ToggleButtonShapes =
         ToggleButtonShapes(
             shape = shape ?: RoundedCornerShape(CornerSize(100)),
             pressedShape = pressedShape ?: RoundedCornerShape(6.dp),
@@ -251,20 +245,18 @@ private class ToggleButtonColors(
         disabledContentColor: Color = this.disabledContentColor,
         checkedContainerColor: Color = this.checkedContainerColor,
         checkedContentColor: Color = this.checkedContentColor,
-    ) = ToggleButtonColors(
-        containerColor.takeOrElse { this.containerColor },
-        contentColor.takeOrElse { this.contentColor },
-        disabledContainerColor.takeOrElse { this.disabledContainerColor },
-        disabledContentColor.takeOrElse { this.disabledContentColor },
-        checkedContainerColor.takeOrElse { this.checkedContainerColor },
-        checkedContentColor.takeOrElse { this.checkedContentColor },
-    )
+    ) =
+        ToggleButtonColors(
+            containerColor.takeOrElse { this.containerColor },
+            contentColor.takeOrElse { this.contentColor },
+            disabledContainerColor.takeOrElse { this.disabledContainerColor },
+            disabledContentColor.takeOrElse { this.disabledContentColor },
+            checkedContainerColor.takeOrElse { this.checkedContainerColor },
+            checkedContentColor.takeOrElse { this.checkedContentColor },
+        )
 
     @Stable
-    fun containerColor(
-        enabled: Boolean,
-        checked: Boolean,
-    ): Color =
+    fun containerColor(enabled: Boolean, checked: Boolean): Color =
         when {
             enabled && checked -> checkedContainerColor
             enabled && !checked -> containerColor
@@ -272,10 +264,7 @@ private class ToggleButtonColors(
         }
 
     @Stable
-    fun contentColor(
-        enabled: Boolean,
-        checked: Boolean,
-    ): Color =
+    fun contentColor(enabled: Boolean, checked: Boolean): Color =
         when {
             enabled && checked -> checkedContentColor
             enabled && !checked -> contentColor
@@ -284,15 +273,8 @@ private class ToggleButtonColors(
 }
 
 @Immutable
-private class ToggleButtonShapes(
-    val shape: Shape,
-    val pressedShape: Shape,
-    val checkedShape: Shape,
-) {
-    fun shapeFor(
-        pressed: Boolean,
-        checked: Boolean,
-    ): Shape =
+private class ToggleButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape) {
+    fun shapeFor(pressed: Boolean, checked: Boolean): Shape =
         if (pressed) {
             pressedShape
         } else if (checked) {

@@ -81,17 +81,13 @@ fun DishScreen() {
     } else {
         ResponsiveContainer(maxContentWidth = 720.dp) {
             Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        title = { Text(stringResource(Res.string.tab_dishes)) },
-                    )
-                },
+                topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_dishes)) }) },
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = {
                             viewModel.clearSelectedDish()
                             editorVisible = true
-                        },
+                        }
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
                     }
@@ -120,12 +116,9 @@ fun DishScreen() {
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Button(
-                                    onClick = {
-                                        dishes.refresh()
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                    ),
+                                    onClick = { dishes.refresh() },
+                                    colors =
+                                        ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.Refresh,
@@ -148,14 +141,12 @@ fun DishScreen() {
 
                         else -> {
                             LazyColumn(
-                                modifier = Modifier.fillMaxSize().graphicsLayer {
-                                    translationY = ptrState.distanceFraction * thresholdPx
-                                },
+                                modifier =
+                                    Modifier.fillMaxSize().graphicsLayer {
+                                        translationY = ptrState.distanceFraction * thresholdPx
+                                    }
                             ) {
-                                items(
-                                    count = dishes.itemCount,
-                                    key = dishes.itemKey { it.id },
-                                ) { index ->
+                                items(count = dishes.itemCount, key = dishes.itemKey { it.id }) { index ->
                                     val dish = dishes[index]
                                     if (dish != null) {
                                         DishListItem(
@@ -193,11 +184,7 @@ fun DishScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DishListItem(
-    dish: DishDto,
-    onEdit: () -> Unit,
-    onArchive: () -> Unit,
-) {
+private fun DishListItem(dish: DishDto, onEdit: () -> Unit, onArchive: () -> Unit) {
     val imageUrl = dish.images.firstOrNull()?.url
     val displayName = dish.name
     val displayDescription = dish.description

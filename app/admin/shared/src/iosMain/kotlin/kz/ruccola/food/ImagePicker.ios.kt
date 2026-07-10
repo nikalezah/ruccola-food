@@ -22,16 +22,9 @@ import platform.darwin.NSObject
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
-private class ImagePickerDelegate(
-    private val viewModel: DishImagesViewModel,
-    private val onDismiss: () -> Unit,
-) : NSObject(),
-    UIImagePickerControllerDelegateProtocol,
-    UINavigationControllerDelegateProtocol {
-    override fun imagePickerController(
-        picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo: Map<Any?, *>,
-    ) {
+private class ImagePickerDelegate(private val viewModel: DishImagesViewModel, private val onDismiss: () -> Unit) :
+    NSObject(), UIImagePickerControllerDelegateProtocol, UINavigationControllerDelegateProtocol {
+    override fun imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo: Map<Any?, *>) {
         picker.dismissViewControllerAnimated(true, completion = null)
         onDismiss()
 
@@ -56,11 +49,7 @@ private class ImagePickerDelegate(
 
 @OptIn(ExperimentalForeignApi::class)
 private fun NSData.toByteArray(): ByteArray =
-    ByteArray(length.toInt()).apply {
-        usePinned { pinned ->
-            memcpy(pinned.addressOf(0), bytes, length)
-        }
-    }
+    ByteArray(length.toInt()).apply { usePinned { pinned -> memcpy(pinned.addressOf(0), bytes, length) } }
 
 private fun mimeTypeFor(name: String): String =
     when (name.substringAfterLast('.', "").lowercase()) {
@@ -78,10 +67,7 @@ actual fun provideImagePicker(): (DishImagesViewModel) -> Unit {
     return { viewModel ->
         val picker = UIImagePickerController()
         var delegateRef: ImagePickerDelegate? = null
-        val delegate =
-            ImagePickerDelegate(viewModel) {
-                delegateRef?.let { delegateHolder.remove(it) }
-            }
+        val delegate = ImagePickerDelegate(viewModel) { delegateRef?.let { delegateHolder.remove(it) } }
         delegateRef = delegate
         delegateHolder.add(delegate)
         picker.delegate = delegate

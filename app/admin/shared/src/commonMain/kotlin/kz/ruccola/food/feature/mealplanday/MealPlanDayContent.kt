@@ -49,12 +49,7 @@ fun MealPlanDayContent(
     val ptrState = rememberPullToRefreshState()
     val thresholdPx = with(LocalDensity.current) { 100.dp.toPx() }
 
-    PullToRefresh(
-        isRefreshing = state.isLoading,
-        onRefresh = onRefresh,
-        modifier = modifier,
-        state = ptrState,
-    ) {
+    PullToRefresh(isRefreshing = state.isLoading, onRefresh = onRefresh, modifier = modifier, state = ptrState) {
         when {
             state.error != null -> {
                 Column(
@@ -80,9 +75,8 @@ fun MealPlanDayContent(
             }
 
             else -> {
-                val originalPositions = remember(state.items) {
-                    state.items.mapIndexed { index, day -> day.id to (index + 1) }.toMap()
-                }
+                val originalPositions =
+                    remember(state.items) { state.items.mapIndexed { index, day -> day.id to (index + 1) }.toMap() }
                 LazyColumn(
                     Modifier.fillMaxSize().padding(16.dp).graphicsLayer {
                         translationY = ptrState.distanceFraction * thresholdPx
@@ -107,14 +101,15 @@ fun MealPlanDayContent(
                             if (reorderMode) {
                                 Spacer(Modifier.width(8.dp))
                                 Column {
-                                    IconButton(
-                                        onClick = { onMoveUp(day) },
-                                        enabled = workingList.indexOf(day) > 0,
-                                    ) { Icon(Icons.Filled.ArrowUpward, contentDescription = "Up") }
+                                    IconButton(onClick = { onMoveUp(day) }, enabled = workingList.indexOf(day) > 0) {
+                                        Icon(Icons.Filled.ArrowUpward, contentDescription = "Up")
+                                    }
                                     IconButton(
                                         onClick = { onMoveDown(day) },
                                         enabled = workingList.indexOf(day) < workingList.size - 1,
-                                    ) { Icon(Icons.Filled.ArrowDownward, contentDescription = "Down") }
+                                    ) {
+                                        Icon(Icons.Filled.ArrowDownward, contentDescription = "Down")
+                                    }
                                 }
                             }
                         }

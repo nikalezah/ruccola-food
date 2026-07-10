@@ -44,15 +44,10 @@ fun PersonalInfoEditDialog(
     AlertDialog(
         onDismissRequest = { viewModel.setEditing(false) },
         title = {
-            Text(
-                stringResource(Res.string.edit_personal_info_title),
-                style = MaterialTheme.typography.titleMedium,
-            )
+            Text(stringResource(Res.string.edit_personal_info_title), style = MaterialTheme.typography.titleMedium)
         },
         text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
@@ -81,20 +76,12 @@ fun PersonalInfoEditDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    viewModel.updateCustomer(firstName, lastName, address)
-                },
-                enabled = !uiState.isSaving,
-            ) {
+            Button(onClick = { viewModel.updateCustomer(firstName, lastName, address) }, enabled = !uiState.isSaving) {
                 Text(if (uiState.isSaving) stringResource(Res.string.saving) else stringResource(Res.string.save))
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = { viewModel.setEditing(false) },
-                enabled = !uiState.isSaving,
-            ) {
+            TextButton(onClick = { viewModel.setEditing(false) }, enabled = !uiState.isSaving) {
                 Text(stringResource(Res.string.cancel))
             }
         },

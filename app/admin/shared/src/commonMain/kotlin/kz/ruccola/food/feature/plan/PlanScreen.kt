@@ -41,18 +41,16 @@ fun PlanScreen() {
 
     ResponsiveContainer(maxContentWidth = 900.dp) {
         Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.tab_plans)) },
-                )
-            },
+            topBar = { CenterAlignedTopAppBar(title = { Text(stringResource(Res.string.tab_plans)) }) },
             floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    editingPlan = null
-                    prefillCalories = null
-                    prefillDays = null
-                    showEditor = true
-                }) {
+                FloatingActionButton(
+                    onClick = {
+                        editingPlan = null
+                        prefillCalories = null
+                        prefillDays = null
+                        showEditor = true
+                    }
+                ) {
                     Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add))
                 }
             },

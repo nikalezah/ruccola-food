@@ -21,34 +21,28 @@ import kz.ruccola.food.model.PlanDays
 @Resource("plans")
 class Plans {
     @Resource("{id}")
-    class Id(
-        val parent: Plans = Plans(),
-        val id: Int,
-    )
+    class Id(val parent: Plans = Plans(), val id: Int)
 }
 
-class PlanApi(
-    private val client: HttpClient = httpClient,
-) {
+class PlanApi(private val client: HttpClient = httpClient) {
     suspend fun getAll(): List<PlanDto> = client.get(Plans()).body()
 
     suspend fun create(payload: PlanCreateDto): PlanDto {
-        val resp = client.post(Plans()) {
-            contentType(ContentType.Application.Json)
-            setBody(payload)
-        }
+        val resp =
+            client.post(Plans()) {
+                contentType(ContentType.Application.Json)
+                setBody(payload)
+            }
         if (!resp.status.isSuccess()) throw Exception(resp.bodyAsText())
         return resp.body()
     }
 
-    suspend fun update(
-        id: Int,
-        payload: PlanUpdateDto,
-    ): PlanDto {
-        val resp = client.put(Plans.Id(id = id)) {
-            contentType(ContentType.Application.Json)
-            setBody(payload)
-        }
+    suspend fun update(id: Int, payload: PlanUpdateDto): PlanDto {
+        val resp =
+            client.put(Plans.Id(id = id)) {
+                contentType(ContentType.Application.Json)
+                setBody(payload)
+            }
         if (!resp.status.isSuccess()) throw Exception(resp.bodyAsText())
         return resp.body()
     }
@@ -62,20 +56,12 @@ data class PlanDto(
     val calories: PlanCalories,
     val periodDays: PlanDays,
     val pricePerDay: Int,
-    @Serializable(with = LocalDateTimeIso8601Serializer::class)
-    val createdAt: LocalDateTime,
-    @Serializable(with = LocalDateTimeIso8601Serializer::class)
-    val updatedAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class) val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeIso8601Serializer::class) val updatedAt: LocalDateTime,
 )
 
 @Serializable
-data class PlanCreateDto(
-    val calories: PlanCalories,
-    val periodDays: PlanDays,
-    val pricePerDay: Int,
-)
+data class PlanCreateDto(val calories: PlanCalories, val periodDays: PlanDays, val pricePerDay: Int)
 
 @Serializable
-data class PlanUpdateDto(
-    val pricePerDay: Int? = null,
-)
+data class PlanUpdateDto(val pricePerDay: Int? = null)

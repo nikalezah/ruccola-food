@@ -21,22 +21,15 @@ import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Image
 
 @Composable
-actual fun AsyncImage(
-    model: String,
-    contentDescription: String?,
-    modifier: Modifier,
-) {
+actual fun AsyncImage(model: String, contentDescription: String?, modifier: Modifier) {
     var bitmap by remember(model) { mutableStateOf(imageCache[model]) }
 
     LaunchedEffect(model) {
         if (bitmap != null) return@LaunchedEffect
 
         try {
-            val response = httpClient.get(model) {
-                TokenProvider.token?.let {
-                    header(HttpHeaders.Authorization, "Bearer $it")
-                }
-            }
+            val response =
+                httpClient.get(model) { TokenProvider.token?.let { header(HttpHeaders.Authorization, "Bearer $it") } }
             val bytes = response.readRawBytes()
             val skiaImage = Image.makeFromEncoded(bytes)
             val result = Bitmap.makeFromImage(skiaImage).asComposeImageBitmap()
@@ -48,11 +41,7 @@ actual fun AsyncImage(
     }
 
     if (bitmap != null) {
-        Image(
-            bitmap = bitmap!!,
-            contentDescription = contentDescription,
-            modifier = modifier,
-        )
+        Image(bitmap = bitmap!!, contentDescription = contentDescription, modifier = modifier)
     } else {
         Spacer(modifier = modifier)
     }

@@ -16,9 +16,7 @@ import kz.ruccola.food.theme.ThemePreference
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    ComposeViewport(viewportContainerId = "root") {
-        AdminApp()
-    }
+    ComposeViewport(viewportContainerId = "root") { AdminApp() }
 }
 
 @Composable
@@ -33,9 +31,7 @@ fun AdminApp() {
 
     val (sessionOwner, resetSession) = rememberAppSession()
 
-    LaunchedEffect(token) {
-        TokenProvider.token = token
-    }
+    LaunchedEffect(token) { TokenProvider.token = token }
 
     DisposableEffect(Unit) {
         TokenProvider.onUnauthorized = {
@@ -44,9 +40,7 @@ fun AdminApp() {
             window.localStorage.removeItem("admin.role")
             window.localStorage.removeItem("admin.token")
         }
-        onDispose {
-            TokenProvider.onUnauthorized = null
-        }
+        onDispose { TokenProvider.onUnauthorized = null }
     }
 
     AppSessionProvider(sessionOwner) {

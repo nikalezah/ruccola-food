@@ -31,17 +31,11 @@ fun App(
             Surface(modifier = Modifier.fillMaxSize()) {
                 when {
                     isLoading -> {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
-                        }
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                     }
 
                     role == null || token == null -> {
-                        LoginScreen(
-                            onLoggedIn = { resp ->
-                                onLoggedIn(resp.user.role.name, resp.token)
-                            },
-                        )
+                        LoginScreen(onLoggedIn = { resp -> onLoggedIn(resp.user.role.name, resp.token) })
                     }
 
                     role == Role.ADMIN.name -> {

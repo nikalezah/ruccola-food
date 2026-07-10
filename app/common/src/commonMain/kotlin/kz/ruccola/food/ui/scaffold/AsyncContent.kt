@@ -74,10 +74,7 @@ fun PagingErrorContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = errorText,
-            color = MaterialTheme.colorScheme.error,
-        )
+        Text(text = errorText, color = MaterialTheme.colorScheme.error)
         Spacer(Modifier.height(8.dp))
         Button(onClick = onRetry) { Text(retryLabel) }
     }

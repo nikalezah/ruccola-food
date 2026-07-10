@@ -15,52 +15,44 @@ import kotlinx.serialization.Serializable
 @Resource("auth")
 class Auth {
     @Resource("register")
-    class Register(
-        val parent: Auth = Auth(),
-    )
+    class Register(val parent: Auth = Auth())
 
     @Resource("login")
-    class Login(
-        val parent: Auth = Auth(),
-    )
+    class Login(val parent: Auth = Auth())
 
     @Resource("logout")
-    class Logout(
-        val parent: Auth = Auth(),
-    )
+    class Logout(val parent: Auth = Auth())
 }
 
-class AuthApi(
-    private val client: HttpClient = httpClient,
-) {
+class AuthApi(private val client: HttpClient = httpClient) {
     suspend fun register(req: RegisterRequestDto): AuthResponseDto {
-        val response = client.post(Auth.Register()) {
-            contentType(ContentType.Application.Json)
-            setBody(req)
-        }
+        val response =
+            client.post(Auth.Register()) {
+                contentType(ContentType.Application.Json)
+                setBody(req)
+            }
         if (!response.status.isSuccess()) {
-            val msg = runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                ?: "HTTP ${response.status.value}"
+            val msg =
+                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null } ?: "HTTP ${response.status.value}"
             throw Exception(msg)
         }
         return response.body()
     }
 
-    suspend fun login(
-        email: String,
-        password: String,
-    ): AuthResponseDto {
-        val response = client.post(Auth.Login()) {
-            contentType(ContentType.Application.Json)
-            setBody(LoginRequestDto(email, password))
-        }
-        if (!response.status.isSuccess()) {
-            val msg = if (response.status == HttpStatusCode.Unauthorized) {
-                "Invalid email or password"
-            } else {
-                runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
-                    ?: "HTTP ${response.status.value}"
+    suspend fun login(email: String, password: String): AuthResponseDto {
+        val response =
+            client.post(Auth.Login()) {
+                contentType(ContentType.Application.Json)
+                setBody(LoginRequestDto(email, password))
             }
+        if (!response.status.isSuccess()) {
+            val msg =
+                if (response.status == HttpStatusCode.Unauthorized) {
+                    "Invalid email or password"
+                } else {
+                    runCatching { response.bodyAsText() }.getOrNull()?.ifBlank { null }
+                        ?: "HTTP ${response.status.value}"
+                }
             throw Exception(msg)
         }
         return response.body()
@@ -76,27 +68,20 @@ class AuthApi(
 
 enum class Role {
     ADMIN,
-    CUSTOMER,
-    ;
+    CUSTOMER;
 
-    val isAdmin: Boolean get() = this == ADMIN
-    val isCustomer: Boolean get() = this == CUSTOMER
+    val isAdmin: Boolean
+        get() = this == ADMIN
+
+    val isCustomer: Boolean
+        get() = this == CUSTOMER
 }
 
 @Serializable
-data class AuthResponseDto(
-    val token: String,
-    val user: UserDto,
-)
+data class AuthResponseDto(val token: String, val user: UserDto)
 
 @Serializable
-data class UserDto(
-    val id: Int,
-    val email: String,
-    val firstName: String,
-    val lastName: String,
-    val role: Role,
-)
+data class UserDto(val id: Int, val email: String, val firstName: String, val lastName: String, val role: Role)
 
 @Serializable
 data class RegisterRequestDto(
@@ -109,7 +94,4 @@ data class RegisterRequestDto(
 )
 
 @Serializable
-data class LoginRequestDto(
-    val email: String,
-    val password: String,
-)
+data class LoginRequestDto(val email: String, val password: String)

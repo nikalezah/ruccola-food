@@ -23,18 +23,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * Material 3 adaptive navigation container that automatically swaps between layouts based on the
- * available window width, following the M3 Expressive responsive navigation guidelines:
+ * Material 3 adaptive navigation container that automatically swaps between layouts based on the available window
+ * width, following the M3 Expressive responsive navigation guidelines:
  *
- *  - Compact (< 600dp): bottom [LabeledNavigationBar] (phone / narrow window).
- *  - Medium / Expanded (600dp..<1200dp): collapsed [WideNavigationRail] on the side.
- *  - Large (>= 1200dp): expanded [WideNavigationRail] showing labels (desktop / wide window).
+ * - Compact (< 600dp): bottom [LabeledNavigationBar] (phone / narrow window).
+ * - Medium / Expanded (600dp..<1200dp): collapsed [WideNavigationRail] on the side.
+ * - Large (>= 1200dp): expanded [WideNavigationRail] showing labels (desktop / wide window).
  *
- * It also publishes the current [WindowWidthClass] via [LocalWindowWidthClass] so nested screens can
- * adapt their content (e.g. switch to a list-detail layout).
+ * It also publishes the current [WindowWidthClass] via [LocalWindowWidthClass] so nested screens can adapt their
+ * content (e.g. switch to a list-detail layout).
  *
- * Because the breakpoints are derived from [BoxWithConstraints], resizing the browser or desktop
- * window recomposes and switches the layout automatically.
+ * Because the breakpoints are derived from [BoxWithConstraints], resizing the browser or desktop window recomposes and
+ * switches the layout automatically.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -94,9 +94,7 @@ private fun AdaptiveNavigationRail(
     expanded: Boolean,
 ) {
     val railState = rememberWideNavigationRailState()
-    LaunchedEffect(expanded) {
-        if (expanded) railState.expand() else railState.collapse()
-    }
+    LaunchedEffect(expanded) { if (expanded) railState.expand() else railState.collapse() }
     val railExpanded = railState.targetValue == WideNavigationRailValue.Expanded
     WideNavigationRail(state = railState) {
         tabs.forEachIndexed { i, tab ->
@@ -108,9 +106,7 @@ private fun AdaptiveNavigationRail(
                 icon = {
                     val icon = if (isSelected) tab.selectedIcon else tab.unselectedIcon
                     if (tab.showBadge) {
-                        BadgedBox(badge = { Badge() }) {
-                            Icon(icon, contentDescription = tab.label)
-                        }
+                        BadgedBox(badge = { Badge() }) { Icon(icon, contentDescription = tab.label) }
                     } else {
                         Icon(icon, contentDescription = tab.label)
                     }

@@ -23,9 +23,7 @@ fun MainViewController() = ComposeUIViewController { CustomerApp() }
 @Composable
 fun CustomerApp() {
     var token by remember { mutableStateOf(IosPreferences.get("customer.token")) }
-    var language by remember {
-        mutableStateOf(IosPreferences.get("customer.language") ?: "ru")
-    }
+    var language by remember { mutableStateOf(IosPreferences.get("customer.language") ?: "ru") }
     var themePreference by remember {
         mutableStateOf(ThemePreference.fromStorage(IosPreferences.get("customer.theme")))
     }
@@ -33,22 +31,16 @@ fun CustomerApp() {
 
     val (sessionOwner, resetSession) = rememberAppSession()
 
-    LaunchedEffect(token) {
-        TokenProvider.token = token
-    }
+    LaunchedEffect(token) { TokenProvider.token = token }
 
-    LaunchedEffect(language) {
-        LanguageProvider.language = language
-    }
+    LaunchedEffect(language) { LanguageProvider.language = language }
 
     DisposableEffect(Unit) {
         TokenProvider.onUnauthorized = {
             token = null
             IosPreferences.remove("customer.token")
         }
-        onDispose {
-            TokenProvider.onUnauthorized = null
-        }
+        onDispose { TokenProvider.onUnauthorized = null }
     }
 
     AppSessionProvider(sessionOwner) {

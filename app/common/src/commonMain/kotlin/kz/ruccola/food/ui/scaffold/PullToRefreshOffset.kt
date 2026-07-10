@@ -9,12 +9,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Modifier.pullToRefreshOffset(
-    ptrState: PullToRefreshState,
-    threshold: Dp = 100.dp,
-): Modifier {
+fun Modifier.pullToRefreshOffset(ptrState: PullToRefreshState, threshold: Dp = 100.dp): Modifier {
     val thresholdPx = with(LocalDensity.current) { threshold.toPx() }
-    return graphicsLayer {
-        translationY = ptrState.distanceFraction * thresholdPx
-    }
+    return graphicsLayer { translationY = ptrState.distanceFraction * thresholdPx }
 }

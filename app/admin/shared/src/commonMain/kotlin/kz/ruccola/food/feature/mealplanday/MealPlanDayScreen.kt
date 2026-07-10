@@ -91,11 +91,12 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                                     }
                                     reorderMode = checked
                                 },
-                                modifier = Modifier.size(
-                                    IconButtonDefaults.smallContainerSize(
-                                        widthOption = IconButtonDefaults.IconButtonWidthOption.Wide,
+                                modifier =
+                                    Modifier.size(
+                                        IconButtonDefaults.smallContainerSize(
+                                            widthOption = IconButtonDefaults.IconButtonWidthOption.Wide
+                                        )
                                     ),
-                                ),
                             ) {
                                 if (reorderMode) {
                                     Icon(Icons.Filled.Check, contentDescription = "Done")
@@ -112,7 +113,7 @@ fun MealPlanDayScreen(onHistoryClick: () -> Unit) {
                             nextSerial = (state.items.maxOfOrNull { it.serial } ?: 0) + 1
                             editingDay = null
                             showEditor = true
-                        },
+                        }
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = "Add")
                     }
