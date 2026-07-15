@@ -96,13 +96,12 @@ The server listens on port **8080** by default.
 
 `docker-compose.yml` at the repository root starts the server, both web apps, and PostgreSQL:
 
-| Service         | Port | Description              |
-|-----------------|------|--------------------------|
-| `server`        | 8080 | Ktor API                 |
-| `admin-web`     | 8081 | Admin web app (nginx)    |
-| `customer-web`  | 8082 | Customer web app (nginx) |
-| `postgres`      | 5432 | Primary database         |
-| `postgres_test` | 5433 | Test database            |
+| Service        | Port | Description              |
+|----------------|------|--------------------------|
+| `server`       | 8080 | Ktor API                 |
+| `admin-web`    | 8081 | Admin web app (nginx)    |
+| `customer-web` | 8082 | Customer web app (nginx) |
+| `postgres`     | 5432 | DB (bound to 127.0.0.1)  |
 
 ```shell
 docker compose up --build
@@ -118,5 +117,3 @@ via [`server/src/test/resources/docker-java.properties`](src/test/resources/dock
 ./gradlew :server:test
 ```
 
-The `postgres_test` service in docker-compose is optional and only needed for manual database
-debugging.
