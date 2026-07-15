@@ -52,6 +52,17 @@ Business logic is organized into service classes:
 ## Database
 
 Schema is defined in `model/` and applied through versioned migrations in `database/migration/`.
+`DatabaseMigration.migrate(loadSeedData = true)` (default) runs the initial migration and, on first
+apply, loads seed SQL from `src/main/resources/db/`:
+
+| File               | Contents                                                     |
+|--------------------|--------------------------------------------------------------|
+| `init_inserts.sql` | Catalog: plans, dishes, translations, images, meal plan days |
+| `test_users.sql`   | Demo customers `ivan@ruccola.test` / `petr@ruccola.test`     |
+
+Integration tests call `migrate(loadSeedData = false)` so they get schema + default admin only.
+
+Default admin (always inserted in code): `admin@ruccola.test` / `123qwe`.
 
 ### Tables
 

@@ -21,7 +21,7 @@ object DatabaseMigration {
         override val primaryKey = PrimaryKey(id)
     }
 
-    suspend fun migrate() {
+    suspend fun migrate(loadSeedData: Boolean = true) {
         suspendTransaction {
             // Create a migration history table if it doesn't exist
             SchemaUtils.create(MigrationHistory)
@@ -32,7 +32,7 @@ object DatabaseMigration {
             // List of migration classes (add new ones here)
             val migrations =
                 listOf(
-                    M001InitialMigration()
+                    M001InitialMigration(loadSeedData)
                     // ... add future migrations here
                 )
 

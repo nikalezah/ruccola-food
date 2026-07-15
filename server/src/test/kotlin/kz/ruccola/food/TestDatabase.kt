@@ -52,7 +52,7 @@ fun resetTestDatabase() {
 
 private fun initializeTemplate() {
     connectR2dbc(PRIMARY_DB)
-    runBlocking { DatabaseMigration.migrate() }
+    runBlocking { DatabaseMigration.migrate(loadSeedData = false) }
     disconnectR2dbc()
     adminExecute("DROP DATABASE IF EXISTS $TEMPLATE_DB WITH (FORCE)")
     adminExecute("CREATE DATABASE $TEMPLATE_DB WITH TEMPLATE $PRIMARY_DB")

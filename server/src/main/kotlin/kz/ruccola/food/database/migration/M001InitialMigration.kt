@@ -2,6 +2,7 @@ package kz.ruccola.food.database.migration
 
 import kz.ruccola.food.api.Role
 import kz.ruccola.food.database.Migration
+import kz.ruccola.food.database.execSqlResource
 import kz.ruccola.food.localization.Language
 import kz.ruccola.food.model.Chats
 import kz.ruccola.food.model.CustomerPlans
@@ -22,7 +23,7 @@ import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 
-class M001InitialMigration : Migration {
+class M001InitialMigration(private val loadSeedData: Boolean = true) : Migration {
     override val version = "001"
     override val description = "Initial migration"
 
@@ -70,11 +71,17 @@ class M001InitialMigration : Migration {
 
             // Seed default admin user
             Users.insert {
-                it[Users.email] = "admin@gmail.com"
+                it[Users.email] = "admin@ruccola.test"
                 it[Users.password] = "123qwe"
                 it[Users.firstName] = "Admin"
                 it[Users.lastName] = "Admin"
                 it[Users.role] = Role.ADMIN
+            }
+
+            if (loadSeedData) {
+                execSqlResource("/db/init_inserts.sql")
+                execSqlResource("/db/test_users.sql")
+                println("[DEBUG_LOG] Loaded init_inserts.sql and test_users.sql")
             }
         }
     }
