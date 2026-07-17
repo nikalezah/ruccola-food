@@ -1,19 +1,23 @@
 package kz.ruccola.food
 
+import io.r2dbc.spi.ConnectionFactories
+import io.r2dbc.spi.ConnectionFactoryOptions
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import kz.ruccola.food.database.DatabaseMigration
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.transactions.TransactionManager
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import java.sql.DriverManager
 
 private const val PRIMARY_DB = "food"
 private const val TEMPLATE_DB = "food_tpl"
 private const val RUN_DB = "food_run"
+private const val ADMIN_DB = "postgres"
 
 object PostgresTestContainer {
-    private val container: PostgreSQLContainer<*> by lazy {
+    private val container: PostgreSQLContainer by lazy {
         PostgreSQLContainer(DockerImageName.parse("postgres:18"))
             .withDatabaseName(PRIMARY_DB)
             .withUsername("food")
@@ -24,16 +28,11 @@ object PostgresTestContainer {
             }
     }
 
-    fun ensureStarted(): PostgreSQLContainer<*> = container
+    fun ensureStarted(): PostgreSQLContainer = container
 
     fun r2dbcUrl(database: String): String {
         val c = ensureStarted()
         return "r2dbc:postgresql://${c.host}:${c.getMappedPort(5432)}/$database"
-    }
-
-    fun adminJdbcUrl(database: String = "postgres"): String {
-        val c = ensureStarted()
-        return "jdbc:postgresql://${c.host}:${c.getMappedPort(5432)}/$database"
     }
 }
 
@@ -75,9 +74,25 @@ private fun disconnectR2dbc() {
     r2dbcDatabase = null
 }
 
-private fun adminExecute(sql: String) {
-    val c = PostgresTestContainer.ensureStarted()
-    DriverManager.getConnection(PostgresTestContainer.adminJdbcUrl(), c.username, c.password).use { connection ->
-        connection.createStatement().execute(sql)
+private fun adminExecute(sql: String) =
+    runBlocking {
+        val c = PostgresTestContainer.ensureStarted()
+        val connectionFactory =
+            ConnectionFactories.get(
+                ConnectionFactoryOptions.builder()
+                    .option(ConnectionFactoryOptions.DRIVER, "postgresql")
+                    .option(ConnectionFactoryOptions.HOST, c.host)
+                    .option(ConnectionFactoryOptions.PORT, c.getMappedPort(5432))
+                    .option(ConnectionFactoryOptions.USER, c.username)
+                    .option(ConnectionFactoryOptions.PASSWORD, c.password)
+                    .option(ConnectionFactoryOptions.DATABASE, ADMIN_DB)
+                    .build(),
+            )
+        val connection = connectionFactory.create().awaitSingle()
+        try {
+            val result = connection.createStatement(sql).execute().awaitSingle()
+            result.rowsUpdated.awaitFirstOrNull()
+        } finally {
+            connection.close().awaitFirstOrNull()
+        }
     }
-}
